@@ -24,11 +24,9 @@ def tokenizeColumn(df,columnName):
     df[columnName] = df[columnName].apply(nltk.word_tokenize)
     return df
 
-def readDate(filename,startDate,endDate):
+def readFile(filename):
     read = pd.read_csv(filename)
-    df = pd.DataFrame(read, columns= ['word','date']) #impt to match columns
-    df = Functions1.functionSortByDateRange(df,'date',startDate,endDate)
-    return df
+    return read
 
 def filterStopWordColumn(df,columnName):
     stop_words = set(stopwords.words('english'))
@@ -41,8 +39,13 @@ def filterStopWordColumn(df,columnName):
 
 # run this reader
 filename = '..\words.csv'
-df = readDate(filename,"10/06/2019","11/06/2019") #restrict to only between dates
+startDate = '10/06/2019'
+endDate= '11/06/2019'
 columnName = 'word'
+
+read = readFile(filename)
+df = pd.DataFrame(read, columns= ['word','date']) #impt to match columns
+df = Functions1.functionSortByDateRange(df,'date',startDate,endDate)
 df = tokenizeColumn(df,columnName)
 df = filterStopWordColumn(df,columnName)
 print(df)
