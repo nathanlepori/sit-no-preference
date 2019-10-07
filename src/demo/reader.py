@@ -1,32 +1,15 @@
-import csv
-
 import nltk
 from nltk.corpus import stopwords
 import pandas as pd
-# import wordFrequency
 import src.demo.sort
-
-
-# with open(filename, "r") as f:
-#     reader = csv.reader(f, delimiter="\n")
-#     for i, line in enumerate(reader):
-#         print('line[{}] = {}'.format(i, line))
-
-# with open(filename) as f:
-#     line = f.readlines()
-
-# with open(filename, "r") as ins:
-#     array = []
-#     for line in ins:
-#         array.append(line)
-
-def tokenizeColumn(df,columnName):
-    df[columnName] = df[columnName].apply(nltk.word_tokenize)
-    return df
 
 def readFile(filename):
     read = pd.read_csv(filename)
     return read
+
+def tokenizeColumn(df,columnName):
+    df[columnName] = df[columnName].apply(nltk.word_tokenize)
+    return df
 
 def filterStopWordColumn(df,columnName):
     stop_words = set(stopwords.words('english'))
