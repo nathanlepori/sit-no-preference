@@ -53,22 +53,32 @@ def filterStopWord(df):
     # for line in df:
     # tokens = df.apply(lambda row: nltk.word_tokenize(row['word']), axis=1)
     df['word'] = df['word'].apply(nltk.word_tokenize)
+    # print(df.iloc[0]['word'])
+    i=0
+    for row in df['word']:
+        print(df.iloc[i]['word'])
+        df.iloc[i]['word'] = [w for w in df.iloc[i]['word'] if not w in stop_words]
+        i+=1
     # filtered_df = [w for w in tokens['word'] if not w in stop_words]
     # df['word'] = [w for w in df['word'] if not w in stop_words]
-    for row in df['word']:
-        print("rowVV")
-        print(row)
-        print("row^^")
-        i = 0
-        for word in row:
-            j = 0
-            if word in stop_words:
-                print(str(i) + " V|V " + str(j))
-                print(df['word'][i][j])
-                j+=1
-            #     df['word'] = df['word'].replace(word,'')
-            #     print(word)
-            i+=1
+    # for row in df['word']:
+    #     print("rowVV")
+    #     print(row)
+    #     print("row^^")
+    # filtered = [w for w in df['word'][0] if not w in stop_words]
+    # print(filtered)
+        # print("filtered="+str(filtered))
+        # j = 0
+        # for word in row:
+        #     print("i=" + str(i) + " V|V j=" + str(j))
+        #     print(df['word'][i][j])
+            # if word in stop_words:
+                # df['word'][i][j]
+                # df['word'] = df['word'].replace(word,'')
+                #     print(word)
+            # j+=1
+        # if(j>1):
+        # i+=1
     return df
 
 # run this reader
