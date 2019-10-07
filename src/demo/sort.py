@@ -1,10 +1,4 @@
-import csv
 import pandas as pd
-
-def functionOpenFile(filename):  # filename is to input government-procurement-via-gebiz.csv
-    df = pd.read_csv(filename)
-    return df
-
 
 def functionCaseFile(df,setting): # string for setting is 'upper' or 'lower'
     """ This function is used to set all string in dataframe to upper or lower case. """

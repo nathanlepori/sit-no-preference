@@ -4,7 +4,7 @@ import nltk
 from nltk.corpus import stopwords
 import pandas as pd
 # import wordFrequency
-import src.demo.Functions1
+import src.demo.sort
 
 
 # with open(filename, "r") as f:
@@ -38,14 +38,14 @@ def filterStopWordColumn(df,columnName):
     return df
 
 # run this reader
-filename = '..\words.csv'
+filename = '..\..\dataset\words.csv'
 startDate = '10/06/2019'
-endDate= '11/06/2019'
+endDate= '13/06/2019'
 columnName = 'word'
 
 read = readFile(filename)
 df = pd.DataFrame(read, columns= ['word','date']) #impt to match columns
-df = src.demo.Functions1.functionSortByDateRange(df, 'date', startDate, endDate)
+df = src.demo.sort.functionSortByDateRange(df, 'date', startDate, endDate)
 df = tokenizeColumn(df,columnName)
 df = filterStopWordColumn(df,columnName)
 print(df)

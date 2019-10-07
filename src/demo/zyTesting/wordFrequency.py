@@ -14,7 +14,7 @@ def dfCounter():
 
     # df_counter = df.pivot_table(columns=['word'], aggfunc='size')
 
-    df_format = Functions1.functionSortByDate(df,'date')
+    df_format = Functions1.functionSortBy(df,'date')
     df_format = Functions1.functionSortByDateRange(df_format,'date','09/6/2019','12/6/2019')
 
     df_counter = df_format.pivot_table(columns=['word'], aggfunc='size')
