@@ -1,5 +1,6 @@
 import pandas as pd
 import spacy
+from spacy.lang.en.stop_words import STOP_WORDS
 import src.demo.venn as venn
 import src.demo.sort as sort
 nlp = spacy.load("en_core_web_sm")
@@ -16,6 +17,14 @@ def spacyToken(df, columnName):
         doc = nlp(df.iloc[i][columnName])
         df.iloc[i][columnName] = ([w.text for w in doc])
         # print(df.iloc[i][columnName])
+        i += 1
+    return df
+
+def spacyStopword(df,columnName):
+    i = 0
+    for row in df[columnName]:
+        for word in df.iloc[i][columnName]:
+            df.iloc[i][columnName] = [w for w in df.iloc[i][columnName] if nlp.vocab[ w ].is_stop == False]
         i += 1
     return df
 
@@ -62,8 +71,6 @@ def spacyPOSToken(df, columnName):
         df.iloc[i][columnName] = [[X.text, X.pos_] for X in doc]
         i += 1
     return df
-
-
 
 def spacyColumnFilterToken(df, columnName, value, listNo):  # remove any that match value
     """ The precondition to using this function is to have the columnName to have been process
@@ -156,13 +163,15 @@ df2 = spacyToken(df2,columnName)
 # df = spacyPOSToken(df, columnName)
 # df2 = spacyPOSToken(df2, columnName)
 
+df = spacyStopword(df,columnName)
+
 # df = spacyCleanCell(df,columnName)
 # df2 = spacyCleanCell(df2,columnName)
-#
-# print(df)
+
+print(df)
 # print(df2)
 
-union_df = venn.vennUnion(df,df2)
-# union_df = sort.functionSortBy(union_df,'date')
-# union_df = sort.reindex(union_df)
-print(union_df)
+# union_df = venn.vennUnion(df,df2)
+# # union_df = sort.functionSortBy(union_df,'date')
+# # union_df = sort.reindex(union_df)
+# print(union_df)
