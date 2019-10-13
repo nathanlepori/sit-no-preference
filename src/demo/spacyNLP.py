@@ -1,6 +1,7 @@
 import pandas as pd
 import spacy
-import src.demo.venn
+import src.demo.venn as venn
+import src.demo.sort as sort
 nlp = spacy.load("en_core_web_sm")
 
 
@@ -143,7 +144,7 @@ df2 = spacyToken(df2,columnName)
 # df = spacyToken(df,columnName)
 # df2 = spacyToken(df2,columnName)
 # # src.demo.venn.vennUniqueIntersect(df,columnName,df2,columnName)
-src.demo.venn.vennIntersect(df,columnName,df2,columnName)
+# src.demo.venn.vennIntersect(df,columnName,df2,columnName)
 # # src.demo.venn.vennUniqueSymmetricDif(df,columnName,df2,columnName)
 # src.demo.venn.vennSymmetricDif(df,columnName,df2,columnName)
 # #required group tgt 2
@@ -155,7 +156,13 @@ src.demo.venn.vennIntersect(df,columnName,df2,columnName)
 # df = spacyPOSToken(df, columnName)
 # df2 = spacyPOSToken(df2, columnName)
 
-df = spacyCleanCell(df,columnName)
-df2 = spacyCleanCell(df2,columnName)
-print(df)
-print(df2)
+# df = spacyCleanCell(df,columnName)
+# df2 = spacyCleanCell(df2,columnName)
+#
+# print(df)
+# print(df2)
+
+union_df = venn.vennUnion(df,df2)
+# union_df = sort.functionSortBy(union_df,'date')
+# union_df = sort.reindex(union_df)
+print(union_df)

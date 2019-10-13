@@ -1,6 +1,12 @@
+import pandas as pd
+import src.demo.sort as sort
+
+
 def vennUniqueIntersect(setA, columnName, setB, columnNameB):
-    # unique does not affect dataframe
-    #must use spacyToken
+    """ Precondition is to have been tokenized
+    per venn diagram illustration of intersect of a set A and set B
+    This function will display the words found in both set A and set B, hence intersect
+    This function does not affect the dataframe that was pass by reference"""
 
     match = []
     Ai = 0
@@ -19,9 +25,12 @@ def vennUniqueIntersect(setA, columnName, setB, columnNameB):
     print(match)
     # return match
 
-
 def vennIntersect(setA, columnName, setB, columnNameB):
-    #must use spacyToken, spacyPOS, spacyLabel
+    """ Precondition is to have been tokenized
+      per venn diagram illustration of intersect of a set A and set B
+      This function does WILL affect the dataframe that was pass by reference
+    This function will modify the both dataframe to keep words found in both set A and set B, hence intersect"""
+
     match = []
     Ai = 0
     for row in setA[columnName]:
@@ -50,11 +59,14 @@ def vennIntersect(setA, columnName, setB, columnNameB):
             Bj += 1
         Bi += 1
     # print(setA)
-    print(match)
+    # print(match)
     # return setA #no need return as df is pass by reference, hence working here will update the dataframe passed here
 
 def vennSymmetricDif(setA, columnName, setB, columnNameB):
-    #must use spacyToken
+    """ Precondition is to have been tokenized
+         per venn diagram illustration of Symmetric Difference of a set A and set B
+         This function does WILL affect the dataframe that was pass by reference
+       This function will modify the both dataframe to NOT keep words found in both set A and set B, hence Symmetric Difference"""
 
     match = []
     noMatchA = []
@@ -101,8 +113,10 @@ def vennSymmetricDif(setA, columnName, setB, columnNameB):
     # return noMatch
 
 def vennUniqueSymmetricDif(setA, columnName, setB, columnNameB):
-    # unique does not affect dataframe
-    #must use spacyToken
+    """ Precondition is to have been tokenized
+    per venn diagram illustration of Symmetric Difference of a set A and set B
+    This function does not affect the dataframe that was pass by reference
+  This function will display words found that are NOT found in both set A and set B, hence Symmetric Difference"""
 
     match = []
     noMatch = []
@@ -123,10 +137,14 @@ def vennUniqueSymmetricDif(setA, columnName, setB, columnNameB):
     print(noMatch)
     return noMatch
 
-
-def vennUniqueUnion(setA, columnName, setB, columnNameB):
-    return setA  # placeholder
+def vennUnion(setA, setB):
+    """precondition both dataframe setA and setB must have the same columns"""
+    frames = [setA, setB]
+    result = pd.concat(frames)
+    result = sort.reindex(result) #reindex as it will keep the old index from both sets
+    return result
 
 
 # def vennRelativeComplmentOfSetA(setA, columnName, setB, columnNameB):
+"""no point to do as vennSymmetricDif will do the job"""
 #     return setA  # placeholder
