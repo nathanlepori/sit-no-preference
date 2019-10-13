@@ -9,6 +9,7 @@ def readFile(filename):
     return read
 
 def spacyToken(df, columnName):
+    """ change content of columnName into token """
     i = 0
     for row in df[columnName]:
         doc = nlp(df.iloc[i][columnName])
@@ -18,6 +19,9 @@ def spacyToken(df, columnName):
     return df
 
 def spacyLabel(df, columnName):
+    """ change content of columnName into token together with a label.
+    The label will be made for words that can be identified as Location, Person, Date, Money etc.
+    If it cannot be identified it will be discarded.  """
     i = 0
     for row in df[columnName]:
         doc = nlp(df.iloc[i][columnName])
@@ -26,6 +30,8 @@ def spacyLabel(df, columnName):
     return df
 
 def spacyLabelToken(df, columnName): #same as spacyLabel but refix exisiting tokens
+    """ Same as spacyLabel however the dataframe content of columnName have already been tokenized.
+    As spacyLabel will not be able to provide labels on tokenized content.  """
     i = 0
     for row in df[columnName]:
         format_token = ' '.join(map(str, row))
@@ -34,7 +40,20 @@ def spacyLabelToken(df, columnName): #same as spacyLabel but refix exisiting tok
         i += 1
     return df
 
-def spacyPOSToken(df, columnName):  #same as spacyPOS but refix exisiting tokens
+def spacyPOS(df, columnName):
+    """ change content of columnName into token together with a Part-Of-Speech.
+    each words will be identified for its Part-Of-Speech such as NOUN, Adjectives.
+    This Part-of-Speech will be attached to each word together to form a list. """
+    i = 0
+    for row in df[columnName]:
+        doc = nlp(df.iloc[i][columnName])
+        df.iloc[i][columnName] = [[X.text, X.pos_] for X in doc]
+        i += 1
+    return df
+
+def spacyPOSToken(df, columnName):
+    """ Same as spacyPOS however the dataframe content of columnName have already been tokenized.
+    As spacyPOS will not be able to provide Part-Of-Speech on tokenized content. """
     i = 0
     for row in df[columnName]:
         format_token = ' '.join(map(str, row))
@@ -43,16 +62,13 @@ def spacyPOSToken(df, columnName):  #same as spacyPOS but refix exisiting tokens
         i += 1
     return df
 
-def spacyPOS(df, columnName):
-    i = 0
-    for row in df[columnName]:
-        doc = nlp(df.iloc[i][columnName])
-        df.iloc[i][columnName] = [[X.text, X.pos_] for X in doc]
-        i += 1
-    return df
+
 
 def spacyColumnFilterToken(df, columnName, value, listNo):  # remove any that match value
-    #must use with either label or pos
+    """ The precondition to using this function is to have the columnName to have been process
+    with either spacyLabel or spacyPOS.
+    This function will remove all words that does not match the variable value
+    (while ignoring content of spacyLabel or spacyPOS) """
     i = 0
     for row in df[columnName]:
         j = 0
@@ -64,7 +80,10 @@ def spacyColumnFilterToken(df, columnName, value, listNo):  # remove any that ma
     return df
 
 def spacyColumnStripToken(df, columnName, value, listNo):  # remove all that is not value
-    #must use with either label or pos
+    """ The precondition to using this function is to have the columnName to have been process
+    with either spacyLabel or spacyPOS.
+    This function will remove all words that does match the variable value
+    (while ignoring content of spacyLabel or spacyPOS) """
     i = 0
     for row in df[columnName]:
         j = 0
@@ -77,6 +96,9 @@ def spacyColumnStripToken(df, columnName, value, listNo):  # remove all that is 
     return df
 
 def spacyCleanCell(df,columnName):
+    """ After working with some other functions,
+    there might be cells in columnName that contains empty list.
+    This function is to clean up such list"""
     i = 0
     for row in df[columnName]:
         for word in df.iloc[i][columnName]:
