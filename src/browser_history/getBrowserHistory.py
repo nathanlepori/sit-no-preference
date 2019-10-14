@@ -1,14 +1,8 @@
-import pandas as pd
-import numpy as np
 import csv
 import os
 import sqlite3 as sq
-import configparser
-import getpass
 
-# def getCompUserName():
-#     computer_username = getpass.getuser() # getting username of the current computer
-#     return computer_username
+import configparser
 
 def getMozillaHistoryFile(): # getting the path location of firefox history file
     # the following 5 lines of code will retrieve the profile of firefox
