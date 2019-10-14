@@ -67,7 +67,8 @@ def cmdUI():
         if option == 2:
             while True:
                 try:
-                    spacyOption = int(input("1:display 2:token 3:Part_Of_Speech 4:label 5:sort 6:venn 0:exit >>"))
+                    spacyOption = int(input("1:display 2:token 3:Part_Of_Speech 4:label 5:sort 6:venn"
+                                            " 7:clean_[] 0:exit >>"))
                 except:
                     print("invalid option!")
                 if spacyOption == 1:
@@ -223,13 +224,17 @@ def cmdUI():
                                 else:
                                     if columnName == "":
                                         columnName = defaultColumn()
+
                                 if sortColumnOption == 1:
                                     df = sort.sortBy(df,columnName)
                                     df2 = sort.sortBy(df2,columnName)
+                                    break
                                 if sortColumnOption == 2:
                                     df = sort.sortBy(df,columnName)
+                                    break
                                 if sortColumnOption == 3:
                                     df2 = sort.sortBy(df2,columnName)
+                                    break
                                 if sortColumnOption == 0:
                                     break
                         if sortOption == 3:
@@ -313,6 +318,11 @@ def cmdUI():
                                 columnNameB = input("file_B enter column >>")
                             if columnOption == 0:  # part of do while loop
                                 break
+                        else:
+                            if columnName == "":
+                                columnName = defaultColumn()
+                            if columnNameB == "":
+                                columnNameB = defaultColumn()
                         if vennOption == 1:
                             venn.vennUniqueIntersect(df,columnName,df2,columnNameB)
                             break
@@ -329,6 +339,47 @@ def cmdUI():
                             df = venn.vennUnion(df,df2)
                             del df2
                             df2 = pd.DataFrame()
+                            break
+                        if vennOption == 0:
+                            break
+                if spacyOption == 7:
+                    columnName =  columnNameB = ""
+                    while True:
+                        try:
+                            cleanOption = int(
+                                input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                        except:
+                            print("invalid option!")
+                        if cleanOption == 4:
+                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                            if columnOption == 1:
+                                columnName = defaultColumn()
+                                columnNameB = defaultColumn()
+                            if columnOption == 2:
+                                columnName = input("file_A enter column >>")
+                                columnNameB = input("file_B enter column >>")
+                            if columnOption == 0:  # part of do while loop
+                                break
+                        else:
+                            if columnName == "":
+                                columnName = defaultColumn()
+                            if columnNameB == "":
+                                columnNameB = defaultColumn()
+                        if cleanOption == 1:
+                            if not df.empty:
+                                spacyNLP.spacyCleanCell(df,columnName)
+                            if not df2.empty:
+                                spacyNLP.spacyCleanCell(df2,columnNameB)
+                            break
+                        if cleanOption == 2:
+                            if not df.empty:
+                                spacyNLP.spacyCleanCell(df,columnName)
+                            break
+                        if cleanOption == 3:
+                            if not df2.empty:
+                                spacyNLP.spacyCleanCell(df2,columnNameB)
+                            break
+                        if cleanOption == 0:
                             break
                 if spacyOption == 0:  # part of do while loop
                     break
