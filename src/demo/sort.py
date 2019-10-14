@@ -25,8 +25,7 @@ def caseFile(df,setting): # string for setting is 'upper' or 'lower'
 def sortBy(dfData,columnName): # reformat date so the sorting starts from year-month-date
     """ used by sortByDateRange
 
-    This function set the columns which have dates to date format, and sort it by date
-    This is so that the column can be sort by value of the date instead of the number.
+    This function sort values by the column columnName.
     """
 
     dfData = dfData.sort_values(by=[columnName])  # sort the reformat date value

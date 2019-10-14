@@ -35,7 +35,7 @@ def spacyLabel(df, columnName):
     i = 0
     for row in df[columnName]:
         doc = nlp(df.iloc[i][columnName])
-        df.iloc[i][columnName] = [(X.text, X.label_) for X in doc.ents]
+        df.iloc[i][columnName] = [[X.text, X.label_] for X in doc.ents]
         i += 1
     return df
 
@@ -46,7 +46,7 @@ def spacyLabelToken(df, columnName): #same as spacyLabel but refix exisiting tok
     for row in df[columnName]:
         format_token = ' '.join(map(str, row))
         doc = nlp(format_token)
-        df.iloc[i][columnName] = [(X.text, X.label_) for X in doc.ents]
+        df.iloc[i][columnName] = [[X.text, X.label_] for X in doc.ents]
         i += 1
     return df
 

@@ -2,32 +2,21 @@ import sys
 import src.demo.spacyNLP as spacyNLP
 import src.demo.sort as sort
 import src.demo.venn as venn
+import src.demo.defaults as default
+import src.demo.description as des
 import pandas as pd
 import spacy
+
 nlp = spacy.load("en_core_web_sm")
 
 
 def headerOutput():
     print("No Preference - Profiler, cmd line user input")
 
-def defaultFileA():
-    filenameA = '..\..\dataset\words.csv'
-    return filenameA
 
-def defaultFileB():
-    filenameB = '..\..\dataset\words2.csv'
-    return filenameB
-
-def defaultColumn():
-    columnName = 'word'
-    return columnName
-
-def defaultDateColumn():
-    columnName = 'date'
-    return columnName
-
-def getConfigInfo():
+def getConfigInfo():  # whats this for again???
     return True
+
 
 def cmdUI():
     headerOutput()
@@ -35,17 +24,19 @@ def cmdUI():
     while True:  # part of do while loop
         # fail_condition = False #part of do while loop
         try:
-            option = int(input("1:file 2:Spacy 0:exit >>"))
+            option = int(input("1:file 2:Spacy 3:description 0:exit >>"))
         except:
             print("invalid option!")
-        if option == 1: #file
+        if option == 1:  # file
             try:
                 fileOption = int(input("1:default_file 2:A_file 3:B_file 0:exit >>"))
             except:
                 print("invalid option!")
+            des.desReadFile()
             if fileOption == 1:
-                filenameA = defaultFileA()
-                filenameB = defaultFileB()
+                print("file_A:" + default.defaultFileA() + ", file_B:" + default.defaultFileB())
+                filenameA = default.defaultFileA()
+                filenameB = default.defaultFileB()
                 read = spacyNLP.readFile(filenameA)
                 df = pd.DataFrame(read, columns=['word', 'date'])  # impt to match columns
                 read2 = spacyNLP.readFile(filenameB)
@@ -72,11 +63,13 @@ def cmdUI():
                 except:
                     print("invalid option!")
                 if spacyOption == 1:
+                    des.desDisplay()
                     if not df.empty:
-                        print(df,end='\n end of fileA \n')
+                        print(df, end='\n end of fileA \n')
                     if not df2.empty:
-                        print(df2,end='\n end of fileB \n')
+                        print(df2, end='\n end of fileB \n')
                 if spacyOption == 2:
+                    des.desToken()
                     columnName = ""
                     while True:
                         try:
@@ -86,27 +79,28 @@ def cmdUI():
                         if tokenOption == 4:
                             columnOption = int(input("1:default 2:set_column 0:exit >>"))
                             if columnOption == 1:
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                             if columnOption == 2:
                                 columnName = input("enter column >>")
                             if columnOption == 0:  # part of do while loop
                                 break
                         else:
                             if columnName == "":
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                         if tokenOption == 1:
-                            df = spacyNLP.spacyToken(df,columnName)
-                            df2 = spacyNLP.spacyToken(df2,columnName)
+                            df = spacyNLP.spacyToken(df, columnName)
+                            df2 = spacyNLP.spacyToken(df2, columnName)
                             break
                         if tokenOption == 2:
-                            df = spacyNLP.spacyToken(df,columnName)
+                            df = spacyNLP.spacyToken(df, columnName)
                             break
                         if tokenOption == 3:
-                            df2 = spacyNLP.spacyToken(df2,columnName)
+                            df2 = spacyNLP.spacyToken(df2, columnName)
                             break
                         if tokenOption == 0:  # part of do while loop
                             break
                 if spacyOption == 3:
+                    des.desPOS()
                     columnName = ""
                     while True:
                         try:
@@ -116,14 +110,14 @@ def cmdUI():
                         if POSOption == 4:
                             columnOption = int(input("1:default 2:set_column 0:exit >>"))
                             if columnOption == 1:
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                             if columnOption == 2:
                                 columnName = input("enter column >>")
                             if columnOption == 0:  # part of do while loop
                                 break
                         else:
                             if columnName == "":
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                         if POSOption == 1:
                             df = spacyNLP.spacyPOSToken(df, columnName)
                             df2 = spacyNLP.spacyPOSToken(df2, columnName)
@@ -137,6 +131,7 @@ def cmdUI():
                         if POSOption == 0:  # part of do while loop
                             break
                 if spacyOption == 4:
+                    des.desLabel()
                     columnName = ""
                     while True:
                         try:
@@ -146,14 +141,14 @@ def cmdUI():
                         if LabelOption == 4:
                             columnOption = int(input("1:default 2:set_column 0:exit >>"))
                             if columnOption == 1:
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                             if columnOption == 2:
                                 columnName = input("enter column: ")
                             if columnOption == 0:  # part of do while loop
                                 break
                         else:
                             if columnName == "":
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                         if LabelOption == 1:
                             df = spacyNLP.spacyLabelToken(df, columnName)
                             df2 = spacyNLP.spacyLabelToken(df2, columnName)
@@ -167,10 +162,12 @@ def cmdUI():
                         if LabelOption == 0:  # part of do while loop
                             break
                 if spacyOption == 5:
+                    des.desSort()
                     columnName = ""
                     while True:
                         try:
-                            sortOption = int(input("1:sort_by_date_range 2:sort_by_column 3:reindex 4:upLowCase 0:exit >>"))
+                            sortOption = int(
+                                input("1:sort_by_date_range 2:sort_by_column 3:reindex 4:upLowCase 0:exit >>"))
                         except:
                             print("invalid option!")
                         if sortOption == 1:
@@ -180,7 +177,7 @@ def cmdUI():
                                 except:
                                     print("invalid option!")
                                 if dateOption == 1:
-                                    columnName = defaultDateColumn()
+                                    columnName = default.defaultDateColumn()
                                     dateStart = input("file_A start date >>")
                                     dateEnd = input("file_A end date >>")
                                     df = sort.sortByDateRange(df, columnName, dateStart, dateEnd)
@@ -193,14 +190,14 @@ def cmdUI():
                                 if dateOption == 2:
                                     dateStart = input("file_A start date >>")
                                     dateEnd = input("file_A end date >>")
-                                    columnName = defaultDateColumn()
+                                    columnName = default.defaultDateColumn()
                                     df = sort.sortByDateRange(df, columnName, dateStart, dateEnd)
                                     # print(df, end='\n end of fileA after sort by date range\n')
                                     break
                                 if dateOption == 3:
                                     dateStart = input("file_B start date >>")
                                     dateEnd = input("file_B end date >>")
-                                    columnName = defaultDateColumn()
+                                    columnName = default.defaultDateColumn()
                                     df2 = sort.sortByDateRange(df2, columnName, dateStart, dateEnd)
                                     # print(df2, end='\n end of fileB after sort by date range\n')
                                     break
@@ -216,24 +213,24 @@ def cmdUI():
                                 if sortColumnOption == 4:
                                     columnOption = int(input("1:default 2:set_column 0:exit >>"))
                                     if columnOption == 1:
-                                        columnName = defaultColumn()
+                                        columnName = default.defaultColumn()
                                     if columnOption == 2:
                                         columnName = input("enter column >>")
                                     if columnOption == 0:  # part of do while loop
                                         break
                                 else:
                                     if columnName == "":
-                                        columnName = defaultColumn()
+                                        columnName = default.defaultColumn()
 
                                 if sortColumnOption == 1:
-                                    df = sort.sortBy(df,columnName)
-                                    df2 = sort.sortBy(df2,columnName)
+                                    df = sort.sortBy(df, columnName)
+                                    df2 = sort.sortBy(df2, columnName)
                                     break
                                 if sortColumnOption == 2:
-                                    df = sort.sortBy(df,columnName)
+                                    df = sort.sortBy(df, columnName)
                                     break
                                 if sortColumnOption == 3:
-                                    df2 = sort.sortBy(df2,columnName)
+                                    df2 = sort.sortBy(df2, columnName)
                                     break
                                 if sortColumnOption == 0:
                                     break
@@ -247,14 +244,14 @@ def cmdUI():
                                 if reindexOption == 4:
                                     columnOption = int(input("1:default 2:set_column 0:exit >>"))
                                     if columnOption == 1:
-                                        columnName = defaultColumn()
+                                        columnName = default.defaultColumn()
                                     if columnOption == 2:
                                         columnName = input("enter column >>")
                                     if columnOption == 0:  # part of do while loop
                                         break
                                 else:
                                     if columnName == "":
-                                        columnName = defaultColumn()
+                                        columnName = default.defaultColumn()
                                 if reindexOption == 1:
                                     df = sort.reindex(df, columnName)
                                     df2 = sort.reindex(df2, columnName)
@@ -268,38 +265,42 @@ def cmdUI():
                                 if reindexOption == 0:
                                     break
                         if sortOption == 4:
-                            columnName = ""
+                            upperlower = "lower"
                             while True:
                                 try:
-                                    caseOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                    caseOption = int(input("1:both 2:file_A 3:file_B 4:ChangeTo:"
+                                                           ""+ upperlower +" 0:exit >>"))
                                 except:
                                     print("invalid option!")
-                                if caseOption == 4:
-                                    columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                                    if columnOption == 1:
-                                        columnName = defaultColumn()
-                                    if columnOption == 2:
-                                        columnName = input("enter column >>")
-                                    if columnOption == 0:  # part of do while loop
-                                        break
-                                else:
-                                    if columnName == "":
-                                        columnName = defaultColumn()
+                                # if caseOption == 4:
+                                #     columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                #     if columnOption == 1:
+                                #         columnName = default.defaultColumn()
+                                #     if columnOption == 2:
+                                #         columnName = input("enter column >>")
+                                #     if columnOption == 0:  # part of do while loop
+                                #         break
+                                if(caseOption == 4):
+                                    if upperlower == "lower":
+                                        upperlower = "upper"
+                                    else:
+                                        upperlower = "lower"
                                 if caseOption == 1:
-                                    df = sort.caseFile(df, columnName)
-                                    df2 = sort.caseFile(df2, columnName)
+                                    df = sort.caseFile(df, upperlower)
+                                    df2 = sort.caseFile(df2, upperlower)
                                     break
                                 if caseOption == 2:
-                                    df = sort.caseFile(df, columnName)
+                                    df = sort.caseFile(df, upperlower)
                                     break
                                 if caseOption == 3:
-                                    df2 = sort.caseFile(df2, columnName)
+                                    df2 = sort.caseFile(df2, upperlower)
                                     break
                                 if caseOption == 0:
                                     break
                         if sortOption == 0:  # part of do while loop
                             break
                 if spacyOption == 6:
+                    des.desVenn()
                     columnName = columnNameB = ""
                     while True:
                         try:
@@ -311,8 +312,8 @@ def cmdUI():
                         if vennOption == 6:
                             columnOption = int(input("1:default 2:set_column 0:exit >>"))
                             if columnOption == 1:
-                                columnName = defaultColumn()
-                                columnNameB = defaultColumn()
+                                columnName = default.defaultColumn()
+                                columnNameB = default.defaultColumn()
                             if columnOption == 2:
                                 columnName = input("file_A enter column >>")
                                 columnNameB = input("file_B enter column >>")
@@ -320,30 +321,31 @@ def cmdUI():
                                 break
                         else:
                             if columnName == "":
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                             if columnNameB == "":
-                                columnNameB = defaultColumn()
+                                columnNameB = default.defaultColumn()
                         if vennOption == 1:
-                            venn.vennUniqueIntersect(df,columnName,df2,columnNameB)
+                            venn.vennUniqueIntersect(df, columnName, df2, columnNameB)
                             break
                         if vennOption == 2:
-                            venn.vennIntersect(df,columnName,df2,columnNameB)
+                            venn.vennIntersect(df, columnName, df2, columnNameB)
                             break
                         if vennOption == 3:
-                            venn.vennUniqueSymmetricDif(df,columnName,df,columnNameB)
+                            venn.vennUniqueSymmetricDif(df, columnName, df, columnNameB)
                             break
                         if vennOption == 4:
-                            venn.vennSymmetricDif(df,columnName,df2,columnNameB)
+                            venn.vennSymmetricDif(df, columnName, df2, columnNameB)
                             break
                         if vennOption == 5:
-                            df = venn.vennUnion(df,df2)
+                            df = venn.vennUnion(df, df2)
                             del df2
                             df2 = pd.DataFrame()
                             break
                         if vennOption == 0:
                             break
                 if spacyOption == 7:
-                    columnName =  columnNameB = ""
+                    des.desClean()
+                    columnName = columnNameB = ""
                     while True:
                         try:
                             cleanOption = int(
@@ -353,8 +355,8 @@ def cmdUI():
                         if cleanOption == 4:
                             columnOption = int(input("1:default 2:set_column 0:exit >>"))
                             if columnOption == 1:
-                                columnName = defaultColumn()
-                                columnNameB = defaultColumn()
+                                columnName = default.defaultColumn()
+                                columnNameB = default.defaultColumn()
                             if columnOption == 2:
                                 columnName = input("file_A enter column >>")
                                 columnNameB = input("file_B enter column >>")
@@ -362,28 +364,40 @@ def cmdUI():
                                 break
                         else:
                             if columnName == "":
-                                columnName = defaultColumn()
+                                columnName = default.defaultColumn()
                             if columnNameB == "":
-                                columnNameB = defaultColumn()
+                                columnNameB = default.defaultColumn()
                         if cleanOption == 1:
                             if not df.empty:
-                                spacyNLP.spacyCleanCell(df,columnName)
+                                spacyNLP.spacyCleanCell(df, columnName)
                             if not df2.empty:
-                                spacyNLP.spacyCleanCell(df2,columnNameB)
+                                spacyNLP.spacyCleanCell(df2, columnNameB)
                             break
                         if cleanOption == 2:
                             if not df.empty:
-                                spacyNLP.spacyCleanCell(df,columnName)
+                                spacyNLP.spacyCleanCell(df, columnName)
                             break
                         if cleanOption == 3:
                             if not df2.empty:
-                                spacyNLP.spacyCleanCell(df2,columnNameB)
+                                spacyNLP.spacyCleanCell(df2, columnNameB)
                             break
                         if cleanOption == 0:
                             break
                 if spacyOption == 0:  # part of do while loop
                     break
-
+        if option == 3:
+            des.desINFO()
+            des.getState()
+            try:
+                desOption = int(input("1:check 2:toggle 0:exit >>"))
+            except:
+                print("invalid option!")
+            if desOption == 1:
+                print(des.getState())
+            if desOption == 2:
+                des.toggleState()
+            if desOption == 0:
+                break
         if option == 0:  # part of do while loop
             break
 
