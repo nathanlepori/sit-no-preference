@@ -11,11 +11,8 @@ def getMozillaHistoryFile(): # getting the path location of firefox history file
     profile = configparser.ConfigParser()
     profile.read(mozilla_profile_ini)
     data_path = os.path.normpath(os.path.join(mozilla_profile, profile.get('Profile0', 'Path')))
-    # print(data_path)
     mozilla_history_file = data_path + '\\places.sqlite' # places.sqlite is the file that store the history of firefox
     return mozilla_history_file # return the path of the history file
-
-# print(getMozillaHistoryFile())
 
 def getChromeHistoryFolder(): # getting the path location of chrome history file
     data_path = os.path.expanduser('~') + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
