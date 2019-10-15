@@ -21,6 +21,7 @@ def spacyToken(df, columnName):
     return df
 
 def spacyStopword(df,columnName):
+    """must have been tokenized"""
     i = 0
     for row in df[columnName]:
         for word in df.iloc[i][columnName]:

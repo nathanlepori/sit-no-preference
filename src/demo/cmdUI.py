@@ -9,6 +9,34 @@ import spacy
 
 nlp = spacy.load("en_core_web_sm")
 
+"""Zhengyi's to do list
+DONE?
+no    A. make clear stopword based on tokenized and non tokenized verison of dataframe into cmdUI
+no    B. write dataframe to csv file
+no    C. add to 1:file 2:Spacy 3:description [4:fixed_processing] 0:exit that will have a list of options that will do the following:
+            1st example: tokenize A&B > POS/Label > stopword > write
+            2nd example: tokenize A&B > POS/Label > stopword > venn intersect > write
+            3rd example: tokenize A&B > POS/Label > stopword > request filter or strip > request venn type > write
+            4th example ..... continue for all different types we can come up with.
+no    D. Currently venn will over write both dataframe:
+            make it such that it only over write by file indication????
+                reasons:
+                        seems no point user can just redo?
+                            instead find a way to highlight intersected words in the whole of browser history, to see what VV
+                                >> browser history eventually was posted on their social media.
+                                        as a result might wanna ask which dataframe to overwrite instead of (now just overwrite both df)
+                                                add a column say posted? dont make sense as tokenized is done per sentence:row not per word:row
+                                                UPPER case vs lower case to indicate posted or not?? seems best for now.   
+no    E. move 8:clean into 7:filtering???
+no    F. add a /t to (after selection an option in 1:file 2:Spacy 3:description 0:exit.) in its display of options.
+no    G. reformat to python naming convention?
+no    H. replace all column option selection to a function (as its all a duplicate). just need return 2 values for columnName and columnNameB
+no    I. look for coding errors eg wrong variables used etc.
+no    J. do a history to show what have been done to each dataframe eg file_A: token > POS > sort > venn. 
+            which changes based on what have been done to the dataframe.
+no    ?? proper GUI ?? if yes who to do?
+    
+"""
 
 def headerOutput():
     print("No Preference - Profiler, cmd line user input")
@@ -25,381 +53,480 @@ def cmdUI():
         # fail_condition = False #part of do while loop
         try:
             option = int(input("1:file 2:Spacy 3:description 0:exit >>"))
-        except:
-            print("invalid option!")
-        if option == 1:  # file
-            try:
-                fileOption = int(input("1:default_file 2:A_file 3:B_file 0:exit >>"))
-            except:
-                print("invalid option!")
-            des.desReadFile()
-            if fileOption == 1:
-                print("file_A:" + default.defaultFileA() + ", file_B:" + default.defaultFileB())
-                filenameA = default.defaultFileA()
-                filenameB = default.defaultFileB()
-                read = spacyNLP.readFile(filenameA)
-                df = pd.DataFrame(read, columns=['word', 'date'])  # impt to match columns
-                read2 = spacyNLP.readFile(filenameB)
-                df2 = pd.DataFrame(read2, columns=['word', 'date'])  # impt to match columns
-            if fileOption == 2:
+            if option == 1:  # file
                 try:
-                    filenameA = input("enter file A location >>")
-                    read = spacyNLP.readFile(filenameA)
-                    df = pd.DataFrame(read, columns=['word', 'date'])  # impt to match columns
-                except:
-                    print("invalid file name or location!")
-            if fileOption == 3:
-                try:
-                    filenameB = input("enter file location >>")
-                    read = spacyNLP.readFile(filenameB)
-                    df2 = pd.DataFrame(read, columns=['word', 'date'])  # impt to match columns
-                except:
-                    print("invalid file name or location!")
-        if option == 2:
-            while True:
-                try:
-                    spacyOption = int(input("1:display 2:token 3:Part_Of_Speech 4:label 5:sort 6:venn"
-                                            " 7:clean_[] 0:exit >>"))
+                    fileOption = int(input("1:default_file 2:A_file 3:B_file 0:exit >>"))
                 except:
                     print("invalid option!")
-                if spacyOption == 1:
-                    des.desDisplay()
-                    if not df.empty:
-                        print(df, end='\n end of fileA \n')
-                    if not df2.empty:
-                        print(df2, end='\n end of fileB \n')
-                if spacyOption == 2:
-                    des.desToken()
-                    columnName = ""
-                    while True:
-                        try:
-                            tokenOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
-                        except:
-                            print("invalid option!")
-                        if tokenOption == 4:
-                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                            if columnOption == 1:
-                                columnName = default.defaultColumn()
-                            if columnOption == 2:
-                                columnName = input("enter column >>")
-                            if columnOption == 0:  # part of do while loop
-                                break
-                        else:
-                            if columnName == "":
-                                columnName = default.defaultColumn()
-                        if tokenOption == 1:
-                            df = spacyNLP.spacyToken(df, columnName)
-                            df2 = spacyNLP.spacyToken(df2, columnName)
-                            break
-                        if tokenOption == 2:
-                            df = spacyNLP.spacyToken(df, columnName)
-                            break
-                        if tokenOption == 3:
-                            df2 = spacyNLP.spacyToken(df2, columnName)
-                            break
-                        if tokenOption == 0:  # part of do while loop
-                            break
-                if spacyOption == 3:
-                    des.desPOS()
-                    columnName = ""
-                    while True:
-                        try:
-                            POSOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
-                        except:
-                            print("invalid option!")
-                        if POSOption == 4:
-                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                            if columnOption == 1:
-                                columnName = default.defaultColumn()
-                            if columnOption == 2:
-                                columnName = input("enter column >>")
-                            if columnOption == 0:  # part of do while loop
-                                break
-                        else:
-                            if columnName == "":
-                                columnName = default.defaultColumn()
-                        if POSOption == 1:
-                            df = spacyNLP.spacyPOSToken(df, columnName)
-                            df2 = spacyNLP.spacyPOSToken(df2, columnName)
-                            break
-                        if POSOption == 2:
-                            df = spacyNLP.spacyPOSToken(df, columnName)
-                            break
-                        if POSOption == 3:
-                            df2 = spacyNLP.spacyPOSToken(df2, columnName)
-                            break
-                        if POSOption == 0:  # part of do while loop
-                            break
-                if spacyOption == 4:
-                    des.desLabel()
-                    columnName = ""
-                    while True:
-                        try:
-                            LabelOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
-                        except:
-                            print("invalid option!")
-                        if LabelOption == 4:
-                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                            if columnOption == 1:
-                                columnName = default.defaultColumn()
-                            if columnOption == 2:
-                                columnName = input("enter column: ")
-                            if columnOption == 0:  # part of do while loop
-                                break
-                        else:
-                            if columnName == "":
-                                columnName = default.defaultColumn()
-                        if LabelOption == 1:
-                            df = spacyNLP.spacyLabelToken(df, columnName)
-                            df2 = spacyNLP.spacyLabelToken(df2, columnName)
-                            break
-                        if LabelOption == 2:
-                            df = spacyNLP.spacyLabelToken(df, columnName)
-                            break
-                        if LabelOption == 3:
-                            df2 = spacyNLP.spacyLabelToken(df2, columnName)
-                            break
-                        if LabelOption == 0:  # part of do while loop
-                            break
-                if spacyOption == 5:
-                    des.desSort()
-                    columnName = ""
-                    while True:
-                        try:
-                            sortOption = int(
-                                input("1:sort_by_date_range 2:sort_by_column 3:reindex 4:upLowCase 0:exit >>"))
-                        except:
-                            print("invalid option!")
-                        if sortOption == 1:
+                des.desReadFile()
+                if fileOption == 1:
+                    print("file_A:" + default.defaultFileA() + ", file_B:" + default.defaultFileB())
+                    filenameA = default.defaultFileA()
+                    filenameB = default.defaultFileB()
+                    read = spacyNLP.readFile(filenameA)
+                    df = pd.DataFrame(read, columns=[default.defaultColumn(),default.defaultDateColumn()])  # impt to match columns
+                    read2 = spacyNLP.readFile(filenameB)
+                    df2 = pd.DataFrame(read2, columns=[default.defaultColumn(),default.defaultDateColumn()])  # impt to match columns
+                if fileOption == 2:
+                    try:
+                        filenameA = input("enter file A location >>")
+                        read = spacyNLP.readFile(filenameA)
+                        df = pd.DataFrame(read, columns=[default.defaultColumn(),default.defaultDateColumn()])  # impt to match columns
+                    except:
+                        print("invalid file name or location!")
+                if fileOption == 3:
+                    try:
+                        filenameB = input("enter file location >>")
+                        read2 = spacyNLP.readFile(filenameB)
+                        df2 = pd.DataFrame(read2, columns=[default.defaultColumn(),default.defaultDateColumn()])  # impt to match columns
+                    except:
+                        print("invalid file name or location!")
+            if option == 2:
+                while True:
+                    try:
+                        spacyOption = int(input("1:display 2:token 3:Part_Of_Speech 4:label 5:sort 6:venn"
+                                                " 7:filtering 8:clean_[] 0:exit >>"))
+                        if spacyOption == 1:
+                            des.desDisplay()
+                            if not df.empty:
+                                print(df, end='\n end of fileA \n')
+                            if not df2.empty:
+                                print(df2, end='\n end of fileB \n')
+                        if spacyOption == 2:
+                            des.desToken()
+                            columnName = columnNameB = ""
                             while True:
                                 try:
-                                    dateOption = int(input("1:both 2:file_A 3:file_B 0:exit >>"))
-                                except:
-                                    print("invalid option!")
-                                if dateOption == 1:
-                                    columnName = default.defaultDateColumn()
-                                    dateStart = input("file_A start date >>")
-                                    dateEnd = input("file_A end date >>")
-                                    df = sort.sortByDateRange(df, columnName, dateStart, dateEnd)
-                                    # print(df, end='\n end of fileA after sort by date range\n')
-                                    dateStart = input("file_B start date >>")
-                                    dateEnd = input("file_B end date >>")
-                                    df2 = sort.sortByDateRange(df2, columnName, dateStart, dateEnd)
-                                    # print(df2, end='\n end of fileB after sort by date range\n')
-                                    break
-                                if dateOption == 2:
-                                    dateStart = input("file_A start date >>")
-                                    dateEnd = input("file_A end date >>")
-                                    columnName = default.defaultDateColumn()
-                                    df = sort.sortByDateRange(df, columnName, dateStart, dateEnd)
-                                    # print(df, end='\n end of fileA after sort by date range\n')
-                                    break
-                                if dateOption == 3:
-                                    dateStart = input("file_B start date >>")
-                                    dateEnd = input("file_B end date >>")
-                                    columnName = default.defaultDateColumn()
-                                    df2 = sort.sortByDateRange(df2, columnName, dateStart, dateEnd)
-                                    # print(df2, end='\n end of fileB after sort by date range\n')
-                                    break
-                                if dateOption == 0:
-                                    break
-                        if sortOption == 2:
-                            columnName = ""
-                            while True:
-                                try:
-                                    sortColumnOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
-                                except:
-                                    print("invalid option!")
-                                if sortColumnOption == 4:
-                                    columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                                    if columnOption == 1:
-                                        columnName = default.defaultColumn()
-                                    if columnOption == 2:
-                                        columnName = input("enter column >>")
-                                    if columnOption == 0:  # part of do while loop
-                                        break
-                                else:
-                                    if columnName == "":
-                                        columnName = default.defaultColumn()
-
-                                if sortColumnOption == 1:
-                                    df = sort.sortBy(df, columnName)
-                                    df2 = sort.sortBy(df2, columnName)
-                                    break
-                                if sortColumnOption == 2:
-                                    df = sort.sortBy(df, columnName)
-                                    break
-                                if sortColumnOption == 3:
-                                    df2 = sort.sortBy(df2, columnName)
-                                    break
-                                if sortColumnOption == 0:
-                                    break
-                        if sortOption == 3:
-                            columnName = ""
-                            while True:
-                                try:
-                                    reindexOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
-                                except:
-                                    print("invalid option!")
-                                if reindexOption == 4:
-                                    columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                                    if columnOption == 1:
-                                        columnName = default.defaultColumn()
-                                    if columnOption == 2:
-                                        columnName = input("enter column >>")
-                                    if columnOption == 0:  # part of do while loop
-                                        break
-                                else:
-                                    if columnName == "":
-                                        columnName = default.defaultColumn()
-                                if reindexOption == 1:
-                                    df = sort.reindex(df, columnName)
-                                    df2 = sort.reindex(df2, columnName)
-                                    break
-                                if reindexOption == 2:
-                                    df = sort.reindex(df, columnName)
-                                    break
-                                if reindexOption == 3:
-                                    df2 = sort.reindex(df2, columnName)
-                                    break
-                                if reindexOption == 0:
-                                    break
-                        if sortOption == 4:
-                            upperlower = "lower"
-                            while True:
-                                try:
-                                    caseOption = int(input("1:both 2:file_A 3:file_B 4:ChangeTo:"
-                                                           ""+ upperlower +" 0:exit >>"))
-                                except:
-                                    print("invalid option!")
-                                # if caseOption == 4:
-                                #     columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                                #     if columnOption == 1:
-                                #         columnName = default.defaultColumn()
-                                #     if columnOption == 2:
-                                #         columnName = input("enter column >>")
-                                #     if columnOption == 0:  # part of do while loop
-                                #         break
-                                if(caseOption == 4):
-                                    if upperlower == "lower":
-                                        upperlower = "upper"
+                                    tokenOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                    if tokenOption == 4:
+                                        columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        if columnOption == 1:
+                                            columnName = default.defaultColumn()
+                                            columnNameB = default.defaultColumn()
+                                        if columnOption == 2:
+                                            columnName = input("file_A enter column >>")
+                                            columnNameB = input("file_B enter column >>")
+                                        if columnOption == 0:  # part of do while loop
+                                            break
                                     else:
-                                        upperlower = "lower"
-                                if caseOption == 1:
-                                    df = sort.caseFile(df, upperlower)
-                                    df2 = sort.caseFile(df2, upperlower)
+                                        if columnName == "":
+                                            columnName = default.defaultColumn()
+                                        if columnNameB == "":
+                                            columnNameB = default.defaultColumn()
+                                    if tokenOption == 1:
+                                        df = spacyNLP.spacyToken(df, columnName)
+                                        df2 = spacyNLP.spacyToken(df2, columnNameB)
+                                        # df = spacyNLP.spacyStopword(df,columnName)
+                                        # df2 = spacyNLP.spacyStopword(df2,columnNameB)
+                                        break
+                                    if tokenOption == 2:
+                                        df = spacyNLP.spacyToken(df, columnName)
+                                        break
+                                    if tokenOption == 3:
+                                        df2 = spacyNLP.spacyToken(df2, columnNameB)
+                                        break
+                                    if tokenOption == 0:  # part of do while loop
+                                        break
+                                except:
+                                    print("invalid option!")
+                        if spacyOption == 3:
+                            des.desPOS()
+                            columnName = columnNameB = ""
+                            while True:
+                                try:
+                                    POSOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                    if POSOption == 4:
+                                        columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        if columnOption == 1:
+                                            columnName = default.defaultColumn()
+                                            columnNameB = default.defaultColumn()
+                                        if columnOption == 2:
+                                            columnName = input("file_A enter column >>")
+                                            columnNameB = input("file_B enter column >>")
+                                        if columnOption == 0:  # part of do while loop
+                                            break
+                                    else:
+                                        if columnName == "":
+                                            columnName = default.defaultColumn()
+                                        if columnNameB == "":
+                                            columnNameB = default.defaultColumn()
+                                    if POSOption == 1:
+                                        df = spacyNLP.spacyPOSToken(df, columnName)
+                                        df2 = spacyNLP.spacyPOSToken(df2, columnNameB)
+                                        break
+                                    if POSOption == 2:
+                                        df = spacyNLP.spacyPOSToken(df, columnName)
+                                        break
+                                    if POSOption == 3:
+                                        df2 = spacyNLP.spacyPOSToken(df2, columnNameB)
+                                        break
+                                    if POSOption == 0:  # part of do while loop
+                                        break
+                                except:
+                                    print("invalid option!")
+                        if spacyOption == 4:
+                            des.desLabel()
+                            columnName = columnNameB = ""
+                            while True:
+                                try:
+                                    LabelOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                    if LabelOption == 4:
+                                        columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        if columnOption == 1:
+                                            columnName = default.defaultColumn()
+                                        if columnOption == 2:
+                                            columnName = input("enter column: ")
+                                        if columnOption == 0:  # part of do while loop
+                                            break
+                                    else:
+                                        if columnName == "":
+                                            columnName = default.defaultColumn()
+                                    if LabelOption == 1:
+                                        df = spacyNLP.spacyLabelToken(df, columnName)
+                                        df2 = spacyNLP.spacyLabelToken(df2, columnNameB)
+                                        break
+                                    if LabelOption == 2:
+                                        df = spacyNLP.spacyLabelToken(df, columnName)
+                                        break
+                                    if LabelOption == 3:
+                                        df2 = spacyNLP.spacyLabelToken(df2, columnNameB)
+                                        break
+                                    if LabelOption == 0:  # part of do while loop
+                                        break
+                                except:
+                                    print("invalid option!")
+                        if spacyOption == 5:
+                            des.desSort()
+                            columnName = columnNameB = ""
+                            while True:
+                                try:
+                                    sortOption = int(
+                                        input("1:sort_by_date_range 2:sort_by_column 3:reindex 4:upLowCase 0:exit >>"))
+                                    if sortOption == 1:
+                                        while True:
+                                            try:
+                                                dateOption = int(input("1:both 2:file_A 3:file_B 0:exit >>"))
+                                                if dateOption == 1:
+                                                    columnName = default.defaultDateColumn()
+                                                    dateStart = input("file_A start date >>")
+                                                    dateEnd = input("file_A end date >>")
+                                                    df = sort.sortByDateRange(df, columnName, dateStart, dateEnd)
+                                                    # print(df, end='\n end of fileA after sort by date range\n')
+                                                    dateStart = input("file_B start date >>")
+                                                    dateEnd = input("file_B end date >>")
+                                                    df2 = sort.sortByDateRange(df2, columnNameB, dateStart, dateEnd)
+                                                    # print(df2, end='\n end of fileB after sort by date range\n')
+                                                    break
+                                                if dateOption == 2:
+                                                    dateStart = input("file_A start date >>")
+                                                    dateEnd = input("file_A end date >>")
+                                                    columnName = default.defaultDateColumn()
+                                                    df = sort.sortByDateRange(df, columnName, dateStart, dateEnd)
+                                                    # print(df, end='\n end of fileA after sort by date range\n')
+                                                    break
+                                                if dateOption == 3:
+                                                    dateStart = input("file_B start date >>")
+                                                    dateEnd = input("file_B end date >>")
+                                                    columnName = default.defaultDateColumn()
+                                                    df2 = sort.sortByDateRange(df2, columnNameB, dateStart, dateEnd)
+                                                    # print(df2, end='\n end of fileB after sort by date range\n')
+                                                    break
+                                                if dateOption == 0:
+                                                    break
+                                            except:
+                                                print("invalid option!")
+                                except:
+                                    print("invalid option!")
+
+                                if sortOption == 2:
+                                    columnName = columnNameB = ""
+                                    while True:
+                                        try:
+                                            sortColumnOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                        except:
+                                            print("invalid option!")
+                                        if sortColumnOption == 4:
+                                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                            if columnOption == 1:
+                                                columnName = default.defaultColumn()
+                                                columnNameB = default.defaultColumn()
+                                            if columnOption == 2:
+                                                columnName = input("file_A enter column >>")
+                                                columnNameB = input("file_B enter column >>")
+                                            if columnOption == 0:  # part of do while loop
+                                                break
+                                        else:
+                                            if columnName == "":
+                                                columnName = default.defaultColumn()
+                                            if columnNameB == "":
+                                                columnNameB = default.defaultColumn()
+
+                                        if sortColumnOption == 1:
+                                            df = sort.sortBy(df, columnName)
+                                            df2 = sort.sortBy(df2, columnNameB)
+                                            break
+                                        if sortColumnOption == 2:
+                                            df = sort.sortBy(df, columnName)
+                                            break
+                                        if sortColumnOption == 3:
+                                            df2 = sort.sortBy(df2, columnNameB)
+                                            break
+                                        if sortColumnOption == 0:
+                                            break
+                                if sortOption == 3:
+                                    columnName = columnNameB = ""
+                                    while True:
+                                        try:
+                                            reindexOption = int(input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                        except:
+                                            print("invalid option!")
+                                        if reindexOption == 4:
+                                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                            if columnOption == 1:
+                                                columnName = default.defaultColumn()
+                                                columnNameB = default.defaultColumn()
+                                            if columnOption == 2:
+                                                columnName = input("file_A enter column >>")
+                                                columnNameB = input("file_B enter column >>")
+                                            if columnOption == 0:  # part of do while loop
+                                                break
+                                        else:
+                                            if columnName == "":
+                                                columnName = default.defaultColumn()
+                                            if columnNameB == "":
+                                                columnNameB = default.defaultColumn()
+                                        if reindexOption == 1:
+                                            df = sort.reindex(df)
+                                            df2 = sort.reindex(df2)
+                                            break
+                                        if reindexOption == 2:
+                                            df = sort.reindex(df)
+                                            break
+                                        if reindexOption == 3:
+                                            df2 = sort.reindex(df2)
+                                            break
+                                        if reindexOption == 0:
+                                            break
+                                if sortOption == 4:
+                                    upperlower = "lower"
+                                    while True:
+                                        try:
+                                            caseOption = int(input("1:both 2:file_A 3:file_B 4:ChangeTo:"
+                                                                   "" + upperlower + " 0:exit >>"))
+                                        except:
+                                            print("invalid option!")
+                                        # if caseOption == 4:
+                                        #     columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        #     if columnOption == 1:
+                                        #         columnName = default.defaultColumn()
+                                        #     if columnOption == 2:
+                                        #         columnName = input("enter column >>")
+                                        #     if columnOption == 0:  # part of do while loop
+                                        #         break
+                                        if (caseOption == 4):
+                                            if upperlower == "lower":
+                                                upperlower = "upper"
+                                            else:
+                                                upperlower = "lower"
+                                        if caseOption == 1:
+                                            df = sort.caseFile(df, upperlower)
+                                            df2 = sort.caseFile(df2, upperlower)
+                                            break
+                                        if caseOption == 2:
+                                            df = sort.caseFile(df, upperlower)
+                                            break
+                                        if caseOption == 3:
+                                            df2 = sort.caseFile(df2, upperlower)
+                                            break
+                                        if caseOption == 0:
+                                            break
+                                if sortOption == 0:  # part of do while loop
                                     break
-                                if caseOption == 2:
-                                    df = sort.caseFile(df, upperlower)
-                                    break
-                                if caseOption == 3:
-                                    df2 = sort.caseFile(df2, upperlower)
-                                    break
-                                if caseOption == 0:
-                                    break
-                        if sortOption == 0:  # part of do while loop
+                        if spacyOption == 6:
+                            des.desVenn()
+                            columnName = columnNameB = ""
+                            while True:
+                                try:
+                                    vennOption = int(
+                                        input("1:Intersect_Unique 2:Intersect 3:SymmetricDif_Unique 4:SymmetricDif"
+                                              " 5:Union 6:column 0:exit >>"))
+                                    if vennOption == 6:
+                                        columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        if columnOption == 1:
+                                            columnName = default.defaultColumn()
+                                            columnNameB = default.defaultColumn()
+                                        if columnOption == 2:
+                                            columnName = input("file_A enter column >>")
+                                            columnNameB = input("file_B enter column >>")
+                                        if columnOption == 0:  # part of do while loop
+                                            break
+                                    else:
+                                        if columnName == "":
+                                            columnName = default.defaultColumn()
+                                        if columnNameB == "":
+                                            columnNameB = default.defaultColumn()
+                                    if vennOption == 1:
+                                        venn.vennUniqueIntersect(df, columnName, df2, columnNameB)
+                                        break
+                                    if vennOption == 2:
+                                        venn.vennIntersect(df, columnName, df2, columnNameB)
+                                        break
+                                    if vennOption == 3:
+                                        venn.vennUniqueSymmetricDif(df, columnName, df2, columnNameB)
+                                        break
+                                    if vennOption == 4:
+                                        venn.vennSymmetricDif(df, columnName, df2, columnNameB)
+                                        break
+                                    if vennOption == 5:
+                                        df = venn.vennUnion(df, df2)
+                                        del df2
+                                        df2 = pd.DataFrame()
+                                        break
+                                    if vennOption == 0:
+                                        break
+                                except:
+                                    print("invalid option!")
+                        if spacyOption == 7:
+                            listNo = 0
+                            value = ''
+                            while True:
+                                if listNo == 0:
+                                    listType = "text"
+                                elif listNo == 1:
+                                    listType = "tag"
+                                try:
+                                    filteringOption = int(
+                                        input(
+                                            "1:filter 2:strip 3:set_value=[" + value + "] 4:column 5:ChangeTo=[" + listType +
+                                            "] 0:exit >>"))
+                                    if filteringOption == 4:
+                                        columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        if columnOption == 1:
+                                            columnName = default.defaultColumn()
+                                            columnNameB = default.defaultColumn()
+                                        if columnOption == 2:
+                                            columnName = input("file_A enter column >>")
+                                            columnNameB = input("file_B enter column >>")
+                                        if columnOption == 0:  # part of do while loop
+                                            break
+                                    else:
+                                        if columnName == "":
+                                            columnName = default.defaultColumn()
+                                        if columnNameB == "":
+                                            columnNameB = default.defaultColumn()
+                                    if filteringOption == 3:
+                                        try:
+                                            value = input("pleace enter value to filter >>")
+                                        except:
+                                            print("invalid value!")
+                                    if filteringOption == 5:
+                                        if listNo == 0:
+                                            listNo = 1
+                                        elif listNo == 1:
+                                            listNo = 0
+                                    if filteringOption == 1:
+                                        while True:
+                                            try:
+                                                filterOption = int(input("1:both 2:file_A 3:file_B 0:exit >>"))
+                                                if filterOption == 1:
+                                                    spacyNLP.spacyColumnFilterToken(df, columnName, value, listNo)
+                                                    spacyNLP.spacyColumnFilterToken(df2, columnNameB, value, listNo)
+                                                    break
+                                                if filterOption == 2:
+                                                    spacyNLP.spacyColumnFilterToken(df, columnName, value, listNo)
+                                                    break
+                                                if filterOption == 3:
+                                                    spacyNLP.spacyColumnFilterToken(df2, columnNameB, value, listNo)
+                                                    break
+                                                if filterOption == 0:
+                                                    break
+                                            except:
+                                                print("invalid option!")
+
+                                    if filteringOption == 2:
+                                        while True:
+                                            try:
+                                                stripOption = int(input("1:both 2:file_A 3:file_B 0:exit >>"))
+                                                if stripOption == 1:
+                                                    spacyNLP.spacyColumnStripToken(df, columnName, value, listNo)
+                                                    spacyNLP.spacyColumnStripToken(df2, columnNameB, value, listNo)
+                                                    break
+                                                if stripOption == 2:
+                                                    spacyNLP.spacyColumnStripToken(df, columnName, value, listNo)
+                                                    break
+                                                if stripOption == 3:
+                                                    spacyNLP.spacyColumnStripToken(df2, columnNameB, value, listNo)
+                                                    break
+                                                if stripOption == 0:
+                                                    break
+                                            except:
+                                                print("invalid option!")
+                                    if filteringOption == 0:
+                                        break
+                                except:
+                                    print("invalid option!")
+                        if spacyOption == 8:
+                            des.desClean()
+                            columnName = columnNameB = ""
+                            while True:
+                                try:
+                                    cleanOption = int(
+                                        input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
+                                    if cleanOption == 4:
+                                        columnOption = int(input("1:default 2:set_column 0:exit >>"))
+                                        if columnOption == 1:
+                                            columnName = default.defaultColumn()
+                                            columnNameB = default.defaultColumn()
+                                        if columnOption == 2:
+                                            columnName = input("file_A enter column >>")
+                                            columnNameB = input("file_B enter column >>")
+                                        if columnOption == 0:  # part of do while loop
+                                            break
+                                    else:
+                                        if columnName == "":
+                                            columnName = default.defaultColumn()
+                                        if columnNameB == "":
+                                            columnNameB = default.defaultColumn()
+                                    if cleanOption == 1:
+                                        if not df.empty:
+                                            spacyNLP.spacyCleanCell(df, columnName)
+                                        if not df2.empty:
+                                            spacyNLP.spacyCleanCell(df2, columnNameB)
+                                        break
+                                    if cleanOption == 2:
+                                        if not df.empty:
+                                            spacyNLP.spacyCleanCell(df, columnName)
+                                        break
+                                    if cleanOption == 3:
+                                        if not df2.empty:
+                                            spacyNLP.spacyCleanCell(df2, columnNameB)
+                                        break
+                                    if cleanOption == 0:
+                                        break
+                                except:
+                                    print("invalid option!")
+                        if spacyOption == 0:  # part of do while loop
                             break
-                if spacyOption == 6:
-                    des.desVenn()
-                    columnName = columnNameB = ""
-                    while True:
-                        try:
-                            vennOption = int(
-                                input("1:Intersect_Unique 2:Intersect 3:SymmetricDif_Unique 4:SymmetricDif"
-                                      " 5:Union 6:column 0:exit >>"))
-                        except:
-                            print("invalid option!")
-                        if vennOption == 6:
-                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                            if columnOption == 1:
-                                columnName = default.defaultColumn()
-                                columnNameB = default.defaultColumn()
-                            if columnOption == 2:
-                                columnName = input("file_A enter column >>")
-                                columnNameB = input("file_B enter column >>")
-                            if columnOption == 0:  # part of do while loop
-                                break
-                        else:
-                            if columnName == "":
-                                columnName = default.defaultColumn()
-                            if columnNameB == "":
-                                columnNameB = default.defaultColumn()
-                        if vennOption == 1:
-                            venn.vennUniqueIntersect(df, columnName, df2, columnNameB)
-                            break
-                        if vennOption == 2:
-                            venn.vennIntersect(df, columnName, df2, columnNameB)
-                            break
-                        if vennOption == 3:
-                            venn.vennUniqueSymmetricDif(df, columnName, df, columnNameB)
-                            break
-                        if vennOption == 4:
-                            venn.vennSymmetricDif(df, columnName, df2, columnNameB)
-                            break
-                        if vennOption == 5:
-                            df = venn.vennUnion(df, df2)
-                            del df2
-                            df2 = pd.DataFrame()
-                            break
-                        if vennOption == 0:
-                            break
-                if spacyOption == 7:
-                    des.desClean()
-                    columnName = columnNameB = ""
-                    while True:
-                        try:
-                            cleanOption = int(
-                                input("1:both 2:file_A 3:file_B 4:column 0:exit >>"))
-                        except:
-                            print("invalid option!")
-                        if cleanOption == 4:
-                            columnOption = int(input("1:default 2:set_column 0:exit >>"))
-                            if columnOption == 1:
-                                columnName = default.defaultColumn()
-                                columnNameB = default.defaultColumn()
-                            if columnOption == 2:
-                                columnName = input("file_A enter column >>")
-                                columnNameB = input("file_B enter column >>")
-                            if columnOption == 0:  # part of do while loop
-                                break
-                        else:
-                            if columnName == "":
-                                columnName = default.defaultColumn()
-                            if columnNameB == "":
-                                columnNameB = default.defaultColumn()
-                        if cleanOption == 1:
-                            if not df.empty:
-                                spacyNLP.spacyCleanCell(df, columnName)
-                            if not df2.empty:
-                                spacyNLP.spacyCleanCell(df2, columnNameB)
-                            break
-                        if cleanOption == 2:
-                            if not df.empty:
-                                spacyNLP.spacyCleanCell(df, columnName)
-                            break
-                        if cleanOption == 3:
-                            if not df2.empty:
-                                spacyNLP.spacyCleanCell(df2, columnNameB)
-                            break
-                        if cleanOption == 0:
-                            break
-                if spacyOption == 0:  # part of do while loop
-                    break
-        if option == 3:
-            des.desINFO()
-            des.getState()
-            try:
-                desOption = int(input("1:check 2:toggle 0:exit >>"))
-            except:
-                print("invalid option!")
-            if desOption == 1:
-                print(des.getState())
-            if desOption == 2:
-                des.toggleState()
-            if desOption == 0:
+                    except:
+                        print("invalid option!")
+            if option == 3:
+                des.desINFO()
+                des.getState()
+                try:
+                    desOption = int(input("1:check 2:toggle 0:exit >>"))
+                    if desOption == 1:
+                        print(des.getState())
+                    if desOption == 2:
+                        des.toggleState()
+                    if desOption == 0:
+                        break
+                except:
+                    print("invalid option!")
+
+            if option == 0:  # part of do while loop
                 break
-        if option == 0:  # part of do while loop
-            break
+        except:
+            print("invalid option!")
 
 
 cmdUI()
