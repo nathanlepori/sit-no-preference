@@ -22,8 +22,8 @@ def vennUniqueIntersect(setA, columnName, setB, columnNameB):
                 Bi += 1
             Aj += 1
         Ai += 1
-    print(match)
-    # return match
+    # print(match)
+    return match
 
 def vennIntersect(setA, columnName, setB, columnNameB):
     """ Precondition is to have been tokenized
@@ -58,6 +58,7 @@ def vennIntersect(setA, columnName, setB, columnNameB):
                 setB.iloc[Bi][columnNameB][Bj] = [w for w in setB.iloc[Bi][columnNameB][Bj] if setB.iloc[Bi][columnNameB][Bj] in match]
             Bj += 1
         Bi += 1
+
     # print(setA)
     # print(match)
     # return setA #no need return as df is pass by reference, hence working here will update the dataframe passed here

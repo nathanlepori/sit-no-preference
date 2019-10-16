@@ -68,8 +68,8 @@ def simpleUI():
         try:
             select = int(input("POS 1:Intersect 2:SymDif 3:Union \n"
                                "Label 4:Intersect 5:SymDif 6:Union \n"
-                               "Browser 7:POS Intersect 8:label Intersect \n"
-                               "Social 9:POS Intersect 10:label Intersect \n"
+                               "Highlight 7:POS Intersect 8:label Intersect \n"
+                               # "Social 9:POS Intersect 10:label Intersect \n"
                                "11:save 0:exit >>"))
             columnName = columnNameB = default.defaultColumn()
             if select == 1:
@@ -154,6 +154,54 @@ def simpleUI():
                 df2 = pd.DataFrame
                 # spacyNLP.spacyCleanCell(df, columnName)
                 # spacyNLP.spacyCleanCell(df2, columnNameB)
+            if select == 7:
+                df, df2 = selectFile()
+                dateColumnA = dateColumnB = default.defaultDateColumn()
+                simpleSortByDateRange(df, df2, dateColumnA, dateColumnB)
+                spacyNLP.spacyToken(df, columnName)
+                spacyNLP.spacyToken(df2, columnNameB)
+                spacyNLP.spacyStopword(df, columnName)
+                spacyNLP.spacyStopword(df2, columnNameB)
+                spacyNLP.spacyPOSToken(df, columnName)
+                spacyNLP.spacyPOSToken(df2, columnNameB)
+                intersect = venn.vennUniqueIntersect(df, columnName, df2, columnNameB)
+                print("\033[22;33m" + str(intersect) + "\033[m", end='\n')
+                Ai = index = 0
+                for row in df[columnName]:
+                    Aj = 0
+                    print()
+                    print(index , end=' ')
+                    index += 1
+                    print(df.iloc[Ai][default.defaultDateColumn()], end=' ')
+                    for word in df.iloc[Ai][columnName]:
+                        if df.iloc[Ai][columnName][Aj] in intersect:
+                            # pass
+                            # df.iloc[Ai][columnName][Aj] = ("\033[44;33m" + str(word) + "\033[m")
+                            print("\033[22;33m" + str(word) + "\033[m", end='')
+                        # Aj += 1
+                        else:
+                            print(word,end=' ')
+                    Ai += 1
+                print()
+                Bi = index = 0
+                for row in df2[columnNameB]:
+                    Bj = 0
+                    print()
+                    print(index , end=' ')
+                    index += 1
+                    print(df2.iloc[Bi][default.defaultDateColumn()], end=' ')
+                    for word in df2.iloc[Bi][columnNameB]:
+                        if df2.iloc[Bi][columnNameB][Bj] in intersect:
+                            # pass
+                            # df.iloc[Ai][columnName][Aj] = ("\033[44;33m" + str(word) + "\033[m")
+                            print("\033[22;33m" + str(word) + "\033[m", end='')
+                        # Aj += 1
+                        else:
+                            print(word,end=' ')
+                    Bi += 1
+                # spacyNLP.spacyCleanCell(df, columnName)
+                # spacyNLP.spacyCleanCell(df2, columnNameB)
+
             if select == 11:
                 writeOption = int(input("1:file_A 2:file_B 0:exit >>"))
                 if writeOption == 1:
@@ -164,6 +212,27 @@ def simpleUI():
                     newFileName = input("save file_B as >>")
                     # writeToNewFile(df2, newFileName)
                     df2.to_csv(newFileName)
+            # if select == 12:
+            #     html_str = """
+            #     <table border=1>
+            #          <tr>
+            #            <th>Number</th>
+            #            <th>Square</th>
+            #          </tr>
+            #          <indent>
+            #          <% for i in range(10): %>
+            #            <tr>
+            #              <td><%= i %></td>
+            #              <td><%= i**2 %></td>
+            #            </tr>
+            #          </indent>
+            #     </table>
+            #     """
+            #
+            #     Html_file = open('newfile.html', "w+")
+            #     Html_file.write(html_str)
+            #     Html_file.close()
+
             if select == 0:
                 break
             displayDataframe(df,df2)
