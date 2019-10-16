@@ -83,7 +83,7 @@ def vennSymmetricDif(setA, columnName, setB, columnNameB):
             if setA.iloc[Ai][columnName][Aj] not in match:  # if still cannot find
                 if setA.iloc[Ai][columnName][Aj] not in noMatchA:
                     noMatchA.append(setA.iloc[Ai][columnName][Aj])
-            setA.iloc[Ai][columnName][Aj] = [w for w in setA.iloc[Ai][columnName] if w in noMatchA]
+            setA.iloc[Ai][columnName][Aj] = [w for w in setA.iloc[Ai][columnName][Aj] if setA.iloc[Ai][columnName][Aj] in noMatchA]
             Aj += 1
         Ai += 1
     # print(match,end=' < match a\n')
@@ -103,7 +103,7 @@ def vennSymmetricDif(setA, columnName, setB, columnNameB):
             if setB.iloc[Bi][columnNameB][Bj] not in match:  # if still cannot find
                 if setB.iloc[Bi][columnNameB][Bj] not in noMatchB:
                     noMatchB.append(setB.iloc[Bi][columnName][Bj])
-            setB.iloc[Bi][columnNameB][Bj] = [w for w in setB.iloc[Bi][columnNameB] if w in noMatchB]
+            setB.iloc[Bi][columnNameB][Bj] = [w for w in setB.iloc[Bi][columnNameB][Bj] if setB.iloc[Bi][columnNameB][Bj] in noMatchB]
             Bj += 1
         Bi += 1
     # print(match, end=' < match b\n')

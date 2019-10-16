@@ -97,9 +97,10 @@ def desClean():
 def desFilter():
     if getState():
         print("This option is to sort content of 1st file \'file_A\' and 2nd file \'file_B\' based on select column \n"
-              "1:Intersect_Unique show list of content found in both file\n"
-              "2:Intersect change the dataframes to keep content found in both file\n"
-              "3:SymmetricDif_Unique show list of content unique in each files\n"
-              "4:SymmetricDif change the dataframes to NOT keep content found in both file\n"
-              "5:Union merge both dataframe together as file_A and empty file_B", end='\n')
+              "1:filter to remove all words to only keep set_value\n"
+              "2:strip to remove words that matches set_value\n"
+              "3:set_value set the value that 1:filter and 2:strip will use\n"
+              "4:column select column"
+              "5:listType to select either text or tag in a tokenized word ['text','tag']\n"
+              "6:Remove empty list [] from the dataframe", end='\n')
     return " "
