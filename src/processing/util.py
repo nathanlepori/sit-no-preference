@@ -4,7 +4,7 @@ from typing import Iterable, Dict
 from spacy.tokens.doc import Doc
 from spacy.tokens.token import Token
 
-from src.processing.browser_history import PUNCTUATION
+PUNCTUATION = '. ? ! , ; : - _ – [ ] { } ( ) < > \' " ... # ° § \n & “ ” @ / \\'.split()
 
 
 def _is_relevant_token(token: Token) -> bool:
@@ -17,7 +17,7 @@ def _is_relevant_token(token: Token) -> bool:
     return not token.is_stop and len(token.text.strip()) != 0 and token.text not in PUNCTUATION
 
 
-def filter_tokens(doc: Doc):
+def filter_tokens(doc: Iterable[Token]):
     """
     Filters irrelevant tokens and returns a list of non punctuation, non stop-words, relevant tokens.
     :param doc:
@@ -27,6 +27,11 @@ def filter_tokens(doc: Doc):
 
 
 def get_tokens_count(tokens: Iterable[Token]) -> Dict[Token, int]:
+    """
+    Returns a dictionary containing the number of occurrences for each token.
+    :param tokens:
+    :return:
+    """
     count: Dict[Token, int] = {}
     # Dictionary used to keep track of lemmatized, lowercase variations of tokens (they are considered the same), while
     # preserving one token's information in the returned dictionary

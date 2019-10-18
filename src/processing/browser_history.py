@@ -34,8 +34,6 @@ IRRELEVANT_URL_PATTERNS = [
     r'^https?:\/\/(www\.)?facebook\.com.*$',
 ]
 
-PUNCTUATION = '. ? ! , ; : - _ – [ ] { } ( ) < > \' " ... # ° § \n & “ ” @ / \\'.split()
-
 logging.root.setLevel(logging.INFO)
 
 requests_cache.install_cache()
