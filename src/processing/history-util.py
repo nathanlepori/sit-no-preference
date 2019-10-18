@@ -1,22 +1,39 @@
 import re
 import warnings
+from collections import OrderedDict
+
 import pandas as pd
 import requests
 import requests_cache
 import logging
 
-from typing import Iterator, List, Pattern
+from typing import Iterator, List, Pattern, Iterable, Dict, Tuple, Union
 from urllib.error import URLError
 from bs4 import BeautifulSoup
+from spacy.lang.en.stop_words import STOP_WORDS
+from spacy.lang.en import English
+from spacy.tokens.doc import Doc
+from spacy.tokens.token import Token
+
+
+class HistoryAnalysisResults:
+    doc: Doc
+    relevant_tokens: List[Token]
+    relevant_tokens_count: Dict[Token, int]
+
 
 IRRELEVANT_URL_PATTERNS = [
-    # Search engines queries
-    r'^https://www\.google\.com/search.*$',
-    r'^https://www\.bing\.com/search.*$',
+    # Search engines homepages and queries
+    r'^https?:\/\/(www\.)?google\.com\/?\??.*$',
+    r'^https?:\/\/(www\.)?google\.com\/search.*$',
+    r'^https?:\/\/(www\.)?bing\.com\/?\??.*$',
+    r'^https?:\/\/(www\.)?bing\.com\/search.*$',
     # Supported social media
-    r'^https://twitter\.com/.*$',
-    r'^https://www\.facebook\.com/.*$'
+    r'^https?:\/\/(www\.)?twitter\.com.*$',
+    r'^https?:\/\/(www\.)?facebook\.com.*$',
 ]
+
+PUNCTUATION = '. ? ! , ; : - _ – [ ] { } ( ) < > \' " ... # ° § \n & “ ” @ / \\'.split()
 
 logging.root.setLevel(logging.INFO)
 
@@ -27,51 +44,11 @@ def _flatten(l: List[List]) -> List:
     return [item for sublist in l for item in sublist]
 
 
-def _get_url_text(url: str) -> List[str]:
-    # Read URL and create DOM object
-    response = requests.get(url)
-    html = response.text
-    dom = BeautifulSoup(html)
-
-    # Remove all code tags
-    for code in dom(['script', 'style']):
-        code.extract()
-
-    text: str = dom.get_text()
-    return text.splitlines()
-
-
-def _clean_url_text(url_text: List[str]) -> List[str]:
-    # Remove empty lines
-    url_text = filter(lambda line: not re.match(r'^\s*$', line), url_text)
-    # Remove leading and trailing whitespaces
-    url_text = map(lambda line: line.strip(), url_text)
-
-    return list(url_text)
-
-
-def _tokenize_url_text(url_text: List[str]) -> List[str]:
-    # Extract tokens by multiple separators
-    tokens = list(map(lambda line: re.split(r'\s|\. |: |, ', line), url_text))
-
-    # Flatten and return list
-    return _flatten(tokens)
-
-
-def _get_url_tokens(url: str) -> List[str]:
-    text = _get_url_text(url)
-    if not text:
-        return []
-    text = _clean_url_text(text)
-    tokens = _tokenize_url_text(text)
-    return tokens
-
-
-def is_irrelevant_url(url: str) -> bool:
+def _is_relevant_url(url: str) -> bool:
     for pattern in IRRELEVANT_URL_PATTERNS:
         if re.match(pattern, url):
-            return True
-    return False
+            return False
+    return True
 
 
 def _filter_urls(urls: List[str]) -> List[str]:
@@ -84,23 +61,95 @@ def _filter_urls(urls: List[str]) -> List[str]:
     urls = set(urls)
 
     # Filter irrelevant URLs
-    return list(filter(lambda url: not is_irrelevant_url(url), urls))
+    return list(filter(_is_relevant_url, urls))
 
 
-def get_history_tokens(urls: List[str]):
-    urls_len = len(urls)
-    urls = _filter_urls(urls)
-    relevant_urls_len = len(urls)
-    logging.info('Analysing {} relevant URLs out of {} history entries.'.format(relevant_urls_len, urls_len))
-    tokens = []
-    for url in urls:
-        logging.info('Loading {}'.format(url))
-        tokens.append(_get_url_tokens(url))
-    return tokens
+def _get_url_text(url: str) -> Union[str, None]:
+    # Read URL and create DOM object
+    try:
+        response = requests.get(url)
+    except requests.exceptions.ConnectionError:
+        logging.warning(f'Could not load URL "{url}".')
+        return
+    html = response.text
+    dom = BeautifulSoup(html, 'html.parser')
+
+    # Remove all code tags
+    for code in dom(['script', 'style']):
+        code.extract()
+
+    text: str = dom.get_text(separator=' ')
+
+    # Remove empty line, trim each line and reassemble the string
+    filtered_text = '\n'.join(
+        map(lambda line: line.strip(),
+            filter(lambda line: not re.match(r'^\s*$', line), text.splitlines())))
+
+    return filtered_text
+
+
+def _load_history_text(urls: List[str]):
+    relevant_urls = _filter_urls(urls)
+    logging.info('Loading {} relevant URLs out of {} history entries.'.format(len(relevant_urls), len(urls)))
+    history_text = ''
+    for url in relevant_urls:
+        logging.info('Loading "{}".'.format(url))
+        url_text = _get_url_text(url)
+        if url_text:
+            history_text += ' ' + url_text
+    return history_text
+
+
+def _remove_history_stop_words(history_doc: Doc):
+    pass
+
+
+def _is_relevant_token(token: Token) -> bool:
+    """
+    Returns whether the token is relevant, aka not a stop-word, not punctuation, not newline, and not empty or
+    whitespace.
+    :param token:
+    :return:
+    """
+    return not token.is_stop and len(token.text.strip()) != 0 and token.text not in PUNCTUATION
+
+
+def _filter_tokens(doc: Doc):
+    return list(filter(_is_relevant_token, doc))
+
+
+def _analyse_history_text(history_text: str) -> HistoryAnalysisResults:
+    nlp = English()
+
+    results = HistoryAnalysisResults()
+    results.doc = nlp(history_text)
+    results.relevant_tokens = _filter_tokens(results.doc)
+    results.relevant_tokens_count = get_tokens_count(results.relevant_tokens)
+
+    return results
+
+
+def get_tokens_count(tokens: Iterable[Token]) -> Dict[Token, int]:
+    count: Dict[Token, int] = {}
+    # Dictionary used to keep track of lemmatized, lowercase variations of tokens (they are considered the same), while
+    # preserving one token's information in the returned dictionary
+    normalized_to_token: Dict[str, Token] = {}
+    for token in tokens:
+        normalized = token.lemma_.lower()
+        if normalized in normalized_to_token:
+            count[normalized_to_token[normalized]] += 1
+        else:
+            normalized_to_token[normalized] = token
+            count[token] = 1
+    return OrderedDict(sorted(count.items(), key=lambda x: x[1], reverse=True))
+
+
+def analyse_history(urls: List[str]) -> HistoryAnalysisResults:
+    history_text = _load_history_text(urls)
+    return _analyse_history_text(history_text)
 
 
 if __name__ == '__main__':
-    csv = pd.read_csv('../../datasets/chrome_history.csv')
+    csv = pd.read_csv('../../datasets/firefox_history.csv')
     urls = csv['URL']
-    tokens = get_history_tokens(urls)
-    print(tokens)
+    results = analyse_history(urls)
