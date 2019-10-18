@@ -1,12 +1,14 @@
+import os
+import random
 import re
-import warnings
-from collections import OrderedDict
+from urllib.parse import urlparse
 
 import pandas as pd
 import requests
 import requests_cache
 import logging
 
+from collections import OrderedDict
 from typing import Iterator, List, Pattern, Iterable, Dict, Tuple, Union
 from urllib.error import URLError
 from bs4 import BeautifulSoup
@@ -22,13 +24,14 @@ class HistoryAnalysisResults:
     relevant_tokens_count: Dict[Token, int]
 
 
+WEB_CONTENT_EXTENSIONS_PATTERN = r'(\.(aspx?|x?html?|php(3|4)|jspx?))?'
 IRRELEVANT_URL_PATTERNS = [
     # Search engines homepages and queries
     r'^https?:\/\/(www\.)?google\.com\/?\??.*$',
     r'^https?:\/\/(www\.)?google\.com\/search.*$',
     r'^https?:\/\/(www\.)?bing\.com\/?\??.*$',
     r'^https?:\/\/(www\.)?bing\.com\/search.*$',
-    # Supported social media
+    # Supported social media (analysed separately)
     r'^https?:\/\/(www\.)?twitter\.com.*$',
     r'^https?:\/\/(www\.)?facebook\.com.*$',
 ]
@@ -44,11 +47,18 @@ def _flatten(l: List[List]) -> List:
     return [item for sublist in l for item in sublist]
 
 
+def _get_url_extension(url: str) -> str:
+    path = urlparse(url).path
+    return os.path.splitext(path)[1]
+
+
 def _is_relevant_url(url: str) -> bool:
     for pattern in IRRELEVANT_URL_PATTERNS:
         if re.match(pattern, url):
             return False
-    return True
+
+    url_ext = _get_url_extension(url)
+    return bool(re.match(WEB_CONTENT_EXTENSIONS_PATTERN, url_ext))
 
 
 def _filter_urls(urls: List[str]) -> List[str]:
@@ -144,12 +154,14 @@ def get_tokens_count(tokens: Iterable[Token]) -> Dict[Token, int]:
     return OrderedDict(sorted(count.items(), key=lambda x: x[1], reverse=True))
 
 
-def analyse_history(urls: List[str]) -> HistoryAnalysisResults:
+def analyse_history(urls: List[str], samples=None) -> HistoryAnalysisResults:
+    if samples:
+        urls = random.choices(urls, k=samples)
+
     history_text = _load_history_text(urls)
     return _analyse_history_text(history_text)
 
 
 if __name__ == '__main__':
     csv = pd.read_csv('../../datasets/firefox_history.csv')
-    urls = csv['URL']
-    results = analyse_history(urls)
+    results = analyse_history(csv['URL'], 1000)
