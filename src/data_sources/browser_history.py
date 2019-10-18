@@ -1,62 +1,86 @@
-import csv
 import os
-import sqlite3 as sq
-
+import platform
+import sqlite3 as sql
 import configparser
 
+from sqlite3 import Cursor
+from pandas import DataFrame
 
-def get_chrome_history_folder():  # getting the path location of chrome history file
-    data_path = os.path.expanduser('~') + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
-    files = os.listdir(data_path)
-    history_db = os.path.join(data_path, 'history')
-    return history_db
+# Chrome's history file path relative to the home directory on different systems.
+_CHROME_PROFILE_PATH = {
+    'Windows': '~\\AppData\\Local\\Google\\Chrome\\User Data\\Default',
+    'Linux': '~/.config/google-chrome/default',
+    # MacOS
+    'Darwin': '~/Library/Application Support/Google/Chrome/Default'
+}
+
+# Firefox's history file path relative to the home directory on different systems.
+_FIREFOX_PROFILE_PATH = {
+    'Windows': '~\\AppData\\Roaming\\Mozilla\\Firefox',
+    'Linux': '~/.mozilla/firefox',
+    # MacOS
+    'Darwin': '~/Library/Application Support/Firefox'
+}
+
+_HISTORY_COLUMNS = ['url', 'title', 'visit_count', 'last_visit_time']
 
 
-# TODO: Do not write file directly
-def get_chrome_history():
-    with sq.connect(get_chrome_history_folder()) as conn:
+def _get_chrome_history_file_path() -> str:
+    """
+    Get the absolute path of Chrome history file.
+    :return: System-dependant path of Chrome history file.
+    """
+    system = platform.system()
+    profile_path = os.path.expanduser(_CHROME_PROFILE_PATH[system])
+    history_file_path = os.path.join(profile_path, 'History')
+    return history_file_path
+
+
+def get_chrome_history() -> DataFrame:
+    with sql.connect(_get_chrome_history_file_path()) as conn:
         conn.text_factory = str
-        c = conn.cursor()
-        output_file_path = 'chrome_history.csv'
-        with open(output_file_path, 'wb') as output_file:
-            csv_writer = csv.writer(output_file, quoting=csv.QUOTE_ALL)
-            headers = ['URL', 'Title', 'Visit Count', 'Last Accessed Date-Time (GMT+8)']
-            csv_writer.writerow(headers)
-            for row in (c.execute(
-                    'SELECT urls.url, urls.title, urls.visit_count, '
-                    'datetime((urls.last_visit_time/1000000)-11644473600,\'unixepoch\', \'localtime\') '
-                    'FROM urls '
-                    'order by urls.last_visit_time desc;')):
-                row = list(row)
-                csv_writer.writerow(row)
+        cursor: Cursor = conn.cursor()
+        # Chrome's timestamps are non-standard: they are calculated from January 1. 1601
+        # Keep time in UTC timezone to avoid confusion
+        cursor.execute('SELECT url, title, visit_count, '
+                       'datetime(last_visit_time / 1000000 + strftime("%s", "1601-01-01 00:00:00"), "unixepoch") '
+                       'FROM urls ORDER BY last_visit_time DESC;')
+        history = DataFrame(cursor.fetchall(), columns=_HISTORY_COLUMNS)
+        return history
 
 
-# TODO: Not portable: only works on Windows
-def get_mozilla_history_file():  # getting the path location of firefox history file
-    # the following 5 lines of code will retrieve the profile of firefox
-    mozilla_profile = os.path.join(os.getenv('APPDATA'), r'Mozilla\Firefox')
-    mozilla_profile_ini = os.path.join(mozilla_profile, r'profiles.ini')
-    profile = configparser.ConfigParser()
-    profile.read(mozilla_profile_ini)
-    data_path = os.path.normpath(os.path.join(mozilla_profile, profile.get('Profile0', 'Path')))
-    mozilla_history_file = data_path + '\\places.sqlite'  # places.sqlite is the file that store the history of firefox
-    return mozilla_history_file  # return the path of the history file
+def _get_firefox_history_file_path():
+    """
+    Get the path location of Firefox history file.
+    :return: System-dependant path of Chrome history file.
+    """
+    # Get system-specific profile path
+    system = platform.system()
+    data_path = os.path.expanduser(_FIREFOX_PROFILE_PATH[system])
+
+    # Read default profile from configuration file
+    firefox_profiles_ini = os.path.join(data_path, 'profiles.ini')
+    profiles = configparser.ConfigParser()
+    profiles.read(firefox_profiles_ini)
+
+    # Get default profile path
+    profile_path = os.path.join(data_path, profiles.get('Profile0', 'Path'))
+    # Places.sqlite is the file that stores the history of Firefox
+    history_file_path = os.path.join(profile_path, 'places.sqlite')
+    # Return the path of the history file
+    return history_file_path
 
 
-# TODO: Do not write file directly
-def get_mozilla_history():
-    with sq.connect(get_mozilla_history_file()) as conn:
+def get_firefox_history() -> DataFrame:
+    with sql.connect(_get_firefox_history_file_path()) as conn:
         conn.text_factory = str
-        c = conn.cursor()
-        output_file_path = 'firefox_history.csv'
-        with open(output_file_path, 'wb') as output_file:
-            csv_writer = csv.writer(output_file, quoting=csv.QUOTE_ALL)
-            headers = ['URL', 'Title', 'Visit Count', 'Last Accessed DAte-Time (GMT+8)']
-            csv_writer.writerow(headers)
-            for row in (c.execute(
-                    'select moz_places.url, moz_places.title, moz_places.visit_count, '
-                    'datetime(moz_places.last_visit_date/1000000,\'unixepoch\', \'localtime\') '
-                    'from moz_places '
-                    'order by last_visit_date desc')):
-                row = list(row)
-                csv_writer.writerow(row)
+        cursor: Cursor = conn.cursor()
+        # Keep time in UTC timezone to avoid confusion
+        cursor.execute('SELECT url, title, visit_count, datetime(last_visit_date / 1000000, "unixepoch") '
+                       'FROM moz_places ORDER BY last_visit_date DESC;')
+        history = DataFrame(cursor.fetchall(), columns=_HISTORY_COLUMNS)
+        return history
+
+
+if __name__ == '__main__':
+    get_chrome_history().to_csv('../../datasets/chrome_history.json', index=False)

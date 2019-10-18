@@ -160,5 +160,5 @@ def analyse_history(urls: List[str], samples=None) -> HistoryAnalysisResults:
 
 
 if __name__ == '__main__':
-    csv = pd.read_csv('../../datasets/firefox_history.csv')
-    results = analyse_history(csv['URL'], 1000)
+    csv = pd.read_csv('../../datasets/chrome_history.csv')
+    results = analyse_history(csv['url'], 1000)
