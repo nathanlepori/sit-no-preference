@@ -1,5 +1,6 @@
 def defaultFileA():
-    filenameA = '..\..\dataset\words.csv'
+    # filenameA = '../../dataset/tweetsInformation.csv'
+    filenameA = '../../dataset/words.csv'
     return filenameA
 
 def defaultFileB():

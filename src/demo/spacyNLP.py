@@ -3,6 +3,7 @@ import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 import src.demo.venn as venn
 import src.demo.sort as sort
+import src.demo.defaults as defaults
 nlp = spacy.load("en_core_web_sm")
 
 
@@ -115,65 +116,24 @@ def spacyCleanCell(df,columnName):
             df.iloc[i][columnName] = [x for x in df.iloc[i][columnName] if x]
         i += 1
     return df
-#
-# # run this reader
-# filename = '..\..\dataset\words.csv'
-# filename2 = '..\..\dataset\words2.csv'
-# startDate = '10/06/2019'
-# endDate = '13/06/2019'
-# columnName = 'word'
-# #
-# read = readFile(filename)
-# df = pd.DataFrame(read, columns=['word', 'date'])  # impt to match columns
-# read2 = readFile(filename2)
-# df2 = pd.DataFrame(read2, columns=['word', 'date'])  # impt to match columns
-#
-# # df = spacyLabel(df, columnName)
-# # df2 = spacyLabel(df2, columnName)
-#
-#
-# df = spacyToken(df,columnName)
-# df2 = spacyToken(df2,columnName)
-#
-# # df = spacyPOS(df, columnName)
-# # df2 = spacyPOS(df2, columnName)
-#
-# # print(df)
-# # print(df2)
-# #
-# # df = spacyPOSToken(df, columnName)
-# # df2 = spacyPOSToken(df2, columnName)
-#
-# # df = spacyColumnStripToken(df, columnName, 'love', 0)
-# # df2 = spacyColumnFilterToken(df2, columnName, 'love', 0)
-#
-#
-#
-# # #required group tgt 2
-# # df = spacyToken(df,columnName)
-# # df2 = spacyToken(df2,columnName)
-# # # src.demo.venn.vennUniqueIntersect(df,columnName,df2,columnName)
-# # src.demo.venn.vennIntersect(df,columnName,df2,columnName)
-# # # src.demo.venn.vennUniqueSymmetricDif(df,columnName,df2,columnName)
-# # src.demo.venn.vennSymmetricDif(df,columnName,df2,columnName)
-# # #required group tgt 2
-#
-# # df = spacyColumnStripToken(df, columnName, 'love', 0)
-#
-#
-#
-# # df = spacyPOSToken(df, columnName)
-# # df2 = spacyPOSToken(df2, columnName)
-#
-# df = spacyStopword(df,columnName)
-#
-# # df = spacyCleanCell(df,columnName)
-# # df2 = spacyCleanCell(df2,columnName)
-#
-# print(df)
-# # print(df2)
-#
-# # union_df = venn.vennUnion(df,df2)
-# # # union_df = sort.functionSortBy(union_df,'date')
-# # # union_df = sort.reindex(union_df)
-# # print(union_df)
+
+def spacyTokenTagCounter(df, columnName, listNo):
+    i = 0
+    counter = dict()
+    for row in df[columnName]:
+        for word in df.iloc[i][columnName]:
+            counter[word[listNo]] = counter.get(word[listNo], 0) + 1
+        i += 1
+    return counter
+
+def spacyFrequencyByDate(df,columnName,listNo,value):
+    i = 0
+    counter = dict()
+    for row in df[columnName]:
+        for word in df.iloc[i][columnName]:
+            if word[listNo] == value:
+                # concat = word[listNo] + df.iloc[i][defaults.defaultDateColumn()]
+                concat = df.iloc[i][defaults.defaultDateColumn()]
+                counter[concat] = counter.get(concat, 0) + 1
+        i += 1
+    return counter
