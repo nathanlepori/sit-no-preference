@@ -21,7 +21,7 @@ def filterStopWordColumn(df,columnName):
     return df
 
 # run this reader
-filename = '..\..\dataset\words.csv'
+filename = '../../datasets/words.csv'
 startDate = '10/06/2019'
 endDate= '13/06/2019'
 columnName = 'word'
