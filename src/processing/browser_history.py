@@ -1,24 +1,18 @@
-import logging
 import os
-import random
 import re
-import sys
+from datetime import datetime
+from typing import List, Dict, Union
+from urllib.parse import urlparse
 
 import pandas as pd
 import requests
 import requests_cache
-
 from bs4 import BeautifulSoup
+from dateutil.parser import parse
 from pandas import DataFrame
-from spacy.lang.en import English
 from spacy.tokens.doc import Doc
 from spacy.tokens.token import Token
-from typing import List, Dict, Union
-from urllib.parse import urlparse
-from datetime import datetime
-from dateutil.parser import parse
 
-from src.processing.util import filter_tokens, get_tokens_count
 from src.util import get_logger
 
 
