@@ -2,18 +2,24 @@ import logging
 import os
 import random
 import re
+import sys
+
 import pandas as pd
 import requests
 import requests_cache
 
 from bs4 import BeautifulSoup
+from pandas import DataFrame
 from spacy.lang.en import English
 from spacy.tokens.doc import Doc
 from spacy.tokens.token import Token
 from typing import List, Dict, Union
 from urllib.parse import urlparse
+from datetime import datetime
+from dateutil.parser import parse
 
 from src.processing.util import filter_tokens, get_tokens_count
+from src.util import get_logger
 
 
 class HistoryAnalysisResults:
@@ -34,13 +40,9 @@ IRRELEVANT_URL_PATTERNS = [
     r'^https?:\/\/(www\.)?facebook\.com.*$',
 ]
 
-logging.root.setLevel(logging.INFO)
+LOGGER = get_logger(__file__)
 
 requests_cache.install_cache()
-
-
-def _flatten(l: List[List]) -> List:
-    return [item for sublist in l for item in sublist]
 
 
 def _get_url_extension(url: str) -> str:
@@ -75,7 +77,7 @@ def _get_url_text(url: str) -> Union[str, None]:
     try:
         response = requests.get(url)
     except requests.exceptions.ConnectionError:
-        logging.warning(f'Could not load URL "{url}".')
+        LOGGER.warning(f'Could not load URL "{url}".')
         return
     html = response.text
     dom = BeautifulSoup(html, 'html.parser')
@@ -94,41 +96,34 @@ def _get_url_text(url: str) -> Union[str, None]:
     return filtered_text
 
 
-def _load_history_text(urls: List[str]):
+def _load_history_text(urls: List[str]) -> List[str]:
     relevant_urls = _filter_urls(urls)
-    logging.info('Loading {} relevant URLs out of {} history entries.'.format(len(relevant_urls), len(urls)))
-    history_text = ''
-    for url in relevant_urls:
-        logging.info('Loading "{}".'.format(url))
+    relevant_urls_len = len(relevant_urls)
+    LOGGER.info('Loading {} relevant URLs out of {} history entries.'.format(relevant_urls_len, len(urls)))
+    history_text = []
+    for i, url in enumerate(relevant_urls):
+        LOGGER.info(f'{i}/{relevant_urls_len}: Loading "{url}".')
         url_text = _get_url_text(url)
         if url_text:
-            history_text += ' ' + url_text
+            history_text.append(url_text)
     return history_text
 
 
-def _remove_history_stop_words(history_doc: Doc):
-    pass
+def load_history(history: DataFrame, from_time: datetime = None, to_time: datetime = None) -> DataFrame:
+    # Filter by visit time
+    if from_time or to_time:
+        if not from_time:
+            from_time = datetime.fromtimestamp(0)
+        if not to_time:
+            to_time = datetime.now()
 
+        history = history[(from_time <= history['last_visit_time']) & (history['last_visit_time'] <= to_time)]
 
-def _analyse_history_text(history_text: str) -> HistoryAnalysisResults:
-    nlp = English()
-
-    results = HistoryAnalysisResults()
-    results.doc = nlp(history_text)
-    results.relevant_tokens = filter_tokens(results.doc)
-    results.relevant_tokens_count = get_tokens_count(results.relevant_tokens)
-
-    return results
-
-
-def analyse_history(urls: List[str], samples=None) -> HistoryAnalysisResults:
-    if samples:
-        urls = random.choices(urls, k=samples)
-
-    history_text = _load_history_text(urls)
-    return _analyse_history_text(history_text)
+    return DataFrame(zip(history['last_visit_time'], _load_history_text(history['url'])),
+                     columns=['last_visit_time', 'text'])
 
 
 if __name__ == '__main__':
-    csv = pd.read_csv('../../datasets/chrome_history.csv')
-    results = analyse_history(csv['url'], 500)
+    csv = pd.read_csv('../../datasets/chrome_history_nathan.csv', parse_dates=['last_visit_time'], date_parser=parse)
+    results = load_history(csv, from_time=datetime(2019, 10, 23), to_time=datetime(2019, 10, 23, 23, 59, 59))
+    print(results)
