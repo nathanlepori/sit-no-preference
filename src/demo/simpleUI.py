@@ -49,7 +49,7 @@ def writeHTML(df, columnName, df2, columnNameB, intersect, filename):
     filename = filename + '.html'
     f = open(filename, "w+")
     f.write("<!DOCTYPE html><html><body><h2>Highlight Text in Profiler</h2>"
-            "<style>div{background: lightgrey;}</style>"
+            "<style>div{colour: lightblue;}</style>"
             "<table style=\"width:100%\"><tr><th>Index</th><th>Date</th><th>Word</th></tr>")
     f.write('<p>' + str(intersect) + '</p>')
     f.write("<h3>file_A</h3>")
@@ -353,9 +353,10 @@ def simpleUI():
                 spacyNLP.spacyStopword(df2, columnNameB)
                 spacyNLP.spacyLabelToken(df, columnName)
                 spacyNLP.spacyLabelToken(df2, columnNameB)
+                print(df,df2)
                 venn.vennIntersect(df, columnName, df2, columnNameB)
-                spacyNLP.spacyCleanCell(df, columnName)
-                spacyNLP.spacyCleanCell(df2, columnNameB)
+                # spacyNLP.spacyCleanCell(df, columnName)
+                # spacyNLP.spacyCleanCell(df2, columnNameB)
             if select == 5:
                 df, df2 = selectFile()
                 dateColumnA = dateColumnB = default.defaultDateColumn()

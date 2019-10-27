@@ -1,10 +1,10 @@
 def defaultFileA():
-    # filenameA = '../../dataset/tweetsInformation.csv'
-    filenameA = '../../dataset/words.csv'
+    # filenameA = '..\..\dataset\\tweetsInformation.csv'
+    filenameA = '..\..\datasets\words.csv'
     return filenameA
 
 def defaultFileB():
-    filenameB = '..\..\dataset\words2.csv'
+    filenameB = '..\..\datasets\words2.csv'
     return filenameB
 
 def defaultColumn():
