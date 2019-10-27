@@ -83,4 +83,5 @@ def get_firefox_history() -> DataFrame:
 
 
 if __name__ == '__main__':
-    get_chrome_history().to_csv('../../datasets/chrome_history.json', index=False)
+    df = get_chrome_history()
+    df.to_csv('../../datasets/chrome_history_nathan.csv', index=False)
