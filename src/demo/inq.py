@@ -113,8 +113,12 @@ q_start = [
         'name': 'start',
         'message': 'Select option >',
         'choices': [
+            'charlyn',
+            'guobao',
+            'nathan',
+            'gary',
             'load_file',
-            'spacy'
+            'spacy',
         ]
     },
 ]
@@ -188,7 +192,8 @@ q_assoc_term = [
     },
 ]
 
-def _readfile(): #temporary function, might need to remove after using nathan's code
+
+def _readfile():  # temporary function, might need to remove after using nathan's code
     if a_file_loc['file_A'] == '':
         filenameA = defaultFileA()
     else:
@@ -206,10 +211,11 @@ def _readfile(): #temporary function, might need to remove after using nathan's 
     return df, df2
 
 
-def writeFile(content, filename): #write to file.
+def writeFile(content, filename):  # write to file.
     f = open(filename, "w+")
     f.write(str(content))
     f.close()
+
 
 def _process_selection_label(df, columnName, df2, columnNameB):
     """ :return df, df2:
@@ -221,16 +227,16 @@ def _process_selection_label(df, columnName, df2, columnNameB):
             from venn.py
     """
     if a_label['venn'] == 'intersect' or 'symmetric_difference' or 'union':
-        a_text_tag = prompt(q_text_tag) #used to determine which element in a list to use
-        if a_text_tag['text_tag'] == 'text':                  #eg. to choose either value or text/tage in the list [value,text/tag]
+        a_text_tag = prompt(q_text_tag)  # used to determine which element in a list to use
+        if a_text_tag['text_tag'] == 'text':  # eg. to choose either value or text/tage in the list [value,text/tag]
             textTagOption = 0
         elif a_text_tag['text_tag'] == 'tag':
             textTagOption = 1
 
     if a_label['venn'] == 'intersect':
         vennIntersectTextTag(df, columnName, df2, columnNameB, textTagOption)
-        spacyCleanCell(df, columnName) #clean empty list from the dataframe
-        spacyCleanCell(df2, columnNameB) #clean empty list from the dataframe
+        spacyCleanCell(df, columnName)  # clean empty list from the dataframe
+        spacyCleanCell(df2, columnNameB)  # clean empty list from the dataframe
         df = df.reset_index(drop=True)
         df2 = df2.reset_index(drop=True)
 
@@ -287,7 +293,6 @@ def _process_selection_modify(df, columnName, df2, columnNameB):
             df = df.reset_index(drop=True)
             df2 = df2.reset_index(drop=True)
 
-
     return df, df2
 
 
@@ -326,7 +331,7 @@ def _process_selection_math(df, columnName, df2, columnNameB):
                 filename = a_file_B_request['filename']
                 writeFile(countB, filename)
 
-        if a_math['math'] == 'counter'or 'frequency_By_Date':
+        if a_math['math'] == 'counter' or 'frequency_By_Date':
             a_text_tag = prompt(q_text_tag)
             if a_text_tag['text_tag'] == 'text':
                 textTagOption = 0
@@ -348,6 +353,7 @@ def _process_selection_math(df, columnName, df2, columnNameB):
                     countA = spacyFrequencyByDate(df, columnName, textTagOption, value)
                 if a_file_select['file_selection'] == 'file_B' or 'both':
                     countB = spacyFrequencyByDate(df2, columnNameB, textTagOption, value)
+
 
 def _process_selection_assoc(df, columnName, df2, columnNameB):
     """ :return: df, df2
@@ -375,7 +381,7 @@ def _process_selection_assoc(df, columnName, df2, columnNameB):
                     df = assocTermAttached(df, columnName, termStruct)
             if a_file_select['file_selection'] == 'file_B' or 'both':
                 if a_assoc['assoc'] == 'detached':
-                    df2 = assocTermDetached(df2, columnNameB,termStruct)
+                    df2 = assocTermDetached(df2, columnNameB, termStruct)
                 if a_assoc['assoc'] == 'attached':
                     df2 = assocTermAttached(df2, columnNameB, termStruct)
     return df, df2
@@ -386,6 +392,14 @@ def _process_selection_assoc(df, columnName, df2, columnNameB):
 while True:
     columnName = columnNameB = defaultColumn()
     a_start = prompt(q_start)
+    if a_start['start'] == 'charlyn':
+        pass  # charlyn to replace code in this if
+    if a_start['start'] == 'guobao':
+        pass  # guobao to replace code in this if
+    if a_start['start'] == 'nathan':
+        pass  # nathan to replace code in this if
+    if a_start['start'] == 'gary':
+        pass  # gary to replace code in this if
 
     if a_start['start'] == 'load_file':
         a_file_loc = prompt(q_file_loc)
@@ -412,7 +426,8 @@ while True:
                     pass
                 if a_file_select_html['file_selection'] == 'file_B' or 'both':
                     pass
-            if a_label['venn'] == 'intersect' or a_label['venn'] == 'symmetric_difference' or a_label['venn'] =='union':
+            if a_label['venn'] == 'intersect' or a_label['venn'] == 'symmetric_difference' or a_label[
+                'venn'] == 'union':
                 df, df2 = _process_selection_label(df, columnName, df2, columnNameB)
             if a_label['venn'] == 'modify':
                 df, df2 = _process_selection_modify(df, columnName, df2, columnNameB)
