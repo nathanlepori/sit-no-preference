@@ -117,8 +117,10 @@ q_start = [
             'guobao',
             'nathan',
             'gary',
+            'boonjin',
             'load_file',
             'spacy',
+            'end',
         ]
     },
 ]
@@ -392,15 +394,19 @@ def _process_selection_assoc(df, columnName, df2, columnNameB):
 while True:
     columnName = columnNameB = defaultColumn()
     a_start = prompt(q_start)
+    if a_start['start'] == 'end':
+        break
     if a_start['start'] == 'charlyn':
         pass  # charlyn to replace code in this if
+        # dataframe columns name are post & time
     if a_start['start'] == 'guobao':
         pass  # guobao to replace code in this if
     if a_start['start'] == 'nathan':
         pass  # nathan to replace code in this if
     if a_start['start'] == 'gary':
         pass  # gary to replace code in this if
-
+    if a_start['start'] == 'boonjin':
+        pass  # boonjin to replace code in this if
     if a_start['start'] == 'load_file':
         a_file_loc = prompt(q_file_loc)
         df, df2 = _readfile()
