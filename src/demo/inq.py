@@ -13,7 +13,7 @@ from src.demo.defaults import *
 from src.demo.spacyNLP import *
 from src.demo.venn import *
 
-from src.data_sources.twitter_timeline import get_twitter_timeline
+from src.data_sources.twitter import get_twitter_timeline
 from src.data_sources.browser_history import get_chrome_history, get_firefox_history
 
 pd.set_option('display.max_rows', 500)

@@ -26,7 +26,7 @@ def get_twitter_api():
 api = get_twitter_api()
 
 
-def get_timeline(screen_name: str, include_retweets=True) -> DataFrame:
+def get_twitter_timeline(screen_name: str, include_retweets=True) -> DataFrame:
     timeline = []
     for tweet in tweepy.Cursor(api.user_timeline, screen_name=screen_name, tweet_mode='extended').items():
         # Check if the tweet is a retweet or tweet made by the user
