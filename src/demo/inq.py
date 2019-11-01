@@ -13,6 +13,9 @@ from src.demo.defaults import *
 from src.demo.spacyNLP import *
 from src.demo.venn import *
 
+from src.data_sources.twitter import get_twitter_timeline
+from src.data_sources.browser_history import get_chrome_history, get_firefox_history
+
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -192,6 +195,14 @@ q_assoc_term = [
         'name': 'value',
         'message': 'Please enter value to for term association >',
     },
+]
+
+q_gb = [
+    {
+    'type': 'input',
+    'name': 'value',
+    'message': 'Enter twitter name: ',
+    }
 ]
 
 
@@ -400,7 +411,10 @@ while True:
         pass  # charlyn to replace code in this if
         # dataframe columns name are post & time
     if a_start['start'] == 'guobao':
-        pass  # guobao to replace code in this if
+        get_chrome_history()
+        get_firefox_history()
+        a_gb = prompt(q_gb)
+        get_twitter_timeline(a_gb['input'])
     if a_start['start'] == 'nathan':
         pass  # nathan to replace code in this if
     if a_start['start'] == 'gary':
