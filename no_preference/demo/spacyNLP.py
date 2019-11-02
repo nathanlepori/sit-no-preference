@@ -1,9 +1,9 @@
 import pandas as pd
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
-import src.demo.venn as venn
-import src.demo.sort as sort
-import src.demo.defaults as defaults
+import no_preference.demo.venn as venn
+import no_preference.demo.sort as sort
+import no_preference.demo.defaults as defaults
 nlp = spacy.load('en_core_web_lg')
 
 

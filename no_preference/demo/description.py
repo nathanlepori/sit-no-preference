@@ -1,4 +1,4 @@
-import src.demo.defaults as default
+import no_preference.demo.defaults as default
 
 # global state
 

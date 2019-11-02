@@ -1,5 +1,5 @@
 import pandas as pd
-import src.demo.sort as sort
+import no_preference.demo.sort as sort
 
 
 def vennUniqueIntersect(setA, columnName, setB, columnNameB):

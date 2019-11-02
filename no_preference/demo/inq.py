@@ -9,12 +9,14 @@ from pprint import pprint
 
 from PyInquirer import style_from_dict, Token, prompt
 
-from src.demo.defaults import *
-from src.demo.spacyNLP import *
-from src.demo.venn import *
+from no_preference.demo.defaults import *
+from no_preference.demo.spacyNLP import *
+from no_preference.demo.venn import *
 
-from src.data_sources.twitter import get_twitter_timeline
-from src.data_sources.browser_history import get_chrome_history, get_firefox_history
+from no_preference.data_sources.twitter import get_twitter_timeline
+from no_preference.data_sources.browser_history import get_chrome_history, get_firefox_history
+from no_preference.processing.ner_training import training_ui
+from no_preference.util import create_data_dir
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -120,10 +122,8 @@ q_start = [
             'guobao',
             'nathan',
             'gary',
-            'boonjin',
             'load_file',
             'spacy',
-            'end',
         ]
     },
 ]
@@ -402,25 +402,22 @@ def _process_selection_assoc(df, columnName, df2, columnNameB):
 
 # run
 # def _cmd_ui():
+create_data_dir()
 while True:
     columnName = columnNameB = defaultColumn()
     a_start = prompt(q_start)
-    if a_start['start'] == 'end':
-        break
     if a_start['start'] == 'charlyn':
         pass  # charlyn to replace code in this if
-        # dataframe columns name are post & time
     if a_start['start'] == 'guobao':
         get_chrome_history()
         get_firefox_history()
         a_gb = prompt(q_gb)
         get_twitter_timeline(a_gb['input'])
     if a_start['start'] == 'nathan':
-        pass  # nathan to replace code in this if
+        training_ui.run()
     if a_start['start'] == 'gary':
-        pass  # gary to replace code in this if
-    if a_start['start'] == 'boonjin':
-        pass  # boonjin to replace code in this if
+        pass  # gary to replace code in th  is if
+
     if a_start['start'] == 'load_file':
         a_file_loc = prompt(q_file_loc)
         df, df2 = _readfile()
