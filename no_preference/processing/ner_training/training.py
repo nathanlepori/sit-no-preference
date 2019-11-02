@@ -11,14 +11,23 @@ from typing import Dict, Union, Callable, List, Tuple
 from spacy.util import compounding, minibatch
 
 import no_preference.processing.ner_training.annotations_loaders as annotations_loaders
-from no_preference.processing.ner_training.annotations_loaders import convert_dataturks_to_spacy
+from no_preference.processing.ner_training.annotations_loaders import dataturks_loader
 from no_preference.util import get_logger, load_model
 
 LOGGER = get_logger(__name__)
 
 
+def is_annotations_loader(object) -> bool:
+    """
+    All functions that are declared in the annotations_loaders modules.
+    :param object:
+    :return:
+    """
+    return inspect.isfunction(object) and object.__module__ == annotations_loaders.__name__
+
+
 def get_annotations_loaders() -> List[Tuple[str, Callable]]:
-    return inspect.getmembers(annotations_loaders, predicate=inspect.isfunction)
+    return inspect.getmembers(annotations_loaders, predicate=is_annotations_loader)
 
 
 def train_ner(model: Union[str, PathLike], training_data: Dict, output_model: str = None, lang: str = 'en',
@@ -90,6 +99,6 @@ def test_model(model: Union[str, PathLike], text):
 if __name__ == '__main__':
     train_ner(
         '../../../data/models/smash_bros_twitter',
-        convert_dataturks_to_spacy('../../../data/annotated_training_data/smash_bros_twitter_annotated.json'),
+        dataturks_loader('../../../data/annotated_training_data/smash_bros_twitter_annotated.json'),
         num_iter=200
     )

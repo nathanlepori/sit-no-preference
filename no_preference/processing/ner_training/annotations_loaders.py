@@ -5,7 +5,7 @@ from no_preference.util import get_logger
 LOGGER = get_logger(__name__)
 
 
-def convert_dataturks_to_spacy(annotations_filepath):
+def dataturks_loader(annotations_filepath):
     """
     ############################################  NOTE  ########################################################
     #

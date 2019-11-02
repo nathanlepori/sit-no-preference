@@ -94,9 +94,11 @@ def train_model_ui():
     ])
 
     annotations_loaders = training_answers['annotations_loader']
+    training_data_filename = path.join(get_data_dir(), 'annotated_training_data', training_answers['training_data_filename'])
+    output_model_name = path.join(get_data_dir(), 'models', training_answers['output_model_name'])
     train_ner(model=base_model_name,
-              training_data=annotations_loaders(training_answers['training_data_filename']),
-              output_model=training_answers['output_model_name'],
+              training_data=annotations_loaders(training_data_filename),
+              output_model=output_model_name,
               num_iter=training_answers['num_iter'])
 
 
