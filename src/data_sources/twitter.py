@@ -2,6 +2,7 @@ from typing import List
 
 import tweepy
 from pandas import DataFrame
+from halo import Halo
 
 # Defining token keys
 # TODO: allow keys configuration?
@@ -47,27 +48,36 @@ def get_following(screen_name: str) -> List[str]:
     :return:
     """
     following = []
-    for user in tweepy.Cursor(api.friends, screen_name=screen_name).items():
-        # Get the screen name from the ID
-        following.append(user.screen_name)
+    with Halo(text=f'Getting users followed by {screen_name}.', spinner='dots'):
+        for user in tweepy.Cursor(api.friends, screen_name=screen_name).items():
+            # Get the screen name from the ID
+            following.append(user.screen_name)
     return following
 
 
-def get_tweets_for_training(screen_names: List[str], include_retweets=True, items_per_user=0) -> List[str]:
+def get_tweets_for_training(screen_names: List[str], include_retweets=True, num_tweets=0) -> List[str]:
     """
     Returns a list of tweet texts from given screen names, suitable for annotation tools.
+    :param num_tweets:
     :param screen_names:
     :param include_retweets:
     :return:
     """
+    tweets_per_user = num_tweets // len(screen_names)
+
     tweets: List[str] = []
-    for screen_name in screen_names:
-        for tweet in tweepy.Cursor(api.user_timeline, screen_name=screen_name, tweet_mode='extended').items(items_per_user):
-            # Check if the tweet is a retweet or tweet made by the user
-            if include_retweets and hasattr(tweet, 'retweeted_status'):
-                tweets.append(tweet.retweeted_status.full_text)
-            else:
-                tweets.append(tweet.full_text)
+    for i, screen_name in enumerate(screen_names):
+        # Also get the reminder num of tweets for the first screen name to get to the requested number
+        limit = tweets_per_user + num_tweets % len(screen_names) if i == 0 else tweets_per_user
+        if limit == 0:
+            continue
+        with Halo(text=f'Getting last {limit} tweets by {screen_name}.', spinner='dots'):
+            for tweet in tweepy.Cursor(api.user_timeline, screen_name=screen_name, tweet_mode='extended').items(limit):
+                # Check if the tweet is a retweet or tweet made by the user
+                if include_retweets and hasattr(tweet, 'retweeted_status'):
+                    tweets.append(tweet.retweeted_status.full_text)
+                else:
+                    tweets.append(tweet.full_text)
     return tweets
 
 

@@ -13,7 +13,7 @@ from src.util import get_logger
 LOGGER = get_logger(__file__)
 
 
-def train_ner(model: str, training_data: Dict, output_model: str = None, lang: str = 'en', n_iter: int = 100):
+def train_ner(model: str, training_data: Dict, output_model: str = None, lang: str = 'en', num_iter: int = 100):
     # If not specified otherwise, output onto the starting model
     if output_model is None:
         output_model = model
@@ -47,8 +47,8 @@ def train_ner(model: str, training_data: Dict, output_model: str = None, lang: s
         # training a new model
         if blank_model:
             nlp.begin_training()
-        LOGGER.info(f'Beginning {n_iter} iterations of training.')
-        for itn in range(n_iter):
+        LOGGER.info(f'Beginning {num_iter} iterations of training.')
+        for itn in range(num_iter):
             random.shuffle(training_data)
             losses = {}
             # batch up the examples using spaCy's minibatch
@@ -61,7 +61,7 @@ def train_ner(model: str, training_data: Dict, output_model: str = None, lang: s
                     drop=0.5,  # dropout - make it harder to memorise data
                     losses=losses,
                 )
-            LOGGER.info(f'{itn + 1}/{n_iter} iterations done.')
+            LOGGER.info(f'{itn + 1}/{num_iter} iterations done.')
 
     # save model
     output_dir = Path(model)
@@ -83,5 +83,5 @@ if __name__ == '__main__':
     train_ner(
         '../../../../models/smash_bros_twitter',
         convert_dataturks_to_spacy('../../../../datasets/smash_bros_twitter_annotated_2.json'),
-        n_iter=200
+        num_iter=200
     )

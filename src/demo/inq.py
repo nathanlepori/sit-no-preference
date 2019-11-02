@@ -413,7 +413,7 @@ while True:
     if a_start['start'] == 'nathan':
         pass  # nathan to replace code in this if
     if a_start['start'] == 'gary':
-        pass  # gary to replace code in this if
+        pass  # gary to replace code in th  is if
 
     if a_start['start'] == 'load_file':
         a_file_loc = prompt(q_file_loc)
