@@ -24,7 +24,7 @@ def get_logger(name: str, level=logging.INFO) -> logging.Logger:
 
 
 def create_data_dir():
-    dirs = ['training_data', 'models']
+    dirs = ['training_data', 'annotated_training_data', 'models']
     for d in dirs:
         os.makedirs(os.path.join(get_project_root(), 'data', d), exist_ok=True)
 

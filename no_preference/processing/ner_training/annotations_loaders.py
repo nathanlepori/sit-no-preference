@@ -1,19 +1,25 @@
-############################################  NOTE  ########################################################
-#
-#           Creates NER training data in Spacy format from JSON downloaded from Dataturks.
-#
-#           Outputs the Spacy training data which can be used for Spacy training.
-#
-############################################################################################################
 import json
-import logging
+
+from no_preference.util import get_logger
+
+LOGGER = get_logger(__name__)
 
 
-def convert_dataturks_to_spacy(dataturks_JSON_FilePath):
+def convert_dataturks_to_spacy(annotations_filepath):
+    """
+    ############################################  NOTE  ########################################################
+    #
+    #           Creates NER training data in Spacy format from JSON downloaded from Dataturks.
+    #
+    #           Outputs the Spacy training data which can be used for Spacy training.
+    #
+    ############################################################################################################
+    :param annotations_filepath:
+    :return:
+    """
     try:
         training_data = []
-        lines = []
-        with open(dataturks_JSON_FilePath, 'r', encoding='utf-8') as f:
+        with open(annotations_filepath, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         for line in lines:
@@ -36,5 +42,5 @@ def convert_dataturks_to_spacy(dataturks_JSON_FilePath):
 
         return training_data
     except Exception as e:
-        logging.exception("Unable to process " + dataturks_JSON_FilePath + "\n" + "error = " + str(e))
+        LOGGER.exception("Unable to process " + annotations_filepath + "\n" + "error = " + str(e))
         return None

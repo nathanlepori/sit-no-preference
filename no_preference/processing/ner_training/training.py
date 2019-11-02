@@ -1,28 +1,36 @@
+import inspect
 import random
+
 from os import PathLike
 from pathlib import Path
 
 import spacy
 
-from typing import Dict, Union
+from typing import Dict, Union, Callable, List, Tuple
 
 from spacy.util import compounding, minibatch
 
-from no_preference.processing.ner_training.convert_dataturks_to_spacy import convert_dataturks_to_spacy
+import no_preference.processing.ner_training.annotations_loaders as annotations_loaders
+from no_preference.processing.ner_training.annotations_loaders import convert_dataturks_to_spacy
 from no_preference.util import get_logger, load_model
 
 LOGGER = get_logger(__name__)
 
 
-def train_ner(model: Union[str, PathLike], training_data: Dict, output_model: str = None, lang: str = 'en', num_iter: int = 100):
+def get_annotations_loaders() -> List[Tuple[str, Callable]]:
+    return inspect.getmembers(annotations_loaders, predicate=inspect.isfunction)
+
+
+def train_ner(model: Union[str, PathLike], training_data: Dict, output_model: str = None, lang: str = 'en',
+              num_iter: int = 100):
     # If not specified otherwise, output onto the starting model
     if output_model is None:
         output_model = model
-    try:
-        nlp = load_model(model)
+    nlp = load_model(model)
+    if nlp is not None:
         blank_model = False
         LOGGER.info(f'Loaded existing model {model}')
-    except OSError as e:
+    else:
         nlp = spacy.blank(lang)
         blank_model = True
         LOGGER.info(f'Created blank model {model}')
@@ -82,6 +90,6 @@ def test_model(model: Union[str, PathLike], text):
 if __name__ == '__main__':
     train_ner(
         '../../../data/models/smash_bros_twitter',
-        convert_dataturks_to_spacy('../../../datasets/smash_bros_twitter_annotated_2.json'),
+        convert_dataturks_to_spacy('../../../data/annotated_training_data/smash_bros_twitter_annotated.json'),
         num_iter=200
     )

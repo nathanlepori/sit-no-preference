@@ -2,7 +2,7 @@ import itertools
 from os import path
 
 from no_preference.data_sources.twitter import get_following, get_tweets_for_training
-from no_preference.processing.ner_training.training import test_model
+from no_preference.processing.ner_training.training import test_model, train_ner, get_annotations_loaders
 from no_preference.ui.pyinquirer_menu import prompt
 from no_preference.util import get_data_dir, get_logger
 
@@ -53,6 +53,53 @@ def save_training_data(training_data):
     LOGGER.info(f'Successfully saved training data {training_data_filename}.')
 
 
+def train_model_ui():
+    base_model_name = prompt({
+        'type': 'input',
+        'name': 'base_model_name',
+        'message': "What is the name of the model you want to train? If it doesn't exists it will be created.",
+        'validate': lambda a: len(a) > 0,
+    })['base_model_name']
+
+    annotations_loaders = get_annotations_loaders()
+    training_answers = prompt([
+        {
+            'type': 'input',
+            'name': 'training_data_filename',
+            'message': "What is the name of the annotated training data file you want to train this model against?",
+            'validate': lambda a: len(a) > 0,
+        },
+        {
+            'type': 'list',
+            'name': 'annotations_loader',
+            'message': 'What annotation loader do you want to use to load the file?',
+            'choices': map(lambda loader: loader[0], annotations_loaders),
+            'filter': lambda loader_name: [loader[1] for loader in annotations_loaders if loader[0] == loader_name][0]
+        },
+        {
+            'type': 'input',
+            'name': 'output_model_name',
+            'message': "Where do you want to save the trained model? If the model already exists it will be overridden.",
+            'default': base_model_name,
+            'validate': lambda a: len(a) > 0,
+        },
+        {
+            'type': 'input',
+            'name': 'num_iter',
+            'message': "How many iteration should this training last?",
+            'default': '100',
+            'validate': lambda a: a.isdigit() and int(a) > 0,
+            'filter': lambda a: int(a)
+        }
+    ])
+
+    annotations_loaders = training_answers['annotations_loader']
+    train_ner(model=base_model_name,
+              training_data=annotations_loaders(training_answers['training_data_filename']),
+              output_model=training_answers['output_model_name'],
+              num_iter=training_answers['num_iter'])
+
+
 def run():
     questions = {
         'type': 'list',
@@ -81,7 +128,10 @@ def run():
                 'name': 'Annotate data using Prodigy',
                 'disabled': 'Not supported yet'
             },
-            'Train a model',
+            {
+                'name': 'Train a model',
+                'next': train_model_ui
+            },
             {
                 'name': 'Test a model',
                 'next': {
