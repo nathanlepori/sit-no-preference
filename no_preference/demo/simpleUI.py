@@ -1,8 +1,8 @@
-import src.demo.spacyNLP as spacyNLP
-import src.demo.sort as sort
-import src.demo.venn as venn
-import src.demo.defaults as default
-import src.demo.description as des
+import no_preference.demo.spacyNLP as spacyNLP
+import no_preference.demo.sort as sort
+import no_preference.demo.venn as venn
+import no_preference.demo.defaults as default
+import no_preference.demo.description as des
 import pandas as pd
 import spacy
 

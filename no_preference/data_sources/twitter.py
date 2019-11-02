@@ -86,5 +86,5 @@ if __name__ == '__main__':
     # timeline = get_timeline(screen_name)
     # timeline.to_csv('../../datasets/twitter_timeline_nathan.csv', index=False)
     # print(get_following(screen_name))
-    tweets = get_tweets_for_training(['9lives_Salem', 'MVG_Mew2King', 'MVD731'], items_per_user=30)
+    tweets = get_tweets_for_training(['9lives_Salem', 'MVG_Mew2King', 'MVD731'], num_tweets=30)
     open('../../datasets/tweets_for_training_2.txt', 'w', encoding='utf-8').writelines(map(lambda t: f'{t}\n', tweets))

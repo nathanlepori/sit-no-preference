@@ -1,24 +1,25 @@
 import random
+from os import PathLike
 from pathlib import Path
 
 import spacy
 
-from typing import Dict
+from typing import Dict, Union
 
 from spacy.util import compounding, minibatch
 
-from src.processing.ner.training.convert_dataturks_to_spacy import convert_dataturks_to_spacy
-from src.util import get_logger
+from no_preference.processing.ner_training.convert_dataturks_to_spacy import convert_dataturks_to_spacy
+from no_preference.util import get_logger, load_model
 
-LOGGER = get_logger(__file__)
+LOGGER = get_logger(__name__)
 
 
-def train_ner(model: str, training_data: Dict, output_model: str = None, lang: str = 'en', num_iter: int = 100):
+def train_ner(model: Union[str, PathLike], training_data: Dict, output_model: str = None, lang: str = 'en', num_iter: int = 100):
     # If not specified otherwise, output onto the starting model
     if output_model is None:
         output_model = model
     try:
-        nlp = spacy.load(model)
+        nlp = load_model(model)
         blank_model = False
         LOGGER.info(f'Loaded existing model {model}')
     except OSError as e:
@@ -64,24 +65,23 @@ def train_ner(model: str, training_data: Dict, output_model: str = None, lang: s
             LOGGER.info(f'{itn + 1}/{num_iter} iterations done.')
 
     # save model
-    output_dir = Path(model)
+    output_dir = Path(output_model)
     if not output_dir.exists():
         output_dir.mkdir()
     nlp.to_disk(output_dir)
     LOGGER.info(f'Saved model to {output_dir}')
 
 
-def test_model(model: str, text):
-    nlp = spacy.load(model)
+def test_model(model: Union[str, PathLike], text):
+    nlp = load_model(model)
     doc = nlp(text)
 
-    for ent in doc.ents:
-        print(ent.text, ent.start_char, ent.end_char, ent.label_)
+    return map(lambda ent: (ent.text, ent.start_char, ent.end_char, ent.label_), doc.ents)
 
 
 if __name__ == '__main__':
     train_ner(
-        '../../../../models/smash_bros_twitter',
-        convert_dataturks_to_spacy('../../../../datasets/smash_bros_twitter_annotated_2.json'),
+        '../../../data/models/smash_bros_twitter',
+        convert_dataturks_to_spacy('../../../datasets/smash_bros_twitter_annotated_2.json'),
         num_iter=200
     )

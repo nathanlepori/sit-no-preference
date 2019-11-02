@@ -9,12 +9,12 @@ from pprint import pprint
 
 from PyInquirer import style_from_dict, Token, prompt
 
-from src.demo.defaults import *
-from src.demo.spacyNLP import *
-from src.demo.venn import *
+from no_preference.demo.defaults import *
+from no_preference.demo.spacyNLP import *
+from no_preference.demo.venn import *
 
-from src.data_sources.twitter import get_twitter_timeline
-from src.data_sources.browser_history import get_chrome_history, get_firefox_history
+from no_preference.data_sources.twitter import get_twitter_timeline
+from no_preference.data_sources.browser_history import get_chrome_history, get_firefox_history
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)

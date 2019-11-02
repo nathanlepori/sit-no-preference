@@ -13,7 +13,7 @@ from pandas import DataFrame
 from spacy.tokens.doc import Doc
 from spacy.tokens.token import Token
 
-from src.util import get_logger
+from no_preference.util import get_logger
 
 
 class HistoryAnalysisResults:
@@ -34,7 +34,7 @@ IRRELEVANT_URL_PATTERNS = [
     r'^https?:\/\/(www\.)?facebook\.com.*$',
 ]
 
-LOGGER = get_logger(__file__)
+LOGGER = get_logger(__name__)
 
 requests_cache.install_cache()
 

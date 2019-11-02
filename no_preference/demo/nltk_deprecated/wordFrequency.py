@@ -1,5 +1,5 @@
 from collections import Counter
-import src.demo.sort as sort
+import no_preference.demo.sort as sort
 import pandas as pd
 import sys
 
