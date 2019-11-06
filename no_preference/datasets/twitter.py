@@ -29,13 +29,14 @@ api = get_twitter_api()
 
 def get_twitter_timeline(screen_name: str, include_retweets=True) -> DataFrame:
     timeline = []
-    for tweet in tweepy.Cursor(api.user_timeline, screen_name=screen_name, tweet_mode='extended').items():
-        # Check if the tweet is a retweet or tweet made by the user
-        if include_retweets and hasattr(tweet, 'retweeted_status'):
-            timeline.append(
-                [tweet.retweeted_status.full_text, tweet.created_at, tweet.retweeted_status.lang, True])
-        else:
-            timeline.append([tweet.full_text, tweet.created_at, tweet.lang, False])
+    with Halo(text=f"Getting {screen_name}'s Twitter timeline.", spinner='dots'):
+        for tweet in tweepy.Cursor(api.user_timeline, screen_name=screen_name, tweet_mode='extended').items():
+            # Check if the tweet is a retweet or tweet made by the user
+            if include_retweets and hasattr(tweet, 'retweeted_status'):
+                timeline.append(
+                    [tweet.retweeted_status.full_text, tweet.created_at, tweet.retweeted_status.lang, True])
+            else:
+                timeline.append([tweet.full_text, tweet.created_at, tweet.lang, False])
 
     df = DataFrame(timeline, columns=_TIMELINE_COLUMNS)
     return df
@@ -48,7 +49,7 @@ def get_following(screen_name: str) -> List[str]:
     :return:
     """
     following = []
-    with Halo(text=f'Getting users followed by {screen_name}.', spinner='dots'):
+    with Halo(text=f'Getting Twitter users followed by {screen_name}.', spinner='dots'):
         for user in tweepy.Cursor(api.friends, screen_name=screen_name).items():
             # Get the screen name from the ID
             following.append(user.screen_name)
