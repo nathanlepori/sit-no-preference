@@ -1,7 +1,7 @@
 import itertools
 from os import path
 
-from no_preference.data_sources.twitter import get_following, get_tweets_for_training
+from no_preference.datasets.twitter import get_following, get_tweets_for_training
 from no_preference.processing.ner_training.training import test_model, train_ner, get_annotations_loaders
 from no_preference.ui.pyinquirer_menu import prompt
 from no_preference.util import get_data_dir, get_logger

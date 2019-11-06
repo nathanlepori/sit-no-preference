@@ -12,13 +12,13 @@ from pprint import pprint
 
 from PyInquirer import style_from_dict, Token, prompt
 
-from no_preference.data_sources.facebook import functions
+from no_preference.datasets.facebook import functions
 from no_preference.demo.defaults import *
 from no_preference.demo.spacyNLP import *
 from no_preference.demo.venn import *
 
-from no_preference.data_sources.twitter import get_twitter_timeline
-from no_preference.data_sources.browser_history import get_chrome_history, get_firefox_history
+from no_preference.datasets.twitter import get_twitter_timeline
+from no_preference.datasets.browser_history import get_chrome_history, get_firefox_history
 from no_preference.processing.ner_training import training_ui
 from no_preference.util import create_data_dir, get_data_dir
 

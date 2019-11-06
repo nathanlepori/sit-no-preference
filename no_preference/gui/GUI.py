@@ -11,7 +11,9 @@ from wordcloud import WordCloud
 
 
 def vp_start_gui():
-    '''Starting point when module is the main routine.'''
+    """
+    Starting point when module is the main routine.
+    """
     global val, w, root
     root = tk.Tk()
     top = Toplevel1(root)
@@ -43,9 +45,9 @@ def destroy_Toplevel1():
 class Toplevel1:
     def get_web_path(self, type):
         # get the path of the file
-        global webPath
-        webPath = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
-                                                     filetypes=[("csv file", "*.csv")])
+        global web_path
+        web_path = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
+                                                      filetypes=[("csv file", "*.csv")])
 
         global web_loaded
         web_loaded = 0  # counter to signify if file has been loaded or not
@@ -508,7 +510,7 @@ class Toplevel1:
                 before_sort_x = []
                 before_sort_y = []
 
-                with open(webPath, 'r') as f:
+                with open(web_path, 'r') as f:
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:
@@ -671,7 +673,7 @@ class Toplevel1:
                 y = []
                 x = []
                 y1 = []
-                with open(webPath, 'r') as f:
+                with open(web_path, 'r') as f:
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:
@@ -755,7 +757,7 @@ class Toplevel1:
                 before_sort_x = []
                 before_sort_y = []
                 x1 = []
-                with open(webPath, 'r') as f:  # opening the file
+                with open(web_path, 'r') as f:  # opening the file
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:
@@ -953,7 +955,7 @@ class Toplevel1:
                     x.append(f'Social Media Data: {before_sort_x[-1]}')
                     y.append(before_sort_y[-1])
 
-                with open(webPath, 'r') as f:  # opening the web file
+                with open(web_path, 'r') as f:  # opening the web file
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:
@@ -1061,7 +1063,7 @@ class Toplevel1:
                         plt.ylabel('Counts')
                         plt.show()
 
-                with open(webPath, 'r') as f:  # opening the web browser file
+                with open(web_path, 'r') as f:  # opening the web browser file
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:
@@ -1153,7 +1155,7 @@ class Toplevel1:
                 y = []
                 x = []
                 y1 = []
-                with open(webPath, 'r') as f:
+                with open(web_path, 'r') as f:
 
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
@@ -1385,7 +1387,7 @@ class Toplevel1:
             elif web_loaded >= 1:
                 beforeSortx = []
                 x1 = []
-                with open(webPath, 'r') as f:
+                with open(web_path, 'r') as f:
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:
@@ -1446,7 +1448,7 @@ class Toplevel1:
                 x1 = []
                 x = []
                 x4 = []
-                with open(webPath, 'r') as f:
+                with open(web_path, 'r') as f:
                     plots = csv.reader(f, delimiter=',')
                     for row in plots:
                         for i in row:

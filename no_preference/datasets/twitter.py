@@ -11,7 +11,7 @@ _ACCESS_TOKEN_SECRET = 'NR4Gh8LdGyLznEQ1Q4D5rXaez4iApUVAJixojxFkC1fNH'
 _CONSUMER_KEY = 'j6HqL176aZmPCdcOEzoQgFkOy'
 _CONSUMER_SECRET = 'tJ20feJRMfD1S7DakSU6FzUKQC57urOZOw2P29ojGiTTTeUitX'
 
-_TIMELINE_COLUMNS = ['text', 'created_at', 'lang', 'is_retweet']
+_TIMELINE_COLUMNS = ['content', 'date', 'lang', 'is_retweet']
 
 
 def get_twitter_api():

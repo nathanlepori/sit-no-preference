@@ -22,7 +22,8 @@ _FIREFOX_PROFILE_PATH = {
     'Darwin': '~/Library/Application Support/Firefox'
 }
 
-_HISTORY_COLUMNS = ['url', 'title', 'visit_count', 'last_visit_time']
+# content = title of the page
+_HISTORY_COLUMNS = ['url', 'content', 'visit_count', 'date']
 
 
 def _get_chrome_history_file_path() -> str:
