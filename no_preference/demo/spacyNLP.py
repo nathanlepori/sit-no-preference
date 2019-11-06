@@ -59,6 +59,8 @@ def spacyLabelTokenFull(df, columnName): #same as spacyLabel but refix exisiting
     for row in df[columnName]:
         format_token = ' '.join(map(str, row))
         doc = nlp(format_token)
+        # for ent in doc.ents:
+        #     print(ent.text, ent.label_)
         modify = format_token
         full = []
         for de in doc.ents:
