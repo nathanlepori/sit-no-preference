@@ -13,10 +13,10 @@ from no_preference.demo.spacyNLP import readFile, spacyToken, spacyLabelTokenFul
 from no_preference.demo.venn import vennIntersectTextTag, vennSymmetricDifTextTag
 from no_preference.util import get_data_dir
 
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
-pd.set_option('display.max_colwidth', 1000)
+# pd.set_option('display.max_rows', 500)
+# pd.set_option('display.max_columns', 500)
+# pd.set_option('display.width', 1000)
+# pd.set_option('display.max_colwidth', 1000)
 
 q_start_analysis = {
     'type': 'rawlist',
@@ -267,8 +267,8 @@ def _process_selection_label(df, columnName, df2, columnNameB, a_label):
 
     if a_label['venn'] == 'symmetric_difference':
         vennSymmetricDifTextTag(df, columnName, df2, columnNameB, textTagOption)
-        spacyCleanCell(df, columnName)
-        spacyCleanCell(df2, columnNameB)
+        df = spacyCleanCell(df, columnName)
+        df2 = spacyCleanCell(df2, columnNameB)
         df = df.reset_index(drop=True)
         df2 = df2.reset_index(drop=True)
 
@@ -441,23 +441,17 @@ def run():
                     else:
                         filenameA = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
                     read = readFile(filenameA)
-                    if a_append_overwrite['integrate'] == 'append':
-                        if df.empty:
-                            # Filter out empty titles (stored as nan aka flat values) and
-                            # get only content and date column
-                            df = read.dropna()[[columnName, date_column]]
-                            df = spacyToken(df, columnName)
-                            df = spacyLabelTokenFull(df, columnName)
-                        else:
-                            df_temporary = pd.DataFrame(read,
-                                                        columns=[columnName, date_column])  # impt to match columns
-                            spacyToken(df_temporary, columnName)
-                            spacyLabelTokenFull(df_temporary, columnName)
-                            df = venn.vennUnion(df, df_temporary)
-                    if a_append_overwrite['integrate'] == 'overwrite':
-                        df = pd.DataFrame(read, columns=[columnName, date_column])  # impt to match columns
-                        spacyToken(df, columnName)
-                        spacyLabelTokenFull(df, columnName)
+                    if a_append_overwrite['integrate'] == 'overwrite' or df.empty:
+                        # Filter out empty titles (stored as nan aka flat values) and
+                        # get only content and date column
+                        df = read.dropna()[[columnName, date_column]]
+                        df = spacyToken(df, columnName)
+                        df = spacyLabelTokenFull(df, columnName)
+                    else:
+                        df_temporary = read.dropna()[[columnName, date_column]]  # impt to match columns
+                        df_temporary = spacyToken(df_temporary, columnNameB)
+                        df_temporary = spacyLabelTokenFull(df_temporary, columnNameB)
+                        df = venn.vennUnion(df, df_temporary)
 
                 if a_set_A_set_B['option'] == 'set_B':
                     a_append_overwrite = prompt(q_append_overwrite)
@@ -468,23 +462,17 @@ def run():
                     else:
                         filenameB = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
                     read = readFile(filenameB)
-                    if a_append_overwrite['integrate'] == 'append':
-                        if df2.empty:
-                            # Filter out empty titles (stored as nan aka flat values) and
-                            # get only content and date column
-                            df2 = read.dropna()[[columnName, date_column]]
-                            df2 = spacyToken(df2, columnName)
-                            df2 = spacyLabelTokenFull(df2, columnName)
-                        else:
-                            df_temporary = pd.DataFrame(read,
-                                                        columns=[columnNameB, date_column])  # impt to match columns
-                            spacyToken(df_temporary, columnNameB)
-                            spacyLabelTokenFull(df_temporary, columnNameB)
-                            df2 = venn.vennUnion(df2, df_temporary)
-                    if a_append_overwrite['integrate'] == 'overwrite':
-                        df2 = pd.DataFrame(read, columns=[columnNameB, date_column])  # impt to match columns
-                        spacyToken(df2, columnNameB)
-                        spacyLabelTokenFull(df2, columnNameB)
+                    if a_append_overwrite['integrate'] == 'overwrite' or df2.empty:
+                        # Filter out empty titles (stored as nan aka flat values) and
+                        # get only content and date column
+                        df2 = read.dropna()[[columnName, date_column]]
+                        df2 = spacyToken(df2, columnName)
+                        df2 = spacyLabelTokenFull(df2, columnName)
+                    else:
+                        df_temporary = read.dropna()[[columnName, date_column]]  # impt to match columns
+                        df_temporary = spacyToken(df_temporary, columnNameB)
+                        df_temporary = spacyLabelTokenFull(df_temporary, columnNameB)
+                        df2 = venn.vennUnion(df2, df_temporary)
 
         if a_start_analysis['start'] == 'run_analysis':
             while True:
@@ -495,7 +483,7 @@ def run():
                     print(df)
                     print(df2)
                 if a_label['venn'] == 'intersect' or a_label['venn'] == 'symmetric_difference' or a_label[
-                    'venn'] == 'union':
+                        'venn'] == 'union':
                     df, df2 = _process_selection_label(df, columnName, df2, columnNameB, a_label)
                 if a_label['venn'] == 'modify':
                     df, df2 = _process_selection_modify(df, columnName, df2, columnNameB)

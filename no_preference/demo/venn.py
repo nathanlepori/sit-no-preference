@@ -103,36 +103,23 @@ def vennSymmetricDifTextTag(setA, columnName, setB, columnNameB, listNo):
       This function does WILL affect the dataframe that was pass by reference
     This function will modify the both dataframe to keep words found in both set A and set B, hence intersect"""
     match = []
-    Ai = 0
     for row in setA[columnName]:
-        Aj = 0
-        for word in setA[columnName][Ai]:
-            Bi = 0
+        for word in row:
             for rowB in setB[columnNameB]:
-                Bj = 0
-                for wordB in setB[columnNameB][Bi]:
+                for wordB in rowB:
                     if word[:][listNo] not in match:  # if element cant be found in match list
                         if word[:][listNo] in wordB[:][listNo]:  # if SetA element can be found in SetB dataframe
                             match.append(word[:][listNo])  # if found append into match list
-                    Bj += 1
-                Bi += 1
-
-            if setA.iloc[Ai][columnName][Aj][listNo] in match:  # if element of SetA can be found in match list
+            if word[:][listNo] in match:  # if element of SetA can be found in match list
                 # remove element that are found in match list
-                setA.iloc[Ai][columnName][Aj] = [w for w in setA.iloc[Ai][columnName][Aj] if w[listNo] in match]
-            Aj += 1
-        Ai += 1
+                del word[:]
         # end of setA
 
-    Bi = 0
     for row in setB[columnNameB]:  # start removing non match from setB
-        Bj = 0
-        for wordB in setB.iloc[Bi][columnNameB]:
-            if setB.iloc[Bi][columnNameB][Bj][listNo] in match:  # if element of SetB can be found in match list
+        for wordB in row:
+            if wordB[:][listNo] in match:  # if element of SetB can be found in match list
                 # remove element that are found in match list
-                setB.iloc[Bi][columnNameB][Bj] = [w for w in setB.iloc[Bi][columnNameB][Bj] if w[listNo] in match]
-            Bj += 1
-        Bi += 1
+                del wordB[:]
     return setA, setB
 
 
