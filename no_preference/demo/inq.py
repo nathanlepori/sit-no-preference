@@ -4,6 +4,9 @@
 # * run example by writing `python example/input.py` in your console
 # """
 # from __future__ import print_function, unicode_literals
+import json
+from os import path
+
 import regex
 from pprint import pprint
 
@@ -17,7 +20,7 @@ from no_preference.demo.venn import *
 from no_preference.data_sources.twitter import get_twitter_timeline
 from no_preference.data_sources.browser_history import get_chrome_history, get_firefox_history
 from no_preference.processing.ner_training import training_ui
-from no_preference.util import create_data_dir
+from no_preference.util import create_data_dir, get_data_dir
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -200,27 +203,63 @@ q_assoc_term = [
 
 q_gb = [
     {
-    'type': 'input',
-    'name': 'value',
-    'message': 'Enter twitter name: ',
+        'type': 'input',
+        'name': 'value',
+        'message': 'Enter twitter name: ',
     }
 ]
 
+q_browser = [
+    {
+        'type': 'rawlist',
+        'name': 'browser',
+        'message': 'Select browser',
+        'choices': [
+            'chrome',
+            'firefox',
+            'exit'
+        ]
+    },
+]
+q_append_overwrite = [
+    {
+        'type': 'rawlist',
+        'name': 'integrate',
+        'message': 'Select method of saving the file',
+        'choices': [
+            'append',
+            'overwrite'
+        ]
+    },
+]
+q_dfOption = [
+    {
+        'type': 'rawlist',
+        'name': 'dfOption',
+        'message': 'Select dataframe',
+        'choices': [
+            'df',
+            'df2',
+            'exit'
+        ]
+    },
+]
 
-def _readfile():  # temporary function, might need to remove after using nathan's code
+
+def _readfile(name_column, date_column):  # temporary function, might need to remove after using nathan's code
     if a_file_loc['file_A'] == '':
-        filenameA = defaultFileA()
+        filenameA = path.join(get_data_dir(), 'datasets', defaultFileA())
     else:
-        filenameA = a_file_loc['file_A']
+        filenameA = path.join(get_data_dir(), 'datasets', a_file_loc['file_A'])
     read = readFile(filenameA)
-    df = pd.DataFrame(read, columns=[columnName, defaultDateColumn()])  # impt to match columns
+    df = pd.DataFrame(read, columns=[name_column, date_column])  # impt to match columns
 
     if a_file_loc['file_B'] == '':
-        filenameB = defaultFileB()
+        filenameB = path.join(get_data_dir(), 'datasets', defaultFileB())
     else:
-        filenameB = a_file_loc['file_B']
+        filenameB = path.join(get_data_dir(), 'datasets', a_file_loc['file_B'])
     read2 = readFile(filenameB)
-    df2 = pd.DataFrame(read2, columns=[columnNameB, defaultDateColumn()])  # impt to match columns
+    df2 = pd.DataFrame(read2, columns=[name_column, date_column])  # impt to match columns
 
     return df, df2
 
@@ -229,6 +268,12 @@ def writeFile(content, filename):  # write to file.
     f = open(filename, "w+")
     f.write(str(content))
     f.close()
+
+
+def writeFileJson(content, filename):  # write to file.
+    output_datasets_name = path.join(get_data_dir(), 'results', filename)
+    with open(output_datasets_name, 'w+') as fp:
+        json.dump(content, fp)
 
 
 def _process_selection_label(df, columnName, df2, columnNameB):
@@ -339,11 +384,12 @@ def _process_selection_math(df, columnName, df2, columnNameB):
             if a_file_select['file_selection'] == 'file_A' or 'both':
                 a_file_A_request = prompt(q_file_A_request)
                 filename = a_file_A_request['filename']
-                writeFile(countA, filename)
+                writeFileJson(countA, filename)
+
             if a_file_select['file_selection'] == 'file_B' or 'both':
                 a_file_B_request = prompt(q_file_B_request)
                 filename = a_file_B_request['filename']
-                writeFile(countB, filename)
+                writeFileJson(countB, filename)
 
         if a_math['math'] == 'counter' or 'frequency_By_Date':
             a_text_tag = prompt(q_text_tag)
@@ -414,14 +460,35 @@ while True:
         get_firefox_history()
         a_gb = prompt(q_gb)
         get_twitter_timeline(a_gb['input'])
+
+    if a_start['start'] == 'guobao':  # browser based
+        while True:
+            a_browser = prompt(q_browser)
+            if a_browser['browser'] == "exit":
+                break
+            if a_browser['browser'] == "chrome":
+                df_browser = get_chrome_history()
+                output_datasets_name = path.join(get_data_dir(), 'datasets', 'chrome.csv')
+                a_append_overwrite = prompt(q_append_overwrite)
+
+            if a_browser['browser'] == "firefox":
+                df_browser = get_firefox_history()
+                output_datasets_name = path.join(get_data_dir(), 'datasets', 'firefox.csv')
+                a_append_overwrite = prompt(q_append_overwrite)
+
+            if a_append_overwrite['integrate'] == "append":
+                df_browser.to_csv(output_datasets_name, encoding='utf-8', mode='a+', index=False)
+            if a_append_overwrite['integrate'] == "overwrite":
+                df_browser.to_csv(output_datasets_name, encoding='utf-8', mode='w+', index=False)
+
     if a_start['start'] == 'nathan':
         training_ui.run()
     if a_start['start'] == 'gary':
         pass  # gary to replace code in th  is if
 
-    if a_start['start'] == 'load_file':
+    if a_start['start'] == 'load_file':  # maybe change to do token, and remove _readfile
         a_file_loc = prompt(q_file_loc)
-        df, df2 = _readfile()
+        df, df2 = _readfile(defaultColumn(),defaultDateColumn())
         spacyToken(df, columnName)
         # spacyStopword(df, columnName)
         spacyLabelTokenFull(df, columnName)
