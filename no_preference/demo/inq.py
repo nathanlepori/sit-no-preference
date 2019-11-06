@@ -209,18 +209,6 @@ q_gb = [
     }
 ]
 
-q_browser = [
-    {
-        'type': 'rawlist',
-        'name': 'browser',
-        'message': 'Select browser',
-        'choices': [
-            'chrome',
-            'firefox',
-            'exit'
-        ]
-    },
-]
 q_append_overwrite = [
     {
         'type': 'rawlist',
@@ -455,31 +443,9 @@ while True:
     a_start = prompt(q_start)
     if a_start['start'] == 'charlyn':
         functions()
-    if a_start['start'] == 'guobao':
-        get_chrome_history()
-        get_firefox_history()
-        a_gb = prompt(q_gb)
-        get_twitter_timeline(a_gb['input'])
-
     if a_start['start'] == 'guobao':  # browser based
-        while True:
-            a_browser = prompt(q_browser)
-            if a_browser['browser'] == "exit":
-                break
-            if a_browser['browser'] == "chrome":
-                df_browser = get_chrome_history()
-                output_datasets_name = path.join(get_data_dir(), 'datasets', 'chrome.csv')
-                a_append_overwrite = prompt(q_append_overwrite)
-
-            if a_browser['browser'] == "firefox":
-                df_browser = get_firefox_history()
-                output_datasets_name = path.join(get_data_dir(), 'datasets', 'firefox.csv')
-                a_append_overwrite = prompt(q_append_overwrite)
-
-            if a_append_overwrite['integrate'] == "append":
-                df_browser.to_csv(output_datasets_name, encoding='utf-8', mode='a+', index=False)
-            if a_append_overwrite['integrate'] == "overwrite":
-                df_browser.to_csv(output_datasets_name, encoding='utf-8', mode='w+', index=False)
+        # Moved to datasets_ui.py
+        pass
 
     if a_start['start'] == 'nathan':
         training_ui.run()
