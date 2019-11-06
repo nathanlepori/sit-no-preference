@@ -1,7 +1,8 @@
 import pandas as pd
 import time
 
-from math import isnan
+import json
+import os
 
 
 def post():
@@ -16,7 +17,7 @@ def post():
             else:
                 continue
         timestamp = a['timestamp'][i]
-        posts_data.append([post, timestamp])
+        posts_data.append([post, time.ctime(timestamp)])
     return pd.DataFrame(posts_data, columns=['post', 'timestamp'])
 
 
