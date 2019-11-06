@@ -1,3 +1,5 @@
+from tkinter import *
+import json
 import csv
 import os
 import sys
@@ -21,9 +23,7 @@ def vp_start_gui():
     root.geometry('600x500')
     root.mainloop()
 
-
 w = None
-
 
 def create_Toplevel1(root, *args, **kwargs):
     """
@@ -35,35 +35,32 @@ def create_Toplevel1(root, *args, **kwargs):
     top = Toplevel1(w)
     return (w, top)
 
-
 def destroy_Toplevel1():
     global w
     w.destroy()
     w = None
-
 
 class Toplevel1:
     def get_web_path(self, type):
         # get the path of the file
         global web_path
         web_path = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
-                                                      filetypes=[("csv file", "*.csv")])
-
+                                                      filetypes=[("json file", "*.json")])
         global web_loaded
         web_loaded = 0  # counter to signify if file has been loaded or not
         web_loaded += 1
         eval("self." + type + ".delete(0,END)")
-        eval("self." + type + ".insert(0,webPath)")
+        eval("self." + type + ".insert(0,web_path)")
 
     def get_social_path(self, type):  # get path of file
-        global socialPath
-        socialPath = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
-                                                        filetypes=[("csv file", "*.csv")])
+        global social_path
+        social_path = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
+                                                        filetypes=[("json file", "*.json")])
         global social_loaded
         social_loaded = 0  # counter to signify if file has been loaded or not
         social_loaded += 1
         eval("self." + type + ".delete(0,END)")
-        eval("self." + type + ".insert(0,socialPath)")
+        eval("self." + type + ".insert(0,social_path)")
 
     def load_files(self):  # Load the files and store it in it's respective outputs.
         try:
@@ -171,7 +168,6 @@ class Toplevel1:
 
         def load_from_web():
             self.get_web_path("Entry1")
-            file_name = "test2"
 
         # Button that triggers the function
         self.Button3 = tk.Button(top)
@@ -190,7 +186,6 @@ class Toplevel1:
 
         def load_from_social():
             self.get_social_path("Entry2")
-            file_name = "test2"
 
         # Button that triggers the function
         self.Button1 = tk.Button(top)
@@ -240,6 +235,7 @@ class Toplevel1:
         self.Button1.configure(width=62)
         self.Button1.configure(command=lambda: web_word_count_ranked())
 
+        #button for web timeline
         self.Button1 = tk.Button(top)
         self.Button1.place(relx=0.63, rely=0.07, height=35, width=170)
         self.Button1.configure(activebackground="#ececec")
@@ -255,6 +251,7 @@ class Toplevel1:
         self.Button1.configure(width=62)
         self.Button1.configure(command=lambda: web_timeline())
 
+        #button for social timeline
         self.Button1 = tk.Button(top)
         self.Button1.place(relx=0.63, rely=0.31, height=35, width=170)
         self.Button1.configure(activebackground="#ececec")
@@ -301,7 +298,6 @@ class Toplevel1:
         self.Button1.configure(text='''Comparison of Top Count Words''')
         self.Button1.configure(width=62)
         self.Button1.configure(command=lambda: mst_count_comparison_chart())
-        updateEntry = StringVar()
 
         # Button that triggers the function
         self.Button1 = tk.Button(top)
@@ -334,7 +330,6 @@ class Toplevel1:
         self.Button1.configure(text='''Word to Find''')
         self.Button1.configure(width=62)
         self.Button1.configure(command=lambda: web_word_to_find())
-        updateEntry = StringVar()
 
         self.Button1 = tk.Button(top)  # button to generate web wordcloud
         self.Button1.place(relx=0.32, rely=0.145, height=35, width=170)
@@ -415,6 +410,24 @@ class Toplevel1:
         self.Entry2.configure(foreground="#000000")
         self.Entry2.configure(insertbackground="black")
 
+        def open_web_path(x,y):
+            with open(web_path, 'r') as f:
+                plots = json.loads(f.read())
+                for key, val in plots.items():
+                    x.append(key)
+                    y.append(val)
+                Sorty, Sortx = zip(*sorted(zip(y, x)))
+                return Sorty, Sortx
+
+        def open_social_path(x,y):
+            with open(social_path, 'r') as f:
+                plots = json.loads(f.read())
+                for key, val in plots.items():
+                    x.append(key)
+                    y.append(val)
+                Sorty, Sortx = zip(*sorted(zip(y, x)))
+                return Sorty, Sortx
+
         def social_word_count():
             """
             Function that gets the Top Count of the Social CSV file
@@ -431,39 +444,11 @@ class Toplevel1:
             elif social_loaded >= 1:  # else if social media file loaded
                 x = []
                 y = []
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
-                with open(socialPath, 'r') as f:  # open the file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:  # for i in row to get a single column out
-                            column = i  # column
-                            column.replace("{", "")  # removing all special characters
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-
-                            separate = ":"  # the count and word of the CSV is separated by :
-                            position = column.find(separate)  # find the position of : in the column
-                            length = len(newstr3)  # calculates total length of the column
-                            word = newstr3[0:position]  # slices the word out of the column
-                            count = newstr3[position:length]  # slices the count out of the column
-                            before_sort_x.append(word)  # appending it to list
-                            before_sort_y.append(int(count))  # appending it to list
-                        # sorts both files in same order
-                        before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                        # appending biggest value which is sorted to the end
-                        y.append(before_sort_y[-1])
-                    x1.append(before_sort_x[-1])
-                    xword = str(x1)  # removing all special characters
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    x.append(xword2)  # append to x which will be used to display the chart
-
+                ydisplay = []
+                Sorty,Sortx = open_social_path(x,y)
+                xmost = Sortx[-1]
+                ymost = Sorty[-1]
+                ydisplay.append(ymost)
                 if len(x) == 0:  # if column is empty
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
@@ -473,9 +458,9 @@ class Toplevel1:
                     fig, ax = plt.subplots(1, 1)  # changing width of the bar chart
                     ax.set_xlim(-2, 2)
                     xlocs, xlabs = plt.xticks()
-                    for i, v in enumerate(y):  # displays the bar chart value
+                    for i, v in enumerate(ydisplay):
                         plt.text(xlocs[i] - -2, v + 0.01, str(v))
-                    plt.bar(x, y)
+                    plt.bar(xmost, ymost)
                     plt.title('Top Word\n')
                     plt.xlabel('Word')
                     plt.ylabel('Count')
@@ -506,38 +491,11 @@ class Toplevel1:
                 # else if loaded
                 x = []
                 y = []
-                x1 = []
-                before_sort_x = []
-                before_sort_y = []
-
-                with open(web_path, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            new_str = column.replace("{", "")
-                            new_str2 = new_str.replace("}", "")
-                            new_str3 = new_str2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(new_str3)
-                            word = new_str3[0:position]
-                            count = new_str3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-                        before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                        y.append(before_sort_y[-1])
-                        x1.append(before_sort_x[-1])
-                        xword = str(x1)
-                        xword2 = xword.replace(":", "")
-                        xword2 = xword2.replace("[", "")
-                        xword2 = xword2.replace("]", "")
-                        xword2 = xword2.replace("'", "")
-                        xword2 = xword2.replace("\"", "")
-                        x.append(xword2)
-
+                ydisplay = []
+                Sorty,Sortx = open_web_path(x,y)
+                xmost = Sortx[-1]
+                ymost = Sorty[-1]
+                ydisplay.append(ymost)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
@@ -547,10 +505,9 @@ class Toplevel1:
                     fig, ax = plt.subplots(1, 1)
                     ax.set_xlim(-2, 2)
                     xlocs, xlabs = plt.xticks()
-                    for i, v in enumerate(y):
+                    for i, v in enumerate(ydisplay):
                         plt.text(xlocs[i] - -2, v + 0.01, str(v))
-
-                    plt.bar(x, y)
+                    plt.bar(xmost, ymost)
                     plt.title('Top Word\n')
                     plt.xlabel('Word')
                     plt.ylabel('Count')
@@ -579,65 +536,16 @@ class Toplevel1:
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1:
                 # if social file loaded
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
-                y1 = []
-                with open(socialPath, 'r') as f:  # opening the file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(newstr3)
-                            word = newstr3[0:position]
-                            count = newstr3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-                        before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                        x1.append(before_sort_x)  # append all the sorted
-                        xword = str(x1)
-                        xword2 = xword.replace(":", "")
-                        xword2 = xword2.replace("[", "")
-                        xword2 = xword2.replace("]", "")
-                        xword2 = xword2.replace("'", "")
-                        xword2 = xword2.replace("\"", "")
-                        xword2 = xword2.replace("(", "")
-                        xword2 = xword2.replace(")", "")
-                        y1.append(before_sort_y)  # append all stored in y
-                        x = xword2.split()  # splitting the str and making it into a list
-                        yword = str(y1)  # removes special characters
-                        yword2 = yword.replace(":", "")
-                        yword2 = yword2.replace("[", "")
-                        yword2 = yword2.replace("]", "")
-                        yword2 = yword2.replace("'", "")
-                        yword2 = yword2.replace("\"", "")
-                        yword2 = yword2.replace("(", "")
-                        yword2 = yword2.replace(")", "")
-                        yword2 = yword2.replace(",", "")
-                        # splitting the str and making it into a list
-                        y = yword2.split()
-                        # converting to int to display on graph
-                        new_numbers = []
-                        for n in y:
-                            new_numbers.append(int(n))
-                        numbers = new_numbers
-
+                x=[]
+                y=[]
+                Sorty, Sortx = open_social_path(x,y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-
-                    plt.bar(x, numbers)
-
+                    plt.bar(Sortx, Sorty)
                     plt.xticks(rotation=90)  # rotation so to fill more graphs without the names colliding
                     plt.title('Ranked Word Count\n')
                     plt.xlabel('Word')
@@ -667,66 +575,16 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif web_loaded >= 1:
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
                 y = []
                 x = []
-                y1 = []
-                with open(web_path, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(newstr3)
-                            word = newstr3[0:position]
-                            count = newstr3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    y1.append(before_sort_y)
-                    x = xword2.split()
-                    yword = str(y1)
-                    yword2 = yword.replace(":", "")
-                    yword2 = yword2.replace("[", "")
-                    yword2 = yword2.replace("]", "")
-                    yword2 = yword2.replace("'", "")
-                    yword2 = yword2.replace("\"", "")
-                    yword2 = yword2.replace("(", "")
-                    yword2 = yword2.replace(")", "")
-                    yword2 = yword2.replace(",", "")
-                    # splitting the str and making it into a list
-                    y = yword2.split()
-                    # converting to int to display on graph
-                    new_numbers = []
-                    for n in y:
-                        new_numbers.append(int(n))
-                    numbers = new_numbers
-
+                Sorty, Sortx = open_web_path(x,y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-
-                    plt.bar(x, numbers)
+                    plt.bar(Sortx, Sorty)
                     plt.xticks(rotation=90)
                     plt.title('Ranked Word Count\n')
                     plt.xlabel('Word')
@@ -754,54 +612,18 @@ class Toplevel1:
                 label3.config(text="Please load a file!")
             elif web_loaded >= 1 and entry_string != "":
                 # if file loaded and user has keyed in the word to find
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
-                with open(web_path, 'r') as f:  # opening the file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i  # same as above
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(newstr3)
-                            word = newstr3[0:position]
-                            count = newstr3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace(",", "")
-
-                    if entry_string in xword2:  # if user keyed in string is found in the csv
-                        position_of_word = [i + 1 for i, w in enumerate(xword2.split()) if w == entry_string]
-                        for positions in position_of_word:
-                            pos = positions  # find the position of that word
-
-                        pos -= 1  # minus 1 because using enumerate the numbering starts from 1 instead of 0
-                        x = entry_string  # x is the user keyed in string
-                        y = (before_sort_y[
-                            pos])  # shows the count of that word, position is based on the position of where it is in x
-
-                    elif entry_string not in xword2:  # if word not in the csv
-                        plt.title('No Data to be Found\n')
-                        plt.xlabel('Word')
-                        plt.ylabel('Counts')
-                        plt.show()
+                y = []
+                x = []
+                Sorty, Sortx = open_web_path(x,y)
+                if entry_string in Sortx:
+                    position_of_word = Sortx.index(entry_string)
+                    x_web = entry_string
+                    y_web = (Sorty[position_of_word])
+                elif entry_string not in Sortx:  # if word not in
+                    plt.title('No Data to be Found\n')
+                    plt.xlabel('Word')
+                    plt.ylabel('Counts')
+                    plt.show()
 
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
@@ -809,13 +631,13 @@ class Toplevel1:
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    list_to_show = [y]
+                    list_to_show = [y_web]
                     fig, ax = plt.subplots(1, 1)
                     ax.set_xlim(-2, 2)  # decreases the width of the bar
                     xlocs, xlabs = plt.xticks()
                     for i, v in enumerate(list_to_show):
                         plt.text(xlocs[i] - -2, v + 0.01, str(v))
-                    plt.bar(x, y)
+                    plt.bar(x_web, y_web)
                     plt.title("Searched Word with Count")
                     plt.xlabel('Word')
                     plt.ylabel('Count')
@@ -838,53 +660,18 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1 and entry_string != "":
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
-                with open(socialPath, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(newstr3)
-                            word = newstr3[0:position]
-                            count = newstr3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace(",", "")
-
-                    if entry_string in xword2:
-                        position_of_word = [i + 1 for i, w in enumerate(xword2.split()) if w == entry_string]
-                        for positions in position_of_word:
-                            pos = positions
-
-                        pos -= 1  # minus 1 because using enumerate the numbering starts from 1 instead of 0
-                        x = entry_string
-                        y = (before_sort_y[pos])
-
-                    elif entry_string not in xword2:
-                        plt.title('No Data to be Found\n')
-                        plt.xlabel('Word')
-                        plt.ylabel('Counts')
-                        plt.show()
+                y = []
+                x = []
+                Sorty, Sortx = open_social_path(x,y)
+                if entry_string in Sortx:
+                    position_of_word = Sortx.index(entry_string)
+                    x_social = entry_string
+                    y_social = (Sorty[position_of_word])
+                elif entry_string not in Sortx:
+                    plt.title('No Data to be Found\n')
+                    plt.xlabel('Word')
+                    plt.ylabel('Counts')
+                    plt.show()
 
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
@@ -892,13 +679,13 @@ class Toplevel1:
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    list_to_show = [y]
+                    list_to_show = [y_social]
                     fig, ax = plt.subplots(1, 1)
                     ax.set_xlim(-2, 2)
                     xlocs, xlabs = plt.xticks()
                     for i, v in enumerate(list_to_show):
                         plt.text(xlocs[i] - -2, v + 0.01, str(v))
-                    plt.bar(x, y)
+                    plt.bar(x_social, y_social)
                     plt.title("Searched Word with Count")
                     plt.xlabel('Word')
                     plt.ylabel('Count')
@@ -925,69 +712,28 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load the files!")
             elif social_loaded >= 1 and web_loaded >= 1:  # if both files loaded
-                before_sort_x = []
-                before_sort_y = []
-                before_sort_x2 = []
-                before_sort_y2 = []
-                x = []
-                y = []
-                x1 = []
-                with open(socialPath, 'r') as f:  # opening the file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            new_str = column.replace("{", "")
-                            new_str2 = new_str.replace("}", "")
-                            new_str3 = new_str2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(new_str3)
-                            word = new_str3[0:position]
-                            count = new_str3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    # appends the first file of social media to x and y
-                    x.append(f'Social Media Data: {before_sort_x[-1]}')
-                    y.append(before_sort_y[-1])
-
-                with open(web_path, 'r') as f:  # opening the web file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            new_str = column.replace("{", "")
-                            new_str2 = new_str.replace("}", "")
-                            new_str3 = new_str2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(new_str3)
-                            word = new_str3[0:position]
-                            count = new_str3[position:length]
-                            before_sort_x2.append(word)
-                            before_sort_y2.append(int(count))
-
-                    before_sort_y2, before_sort_x2 = zip(*sorted(zip(before_sort_y2, before_sort_x2)))
-                    # appending web file in to x and y
-                    x.append(f'Web Browser Data: {before_sort_x2[-1]}')
-                    y.append(before_sort_y2[-1])
-
-                if len(x) == 0:
+                x_web = []
+                y_web = []
+                x_most = []
+                y_most = []
+                Sorty,Sortx = open_web_path(x_web,y_web)
+                x_most.append("Social Browser Data:" + (Sortx[-1]))
+                y_most.append(Sorty[-1])
+                x_social = []
+                y_social = []
+                Sorty,Sortx = open_social_path(x_social,y_social)
+                x_most.append(("Social Browser Data :") + Sortx[-1])
+                y_most.append(Sorty[-1])
+                if len(x_most) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
                     xlocs, xlabs = plt.xticks()
-                    for i, v in enumerate(y):
+                    for i, v in enumerate(y_most):
                         plt.text(xlocs[i] - -0.36, v + 0.01, str(v))
-                    plt.bar(x, y)
+                    plt.bar(x_most, y_most)
                     plt.title("Top word count for each Dataset")
                     plt.xlabel('Word')
                     plt.ylabel('Count')
@@ -1012,112 +758,46 @@ class Toplevel1:
                 label3.config(text="Please load the files!")
             elif social_loaded >= 1 and entry_string != "" and web_loaded >= 1:
                 # If string, web browser file and social media file is keyed in
-                before_sort_x = []
-                before_sort_y = []
-                before_sort_x2 = []
-                before_sort_y2 = []
-                x = []
-                y = []
-                x1 = []
-                x2 = []
-                with open(socialPath, 'r') as f:  # opening the file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(newstr3)
-                            word = newstr3[0:position]
-                            count = newstr3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace(",", "")
-                    if entry_string in xword2:  # if word found in the csv
-                        position_of_word = [i + 1 for i, w in enumerate(xword2.split()) if w == entry_string]
-                        for positions in position_of_word:
-                            pos = positions  # get position of the word
+                y_social = []
+                x_social = []
+                y_web = []
+                x_web = []
+                x_find = []
+                y_find = []
+                Sorty_social, Sortx_social = open_social_path(x_social,y_social)
+                if entry_string in Sortx_social:
+                    position_of_word = Sortx_social.index(entry_string)
+                    x_find.append("Social Media Data: " + entry_string)# appending the data to x and y axis
+                    y_find.append(Sorty_social[position_of_word])
 
-                        pos -= 1  # minus 1 because using enumerate the numbering starts from 1 instead of 0
-                        x.append(f'Social Media Data: {entry_string}')  # appending the data to x and y axis
-                        y.append(before_sort_y[pos])
-
-                    elif entry_string not in xword2:
+                elif entry_string not in Sortx_social:
                         plt.title('No Data to be Found\n')
                         plt.xlabel('Word')
                         plt.ylabel('Counts')
                         plt.show()
 
-                with open(web_path, 'r') as f:  # opening the web browser file
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(newstr3)
-                            word = newstr3[0:position]
-                            count = newstr3[position:length]
-                            before_sort_x2.append(word)
-                            before_sort_y2.append(int(count))
-                    before_sort_y2, before_sort_x2 = zip(*sorted(zip(before_sort_y2, before_sort_x2)))
-                    x2.append(before_sort_x2)
-                    xword3 = str(x2)
-                    xword4 = xword3.replace(":", "")
-                    xword4 = xword4.replace("[", "")
-                    xword4 = xword4.replace("]", "")
-                    xword4 = xword4.replace("'", "")
-                    xword4 = xword4.replace("\"", "")
-                    xword4 = xword4.replace("(", "")
-                    xword4 = xword4.replace(")", "")
-                    xword4 = xword4.replace(",", "")
+                Sorty_web, Sortx_web = open_web_path(x_web,y_web)
+                if entry_string in Sortx_web:
+                    position_of_word = Sortx_web.index(entry_string)
+                    x_find.append("Web Media Data: " + entry_string)# appending the data to x and y axis
+                    y_find.append(Sorty_web[position_of_word])
 
-                    if entry_string in xword4:
-                        positionofword2 = [i + 1 for i, w in enumerate(xword4.split()) if w == entry_string]
-                        for positions in positionofword2:
-                            pos2 = positions
-
-                        pos2 -= 1  # minus 1 because using enumerate the numbering starts from 1 instead of 0
-
-                        x.append(f'Web Browser Data: {entry_string}')  # appending web browser data to x and y axis
-                        y.append(before_sort_y2[pos2])
-
-                    elif entry_string not in xword2:
+                elif entry_string not in Sortx_web:
                         plt.title('No Data to be Found\n')
                         plt.xlabel('Word')
                         plt.ylabel('Counts')
                         plt.show()
 
-                if len(x) == 0:
+                if len(x_find) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
                     xlocs, xlabs = plt.xticks()
-                    for i, v in enumerate(y):
+                    for i, v in enumerate(y_find):
                         plt.text(xlocs[i] - -0.36, v + 0.01, str(v))
-                    plt.bar(x, y)
+                    plt.bar(x_find, y_find)
                     plt.title("Searched Word with Count")
                     plt.xlabel('Word')
                     plt.ylabel('Count')
@@ -1139,8 +819,6 @@ class Toplevel1:
             filedir = self.Entry1.get()
             filename = (os.path.basename(filedir))
 
-            reversed_string = ''.join(reversed(filename))
-
             if web_loaded < 1:
                 win3 = tk.Toplevel()
                 win3.geometry('300x200')
@@ -1149,67 +827,16 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif web_loaded >= 1:
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
-                y = []
                 x = []
-                y1 = []
-                with open(web_path, 'r') as f:
-
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            new_str = column.replace("{", "")
-                            new_str2 = new_str.replace("}", "")
-                            new_str3 = new_str2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(new_str3)
-                            word = new_str3[0:position]
-                            count = new_str3[position:length]
-                            before_sort_x.append(word)
-
-                            before_sort_y.append(int(count))
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace("/", "-")
-                    xword2 = xword2.replace(",", "")
-                    y1.append(before_sort_y)
-                    x = xword2.split()
-                    yword = str(y1)
-                    yword2 = yword.replace(":", "")
-                    yword2 = yword2.replace("[", "")
-                    yword2 = yword2.replace("]", "")
-                    yword2 = yword2.replace("'", "")
-                    yword2 = yword2.replace("\"", "")
-                    yword2 = yword2.replace("(", "")
-                    yword2 = yword2.replace(")", "")
-                    yword2 = yword2.replace(",", "")
-
-                    y = yword2.split()
-                    new_numbers = [];  # converting to int to display on graph
-                    for n in y:
-                        new_numbers.append(int(n));
-                    numbers = new_numbers;
+                y = []
+                Sorty,Sortx = open_web_path(x,y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    plt.bar(x, numbers)  # rotation so to fill more graphs without the names colliding
+                    plt.bar(Sortx, Sorty)  # rotation so to fill more graphs without the names colliding
                     plt.title(filename)
                     plt.xlabel('Date')
                     plt.ylabel('Count')
@@ -1224,7 +851,11 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please only load 1 file for social!")
 
-        def social_timeline():  # getting timeline for web
+        def social_timeline():
+            """
+            Getting timeline for social
+            :return:
+            """
             filedir = self.Entry2.get()
             filename = (os.path.basename(filedir))
             if social_loaded < 1:
@@ -1235,67 +866,16 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1:
-                before_sort_x = []
-                before_sort_y = []
-                x1 = []
-                y = []
                 x = []
-                y1 = []
-                with open(socialPath, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            new_str = column.replace("{", "")
-                            new_str2 = new_str.replace("}", "")
-                            new_str3 = new_str2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            length = len(new_str3)
-                            word = new_str3[0:position]
-                            count = new_str3[position:length]
-                            before_sort_x.append(word)
-                            before_sort_y.append(int(count))
-                    before_sort_y, before_sort_x = zip(*sorted(zip(before_sort_y, before_sort_x)))
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace("/", "-")
-                    xword2 = xword2.replace(",", "")
-                    y1.append(before_sort_y)
-                    x = xword2.split()
-                    yword = str(y1)
-                    yword2 = yword.replace(":", "")
-                    yword2 = yword2.replace("[", "")
-                    yword2 = yword2.replace("]", "")
-                    yword2 = yword2.replace("'", "")
-                    yword2 = yword2.replace("\"", "")
-                    yword2 = yword2.replace("(", "")
-                    yword2 = yword2.replace(")", "")
-                    yword2 = yword2.replace(",", "")
-
-                    y = yword2.split()
-
-                    # converting to int to display on graph
-                    new_numbers = []
-                    for n in y:
-                        new_numbers.append(int(n))
-                    numbers = new_numbers
+                y = []
+                Sorty, Sortx = open_web_path(x, y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    plt.bar(x, numbers)  # rotation so to fill more graphs without the names colliding
+                    plt.bar(Sortx, Sorty)  # rotation so to fill more graphs without the names colliding
                     plt.title(filename)
                     plt.xlabel('Date')
                     plt.ylabel('Count')
@@ -1323,35 +903,11 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1:
-                beforeSortx = []
-                x1 = []
-                with open(socialPath, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            word = newstr3[0:position]
-                            beforeSortx.append(word)
-                    x1.append(beforeSortx)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace("/", "-")
-                    xword2 = xword2.replace(",", "")
-                    x = xword2.split()
-                    xcloud = str(x)
+                x =[]
+                y = []
+                Sorty,Sortx = open_social_path(x,y)
+                xcloud = str(Sortx)
+                xcloud2 = xcloud.replace("\'","") #replaces all the '
 
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
@@ -1359,7 +915,7 @@ class Toplevel1:
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    wordcloud = WordCloud(max_font_size=40).generate(xcloud)
+                    wordcloud = WordCloud(max_font_size=40).generate(xcloud2) #generates wordcloud
                     plt.figure()
                     plt.imshow(wordcloud, interpolation="bilinear")
                     plt.axis("off")
@@ -1385,35 +941,11 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif web_loaded >= 1:
-                beforeSortx = []
-                x1 = []
-                with open(web_path, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            word = newstr3[0:position]
-                            beforeSortx.append(word)
-                    x1.append(beforeSortx)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace("/", "-")
-                    xword2 = xword2.replace(",", "")
-                    x = xword2.split()
-                    xcloud = str(x)
+                x =[]
+                y = []
+                Sorty,Sortx = open_web_path(x,y)
+                xcloud = str(Sortx)
+                xcloud2 = xcloud.replace("\'","") #replaces all the '
 
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
@@ -1421,7 +953,7 @@ class Toplevel1:
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    wordcloud = WordCloud(max_font_size=40).generate(xcloud)
+                    wordcloud = WordCloud(max_font_size=40).generate(xcloud2) #generate wordcloud
                     plt.figure()
                     plt.imshow(wordcloud, interpolation="bilinear")
                     plt.axis("off")
@@ -1443,71 +975,24 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1 and web_loaded >= 1:
-                before_sort_x = []
-                before_sort_x2 = []
-                x1 = []
-                x = []
-                x4 = []
-                with open(web_path, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            word = newstr3[0:position]
-                            before_sort_x.append(word)
-                    x1.append(before_sort_x)
-                    xword = str(x1)
-                    xword2 = xword.replace(":", "")
-                    xword2 = xword2.replace("[", "")
-                    xword2 = xword2.replace("]", "")
-                    xword2 = xword2.replace("'", "")
-                    xword2 = xword2.replace("\"", "")
-                    xword2 = xword2.replace("(", "")
-                    xword2 = xword2.replace(")", "")
-                    xword2 = xword2.replace("/", "-")
-                    x.append(xword2)
-
-                with open(socialPath, 'r') as f:
-                    plots = csv.reader(f, delimiter=',')
-                    for row in plots:
-                        for i in row:
-                            column = i
-                            column.replace("{", "")
-                            newstr = column.replace("{", "")
-                            newstr2 = newstr.replace("}", "")
-                            newstr3 = newstr2.replace(" ", "")
-                            column.strip("}")
-                            separate = ":"
-                            position = column.find(separate)
-                            wordpart2 = newstr3[0:position]
-                            before_sort_x2.append(wordpart2)
-                    x4.append(before_sort_x2)
-                    xwording = str(x4)
-                    xwording2 = xwording.replace(":", "")
-                    xwording2 = xwording2.replace("[", "")
-                    xwording2 = xwording2.replace("]", "")
-                    xwording2 = xwording2.replace("'", "")
-                    xwording2 = xwording2.replace("\"", "")
-                    xwording2 = xwording2.replace("(", "")
-                    xwording2 = xwording2.replace(")", "")
-                    xwording2 = xwording2.replace("/", "-")
-                    x.append(xwording2)
-                    xcloud = str(x)
-
-                if len(x) == 0:
+                x_web =[]
+                y_web = []
+                x_social =[]
+                y_social = []
+                xcloud = []
+                Sorty_web,Sortx_web = open_web_path(x_web,y_web)
+                xcloud.append(Sortx_web)
+                Sorty_social,Sortx_social = open_social_path(x_social,y_social)
+                xcloud.append(Sortx_social)
+                xcloud2 = str(xcloud)
+                finalxcloud = xcloud2.replace("\'","")
+                if len(x_web) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    word_cloud = WordCloud(max_font_size=40).generate(xcloud)
+                    word_cloud = WordCloud(max_font_size=40).generate(finalxcloud) #generates wordcloud
                     plt.figure()
                     plt.imshow(word_cloud, interpolation="bilinear")
                     plt.axis("off")
