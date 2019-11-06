@@ -4,7 +4,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 import no_preference.demo.venn as venn
 import no_preference.demo.sort as sort
 import no_preference.demo.defaults as defaults
-nlp = spacy.load('en_core_web_lg')
+nlp = spacy.load('en_core_web_sm')
 
 
 def readFile(filename):
