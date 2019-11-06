@@ -73,36 +73,27 @@ def vennIntersectTextTag(setA, columnName, setB, columnNameB, listNo):
       per venn diagram illustration of intersect of a set A and set B
       This function does WILL affect the dataframe that was pass by reference
     This function will modify the both dataframe to keep words found in both set A and set B, hence intersect"""
+    setA = sort.reindex(setA)
+    setB = sort.reindex(setB)
+
     match = []
-    Ai = 0
     for row in setA[columnName]:
-        Aj = 0
-        for word in setA[columnName][Ai]:
-            Bi = 0
+        for word in row:
             for rowB in setB[columnNameB]:
-                Bj = 0
-                for wordB in setB[columnNameB][Bi]:
+                for wordB in rowB:
                     if word[:][listNo] not in match:  # if each element in setA cannot be found in the match list
                         if word[:][listNo] in wordB[:][listNo]:  # then we use it to check if its in each element of
                             # SetB (the whole dataframe)
                             match.append(word[:][listNo])  # if found append into match list
-                    Bj += 1
-                Bi += 1
-            if setA.iloc[Ai][columnName][Aj][listNo] not in match:  # if the element cant be find in match
+            if word[:][listNo] not in match:  # if the element cant be find in match
                 # remove element that are not found in match list
-                setA.iloc[Ai][columnName][Aj] = [w for w in setA.iloc[Ai][columnName][Aj] if w[listNo] in match]
-            Aj += 1
-        Ai += 1
+                del word[:]
         # end of setA
-    Bi = 0
     for rowB in setB[columnNameB]:  # start removing non match from setB
-        Bj = 0
-        for wordB in setB.iloc[Bi][columnNameB]:
-            if setB.iloc[Bi][columnNameB][Bj][listNo] not in match:  # if the element cant be find in match
+        for wordB in rowB:
+            if wordB[:][listNo] not in match:  # if the element cant be find in match
                 # remove element that are not found in match list
-                setB.iloc[Bi][columnNameB][Bj] = [w for w in setB.iloc[Bi][columnNameB][Bj] if w[listNo] in match]
-            Bj += 1
-        Bi += 1
+                del wordB[:]
     return setA, setB
 
 
@@ -232,4 +223,3 @@ def vennUnion(setA, setB):
     result = pd.concat(frames)
     result = sort.reindex(result)  # reindex as it will keep the old index from both sets
     return result
-

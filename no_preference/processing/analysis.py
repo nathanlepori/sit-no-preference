@@ -1,4 +1,5 @@
 import json
+from math import isnan
 from os import path
 
 from PyInquirer import prompt
@@ -11,6 +12,11 @@ from no_preference.demo.spacyNLP import readFile, spacyToken, spacyLabelTokenFul
     assocTermAttached
 from no_preference.demo.venn import vennIntersectTextTag, vennSymmetricDifTextTag
 from no_preference.util import get_data_dir
+
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+pd.set_option('display.max_colwidth', 1000)
 
 q_start_analysis = [
     {
@@ -38,7 +44,7 @@ q_start_analysis = [
 # ]
 
 q_file_loc_generic = [
-   {
+    {
         'type': 'input',
         'name': 'file_loc',
         'message': 'Please indicate the file\'s name and location >',
@@ -131,7 +137,7 @@ q_set_A_set_B = [
         'name': 'option',
         'message': 'Select either set_A or set_B, for reading file content into.',
         'choices': [
-           'set_A','set_B','exit'
+            'set_A', 'set_B', 'exit'
         ]
     }
 ]
@@ -255,9 +261,9 @@ def _process_selection_label(df, columnName, df2, columnNameB, a_label):
             textTagOption = 1
 
     if a_label['venn'] == 'intersect':
-        vennIntersectTextTag(df, columnName, df2, columnNameB, textTagOption)
-        spacyCleanCell(df, columnName)  # clean empty list from the dataframe
-        spacyCleanCell(df2, columnNameB)  # clean empty list from the dataframe
+        df, df2 = vennIntersectTextTag(df, columnName, df2, columnNameB, textTagOption)
+        df = spacyCleanCell(df, columnName)  # clean empty list from the dataframe
+        df2 = spacyCleanCell(df2, columnNameB)  # clean empty list from the dataframe
         df = df.reset_index(drop=True)
         df2 = df2.reset_index(drop=True)
 
@@ -354,7 +360,7 @@ def _process_selection_math(df, columnName, df2, columnNameB):
             a_text_tag = prompt(q_text_tag)
             if a_text_tag['text_tag'] == 'text':
                 textTagOption = 0
-            elif a_text_tag['text_tag'] == 'tag':
+            if a_text_tag['text_tag'] == 'tag':
                 textTagOption = 1
 
             if a_math['math'] == 'counter':
@@ -426,18 +432,21 @@ def run():
                         output_datasets_name = path.join(get_data_dir(), 'datasets', defaultFileA())
                         filenameA = output_datasets_name
                     else:
-                        filenameA  = path.join(get_data_dir(), 'datasets',a_file_loc_generic['file_loc'])
+                        filenameA = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
                     read = readFile(filenameA)
                     if a_append_overwrite['integrate'] == 'append':
                         if df.empty:
-                            df = pd.DataFrame(read, columns=[columnName, date_column])  # impt to match columns
-                            spacyToken(df, columnName)
-                            spacyLabelTokenFull(df, columnName)
+                            # Filter out empty titles (stored as nan aka flat values) and
+                            # get only content and date column
+                            df = read.dropna()[[columnName, date_column]]
+                            df = spacyToken(df, columnName)
+                            df = spacyLabelTokenFull(df, columnName)
                         else:
-                            df_temporary = pd.DataFrame(read, columns=[columnName, date_column])  # impt to match columns
+                            df_temporary = pd.DataFrame(read,
+                                                        columns=[columnName, date_column])  # impt to match columns
                             spacyToken(df_temporary, columnName)
                             spacyLabelTokenFull(df_temporary, columnName)
-                            df = venn.vennUnion(df,df_temporary)
+                            df = venn.vennUnion(df, df_temporary)
                     if a_append_overwrite['integrate'] == 'overwrite':
                         df = pd.DataFrame(read, columns=[columnName, date_column])  # impt to match columns
                         spacyToken(df, columnName)
@@ -450,20 +459,25 @@ def run():
                         output_datasets_name = path.join(get_data_dir(), 'datasets', defaultFileB())
                         filenameB = output_datasets_name
                     else:
-                        filenameB = path.join(get_data_dir(), 'datasets',a_file_loc_generic['file_loc'])
+                        filenameB = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
+                    read = readFile(filenameB)
                     if a_append_overwrite['integrate'] == 'append':
                         if df2.empty:
-                            read = readFile(filenameB)
-                            df2 = pd.DataFrame(read, columns=[columnNameB, date_column])  # impt to match columns
+                            # Filter out empty titles (stored as nan aka flat values) and
+                            # get only content and date column
+                            df2 = read.dropna()[[columnName, date_column]]
+                            df2 = spacyToken(df2, columnName)
+                            df2 = spacyLabelTokenFull(df2, columnName)
                         else:
-                            df_temporary = pd.DataFrame(read, columns=[columnNameB, date_column])  # impt to match columns
-                            spacyToken(df_temporary, columnName)
+                            df_temporary = pd.DataFrame(read,
+                                                        columns=[columnNameB, date_column])  # impt to match columns
+                            spacyToken(df_temporary, columnNameB)
                             spacyLabelTokenFull(df_temporary, columnNameB)
-                            df2 = venn.vennUnion(df2,df_temporary)
+                            df2 = venn.vennUnion(df2, df_temporary)
                     if a_append_overwrite['integrate'] == 'overwrite':
                         df2 = pd.DataFrame(read, columns=[columnNameB, date_column])  # impt to match columns
-                        spacyToken(df2, columnName)
-                        spacyLabelTokenFull(df2, columnName)
+                        spacyToken(df2, columnNameB)
+                        spacyLabelTokenFull(df2, columnNameB)
 
         if a_start_analysis['start'] == 'run_analysis':
             while True:
@@ -473,15 +487,9 @@ def run():
                 if a_label['venn'] == 'display':
                     print(df)
                     print(df2)
-                if a_label['venn'] == 'html':
-                    a_file_select_html = prompt(q_file_select)
-                    if a_file_select_html['file_selection'] == 'set_A' or 'both':
-                        pass
-                    if a_file_select_html['file_selection'] == 'set_B' or 'both':
-                        pass
                 if a_label['venn'] == 'intersect' or a_label['venn'] == 'symmetric_difference' or a_label[
-                        'venn'] == 'union':
-                    df, df2 = _process_selection_label(df, columnName, df2, columnNameB)
+                    'venn'] == 'union':
+                    df, df2 = _process_selection_label(df, columnName, df2, columnNameB, a_label)
                 if a_label['venn'] == 'modify':
                     df, df2 = _process_selection_modify(df, columnName, df2, columnNameB)
                 if a_label['venn'] == 'math':

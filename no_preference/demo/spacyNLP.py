@@ -13,16 +13,12 @@ def readFile(filename):
 
 def spacyToken(df, columnName):
     """ change content of columnName into token """
-    try:
-        i = 0
-        for row in df[columnName]:
-            doc = nlp(df.iloc[i][columnName])
-            df.iloc[i][columnName] = ([w.text for w in doc])
-            # print(df.iloc[i][columnName])
-            i += 1
-    except Exception as e:
-        # print(e)
-        pass
+    i = 0
+    for row in df[columnName]:
+        doc = nlp(df.iloc[i][columnName])
+        df.iloc[i][columnName] = ([w.text for w in doc])
+        # print(df.iloc[i][columnName])
+        i += 1
     return df
 
 def spacyStopword(df,columnName):
@@ -63,6 +59,8 @@ def spacyLabelTokenFull(df, columnName): #same as spacyLabel but refix exisiting
     for row in df[columnName]:
         format_token = ' '.join(map(str, row))
         doc = nlp(format_token)
+        # for ent in doc.ents:
+        #     print(ent.text, ent.label_)
         modify = format_token
         full = []
         for de in doc.ents:
