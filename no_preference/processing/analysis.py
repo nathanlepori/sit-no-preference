@@ -426,7 +426,7 @@ def run():
                         output_datasets_name = path.join(get_data_dir(), 'datasets', defaultFileA())
                         filenameA = output_datasets_name
                     else:
-                        filenameA = a_file_loc_generic['file_loc']
+                        filenameA  = path.join(get_data_dir(), 'datasets',a_file_loc_generic['file_loc'])
                     read = readFile(filenameA)
                     if a_append_overwrite['integrate'] == 'append':
                         if df.empty:
@@ -450,7 +450,7 @@ def run():
                         output_datasets_name = path.join(get_data_dir(), 'datasets', defaultFileB())
                         filenameB = output_datasets_name
                     else:
-                        filenameB = a_file_loc_generic['file_loc']
+                        filenameB = path.join(get_data_dir(), 'datasets',a_file_loc_generic['file_loc'])
                     if a_append_overwrite['integrate'] == 'append':
                         if df2.empty:
                             read = readFile(filenameB)

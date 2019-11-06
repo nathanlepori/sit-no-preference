@@ -291,9 +291,6 @@ def _process_selection_label(df, columnName, df2, columnNameB):
         vennSymmetricDifTextTag(df, columnName, df2, columnNameB, textTagOption)
         spacyCleanCell(df, columnName)
         spacyCleanCell(df2, columnNameB)
-        # print("CLEAN ROWWW")
-        # spacyCleanRow(df,columnName)
-        # spacyCleanRow(df2,columnNameB)
         df = df.reset_index(drop=True)
         df2 = df2.reset_index(drop=True)
 
