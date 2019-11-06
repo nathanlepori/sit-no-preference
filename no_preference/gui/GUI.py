@@ -1,18 +1,12 @@
+import csv
+import os
 import sys
 import tkinter as tk
-import tkinter.ttk as ttk
-
-import string
-import os
-import time
 import tkinter.filedialog
-from tkinter import filedialog, StringVar, Entry
-import csv
-import re
+import tkinter.ttk as ttk
+from tkinter import StringVar, Entry
+
 import matplotlib.pyplot as plt
-import pandas as pd
-import pylab as pl
-import plotly.graph_objects as go
 from wordcloud import WordCloud
 
 
