@@ -9,6 +9,7 @@ from pprint import pprint
 
 from PyInquirer import style_from_dict, Token, prompt
 
+from no_preference.data_sources.facebook import functions
 from no_preference.demo.defaults import *
 from no_preference.demo.spacyNLP import *
 from no_preference.demo.venn import *
@@ -407,7 +408,7 @@ while True:
     columnName = columnNameB = defaultColumn()
     a_start = prompt(q_start)
     if a_start['start'] == 'charlyn':
-        pass  # charlyn to replace code in this if
+        functions()
     if a_start['start'] == 'guobao':
         get_chrome_history()
         get_firefox_history()
