@@ -9,7 +9,7 @@ from no_preference.demo import venn
 from no_preference.demo.defaults import defaultFileA, defaultFileB, defaultColumn, defaultDateColumn
 from no_preference.demo.spacyNLP import readFile, spacyToken, spacyLabelTokenFull, spacyCleanCell, \
     spacyColumnFilterToken, spacyColumnStripToken, spacyTokenTagCounter, spacyFrequencyByDate, assocTermDetached, \
-    assocTermAttached
+    assocTermAttached, set_model
 from no_preference.demo.venn import vennIntersectTextTag, vennSymmetricDifTextTag
 from no_preference.util import get_data_dir
 
@@ -18,17 +18,15 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 pd.set_option('display.max_colwidth', 1000)
 
-q_start_analysis = [
-    {
-        'type': 'rawlist',
-        'name': 'start',
-        'message': 'Select option >',
-        'choices': [
-            'load_file',
-            'run_analysis',
-        ]
-    },
-]
+q_start_analysis = {
+    'type': 'rawlist',
+    'name': 'start',
+    'message': 'Select option >',
+    'choices': [
+        'load_file',
+        'run_analysis',
+    ]
+}
 
 # q_file_loc = [
 #     {
@@ -417,6 +415,15 @@ def run():
     date_column = defaultDateColumn()
     df = pd.DataFrame
     df2 = pd.DataFrame
+
+    # Let the user pick a model to use
+    a_model = prompt({
+        'type': 'input',
+        'name': 'model',
+        'message': "What's the name of the model you want to use for the analysis?",
+        'validate': lambda a: len(a) > 0
+    })
+    set_model(a_model['model'])
     while True:
         a_start_analysis = prompt(q_start_analysis)
         if a_start_analysis['start'] == 'load_file':

@@ -1,34 +1,47 @@
 import pandas as pd
 import spacy
+from pandas import DataFrame
 from spacy.lang.en.stop_words import STOP_WORDS
+from spacy.language import Language
+
 import no_preference.demo.venn as venn
 import no_preference.demo.sort as sort
 import no_preference.demo.defaults as defaults
-nlp = spacy.load('en_core_web_lg')
+from no_preference.util import load_model
+
+nlp: Language
+
+
+def set_model(name: str):
+    global nlp
+    nlp = load_model(name)
 
 
 def readFile(filename):
     read = pd.read_csv(filename)
     return read
 
-def spacyToken(df, columnName):
+
+def tokenize_cell(cell: str):
+    doc = nlp(cell)
+    return [w.lemma_ for w in doc]
+
+
+def spacyToken(df: DataFrame, columnName):
     """ change content of columnName into token """
-    i = 0
-    for row in df[columnName]:
-        doc = nlp(df.iloc[i][columnName])
-        df.iloc[i][columnName] = ([w.text for w in doc])
-        # print(df.iloc[i][columnName])
-        i += 1
+    df[columnName] = df[columnName].apply(tokenize_cell)
     return df
 
-def spacyStopword(df,columnName):
+
+def spacyStopword(df, columnName):
     """must have been tokenized"""
     i = 0
     for row in df[columnName]:
         for word in df.iloc[i][columnName]:
-            df.iloc[i][columnName] = [w for w in df.iloc[i][columnName] if nlp.vocab[ w ].is_stop == False]
+            df.iloc[i][columnName] = [w for w in df.iloc[i][columnName] if nlp.vocab[w].is_stop == False]
         i += 1
     return df
+
 
 def spacyLabel(df, columnName):
     """ change content of columnName into token together with a label.
@@ -41,7 +54,8 @@ def spacyLabel(df, columnName):
         i += 1
     return df
 
-def spacyLabelToken(df, columnName): #same as spacyLabel but refix exisiting tokens
+
+def spacyLabelToken(df, columnName):  # same as spacyLabel but refix exisiting tokens
     """ Same as spacyLabel however the dataframe content of columnName have already been tokenized.
     As spacyLabel will not be able to provide labels on tokenized content.  """
     i = 0
@@ -52,7 +66,8 @@ def spacyLabelToken(df, columnName): #same as spacyLabel but refix exisiting tok
         i += 1
     return df
 
-def spacyLabelTokenFull(df, columnName): #same as spacyLabel but refix exisiting tokens
+
+def spacyLabelTokenFull(df, columnName):  # same as spacyLabel but refix exisiting tokens
     """ Same as spacyLabel however the dataframe content of columnName have already been tokenized.
     As spacyLabel will not be able to provide labels on tokenized content.  """
     i = 0
@@ -95,6 +110,7 @@ def spacyPOS(df, columnName):
         i += 1
     return df
 
+
 def spacyPOSToken(df, columnName):
     """ Same as spacyPOS however the dataframe content of columnName have already been tokenized.
     As spacyPOS will not be able to provide Part-Of-Speech on tokenized content. """
@@ -106,6 +122,7 @@ def spacyPOSToken(df, columnName):
         i += 1
     return df
 
+
 def spacyColumnFilterToken(df, columnName, value, listNo):  # remove any that match value
     """ The precondition to using this function is to have the columnName to have been process
     with either spacyLabel or spacyPOS.
@@ -116,11 +133,13 @@ def spacyColumnFilterToken(df, columnName, value, listNo):  # remove any that ma
     for row in df[columnName]:
         j = 0
         for word in df.iloc[i][columnName]:
-            df.iloc[i][columnName][j] = [w for w in df.iloc[i][columnName][j] if df.iloc[i][columnName][j][listNo] == value]
+            df.iloc[i][columnName][j] = [w for w in df.iloc[i][columnName][j] if
+                                         df.iloc[i][columnName][j][listNo] == value]
             # print(df.iloc[i][columnName][j])
             j += 1
         i += 1
     return df
+
 
 def spacyColumnStripToken(df, columnName, value, listNo):  # remove all that is not value
     """ The precondition to using this function is to have the columnName to have been process
@@ -138,7 +157,8 @@ def spacyColumnStripToken(df, columnName, value, listNo):  # remove all that is 
         i += 1
     return df
 
-def spacyCleanCell(df,columnName):
+
+def spacyCleanCell(df, columnName):
     """ After working with some other functions,
     there might be cells in columnName that contains empty list.
     This function is to clean up such list"""
@@ -153,7 +173,8 @@ def spacyCleanCell(df,columnName):
         i += 1
     return df
 
-def spacyCleanRow(df,columnName):
+
+def spacyCleanRow(df, columnName):
     i = 0
     totalRow = len(df[columnName])
     while i < totalRow:
@@ -172,7 +193,8 @@ def spacyTokenTagCounter(df, columnName, listNo):
         i += 1
     return counter
 
-def spacyFrequencyByDate(df,columnName,listNo,value):
+
+def spacyFrequencyByDate(df, columnName, listNo, value):
     i = 0
     counter = dict()
     for row in df[columnName]:
@@ -183,6 +205,7 @@ def spacyFrequencyByDate(df,columnName,listNo,value):
                 counter[concat] = counter.get(concat, 0) + 1
         i += 1
     return counter
+
 
 def assocTermDetached(df, columnName, termStruct):
     """
@@ -208,6 +231,7 @@ def assocTermDetached(df, columnName, termStruct):
         i += 1
     return df
 
+
 def assocTermAttached(df, columnName, termStruct):
     """
        a filter function to keep only rows in dataframe where it must contains all elements within termStruct,
@@ -220,16 +244,16 @@ def assocTermAttached(df, columnName, termStruct):
         termLength = len(termStruct)
         t = 0
         for word in df.iloc[i][columnName]:
-            if t >= termLength: #when correct number of matches
+            if t >= termLength:  # when correct number of matches
                 break
             if termStruct[t][1] == 'text':
                 listNo = 0
             else:
                 listNo = 1
-            if termStruct[t][0] in word[listNo] :  # if value match remove from list of struct to track
+            if termStruct[t][0] in word[listNo]:  # if value match remove from list of struct to track
                 t += 1
             else:
-                t = 0 #if failed to match start again for tempStruct
+                t = 0  # if failed to match start again for tempStruct
         if t != termLength:
             df.iloc[i][columnName] = []
         i += 1
