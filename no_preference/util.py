@@ -48,8 +48,5 @@ def load_model(name: Union[str, os.PathLike]) -> Optional[Language]:
         nlp = spacy.load(name)
     except OSError:
         pass
-    try:
-        nlp = spacy.load(os.path.join(get_data_dir(), 'models', name))
-    except OSError:
-        return None
+    nlp = spacy.load(os.path.join(get_data_dir(), 'models', name))
     return nlp

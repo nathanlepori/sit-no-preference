@@ -1,6 +1,35 @@
 import no_preference.processing.ner_training.training_ui as training_ui
+from no_preference.ui.pyinquirer_menu import prompt
 from no_preference.util import create_data_dir
 
-if __name__ == '__main__':
+
+def init():
     create_data_dir()
-    training_ui.run()
+
+
+def run():
+    prompt({
+        'type': 'list',
+        'name': 'action',
+        'message': 'What do you want to do?',
+        'choices': [
+            {
+                'name': 'Get data for profiling',
+            },
+            {
+                'name': 'Train a model',
+                'next': training_ui.run
+            },
+            {
+                'name': 'Analyse data',
+            },
+            {
+                'name': 'Show profiling results',
+            }
+        ]
+    })
+
+
+if __name__ == '__main__':
+    init()
+    run()
