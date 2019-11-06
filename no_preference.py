@@ -1,4 +1,5 @@
 import no_preference.processing.ner_training.training_ui as training_ui
+from no_preference.processing import analysis
 from no_preference.ui.pyinquirer_menu import prompt
 from no_preference.util import create_data_dir
 
@@ -22,6 +23,7 @@ def run():
             },
             {
                 'name': 'Analyse data',
+                'next': analysis.run
             },
             {
                 'name': 'Show profiling results',
