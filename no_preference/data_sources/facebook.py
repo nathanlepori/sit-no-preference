@@ -1,9 +1,6 @@
 import pandas as pd
 import time
 
-import json
-import os
-
 
 def post():
     a = pd.read_json("../../datasets/your_posts_1.json", convert_dates=False)
@@ -12,7 +9,7 @@ def post():
         if type(a['data'][i]) is list:
             data = a['data'][i]
             posts = [d['post'] for d in data if 'post' in d]
-            if (len(posts) == 1):
+            if len(posts) == 1:
                 post = posts[0]
             else:
                 continue
