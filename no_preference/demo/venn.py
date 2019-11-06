@@ -73,6 +73,9 @@ def vennIntersectTextTag(setA, columnName, setB, columnNameB, listNo):
       per venn diagram illustration of intersect of a set A and set B
       This function does WILL affect the dataframe that was pass by reference
     This function will modify the both dataframe to keep words found in both set A and set B, hence intersect"""
+    setA = sort.reindex(setA)
+    setB = sort.reindex(setB)
+
     match = []
     Ai = 0
     for row in setA[columnName]:

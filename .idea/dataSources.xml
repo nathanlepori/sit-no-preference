@@ -18,5 +18,19 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="cache [2]" uuid="ebe096a6-a836-4cb4-a991-cd79d39cf41b">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Users\natha\Documents\SIT\ICT2202_Digital_Forensics\sit-no-preference\no_preference\processing\cache.sqlite</jdbc-url>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.25.1/license.txt</url>
+        </library>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.25.1/sqlite-jdbc-3.25.1.jar</url>
+        </library>
+      </libraries>
+    </data-source>
   </component>
 </project>
