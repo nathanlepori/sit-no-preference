@@ -38,6 +38,8 @@ def sortByDateRange(dfData,columnName,dateStart,dateEnd):   # Please use functio
      filter to keep only dates between dateStart and dateEnd
 
     """
+    # dfData = sort.reindex(dfData)
+
     dfData = sortBy(dfData,columnName)
     dfData = dfData[dfData[columnName].between(dateStart, dateEnd)]  # keep only date between dateStart and dateEnd
     return dfData

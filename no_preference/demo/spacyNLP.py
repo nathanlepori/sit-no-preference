@@ -4,6 +4,7 @@ from pandas import DataFrame
 from spacy.lang.en.stop_words import STOP_WORDS
 from spacy.language import Language
 
+import datetime
 import no_preference.demo.venn as venn
 import no_preference.demo.sort as sort
 import no_preference.demo.defaults as defaults
@@ -135,7 +136,6 @@ def spacyColumnFilterToken(df, columnName, value, listNo):  # remove any that ma
         for word in df.iloc[i][columnName]:
             df.iloc[i][columnName][j] = [w for w in df.iloc[i][columnName][j] if
                                          df.iloc[i][columnName][j][listNo] == value]
-            # print(df.iloc[i][columnName][j])
             j += 1
         i += 1
     return df
@@ -146,15 +146,9 @@ def spacyColumnStripToken(df, columnName, value, listNo):  # remove all that is 
     with either spacyLabel or spacyPOS.
     This function will remove all words that does match the variable value
     (while ignoring content of spacyLabel or spacyPOS) """
-    i = 0
     for row in df[columnName]:
-        j = 0
-        for word in df.iloc[i][columnName]:
-            df.iloc[i][columnName][j] = [w for w in df.iloc[i][columnName][j] if
-                                         df.iloc[i][columnName][j][listNo] != value]  # one is !=
-            # print(df.iloc[i][columnName][j])
-            j += 1
-        i += 1
+        for word in row:
+            word[:] = [w for w in word[:] if word[:][listNo] != value]  # one is !=
     return df
 
 
@@ -162,6 +156,7 @@ def spacyCleanCell(df, columnName):
     """ After working with some other functions,
     there might be cells in columnName that contains empty list.
     This function is to clean up such list"""
+    df = sort.reindex(df)
     i = 0
     # for row in df[columnName]:
     totalRow = len(df[columnName])
@@ -200,8 +195,8 @@ def spacyFrequencyByDate(df, columnName, listNo, value):
     for row in df[columnName]:
         for word in df.iloc[i][columnName]:
             if word[listNo] == value:
-                # concat = word[listNo] + df.iloc[i][defaults.defaultDateColumn()]
-                concat = df.iloc[i][defaults.defaultDateColumn()]
+                temp = datetime.datetime.strptime(df.iloc[i][defaults.defaultDateColumn()],'%Y-%m-%d %H:%M:%S').date()
+                concat = temp.strftime("%Y-%m-%d")
                 counter[concat] = counter.get(concat, 0) + 1
         i += 1
     return counter
@@ -239,6 +234,7 @@ def assocTermAttached(df, columnName, termStruct):
        termStruct refers to the user input of which results in a list
             eg. [ [1st value, text or tag] , [2nd value, text or tag] ]
        """
+    df = sort.reindex(df)
     i = 0
     for row in df[columnName]:
         termLength = len(termStruct)
