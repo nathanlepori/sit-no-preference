@@ -22,6 +22,7 @@ class HistoryAnalysisResults:
     relevant_tokens_count: Dict[Token, int]
 
 
+SUPPORTED_PROTOCOLS = r'^https?://'
 WEB_CONTENT_EXTENSIONS_PATTERN = r'(\.(aspx?|x?html?|php(3|4)|jspx?))?'
 IRRELEVANT_URL_PATTERNS = [
     # Search engines homepages and queries
@@ -45,6 +46,10 @@ def _get_url_extension(url: str) -> str:
 
 
 def _is_relevant_url(url: str) -> bool:
+    # Filter out non-http(s) URLs
+    if not re.match(SUPPORTED_PROTOCOLS, url):
+        return False
+
     for pattern in IRRELEVANT_URL_PATTERNS:
         if re.match(pattern, url):
             return False
@@ -96,7 +101,7 @@ def _load_history_text(urls: List[str]) -> List[str]:
     LOGGER.info('Loading {} relevant URLs out of {} history entries.'.format(relevant_urls_len, len(urls)))
     history_text = []
     for i, url in enumerate(relevant_urls):
-        LOGGER.info(f'{i}/{relevant_urls_len}: Loading "{url}".')
+        LOGGER.info(f'{i + 1}/{relevant_urls_len}: Loading "{url}".')
         url_text = _get_url_text(url)
         if url_text:
             history_text.append(url_text)
@@ -111,10 +116,10 @@ def load_history(history: DataFrame, from_time: datetime = None, to_time: dateti
         if not to_time:
             to_time = datetime.now()
 
-        history = history[(from_time <= history['last_visit_time']) & (history['last_visit_time'] <= to_time)]
+        history = history[(from_time <= history['date']) & (history['date'] <= to_time)]
 
-    return DataFrame(zip(history['last_visit_time'], _load_history_text(history['url'])),
-                     columns=['last_visit_time', 'text'])
+    return DataFrame(zip(history['date'], _load_history_text(history['url'])),
+                     columns=['date', 'content'])
 
 
 if __name__ == '__main__':

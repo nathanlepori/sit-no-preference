@@ -82,6 +82,44 @@ def prompt(questions: Questions):
     return all_answers
 
 
+def yes_no_question(name: str, message: str, yes_next=None, no_next=None):
+    """
+    Returns a yes/no question dictionary with the provided name, message and optional next prompts.
+    :param name:
+    :param message:
+    :param yes_next:
+    :param no_next:
+    :return:
+    """
+    return {
+        'type': 'list',
+        'name': name,
+        'message': message,
+        'choices': [
+            {
+                'name': 'yes',
+                'next': yes_next
+            },
+            {
+                'name': 'no',
+                'next': no_next
+            }
+        ]
+    }
+
+
+def yes_no_prompt(name: str, message: str, yes_next=None, no_next=None):
+    """
+    Starts a yes/no prompt with the provided name, message and optional next prompts.
+    :param name:
+    :param message:
+    :param yes_next:
+    :param no_next:
+    :return:
+    """
+    return prompt(yes_no_question(name, message, yes_next, no_next))
+
+
 if __name__ == '__main__':
     questions = {
         'type': 'list',
