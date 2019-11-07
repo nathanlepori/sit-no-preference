@@ -67,8 +67,14 @@ def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = 
         for answer in answers:
             try:
                 # Choice name should also be unique
+                # If there's a filter, extract it to test answers
+                if 'filter' in question:
+                    filter = question['filter']
+                else:
+                    # Otherwise use passthrough
+                    filter = lambda a: a
                 next.append([choice['next'] for choice in question['choices'] if
-                             type(choice) is dict and 'next' in choice and choice['name'] == answer][0])
+                             type(choice) is dict and 'next' in choice and filter(choice['name']) == answer][0])
             except IndexError:
                 pass
         if len(next) == 0:
@@ -78,8 +84,15 @@ def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = 
         answer = answers
         try:
             # Choice name should also be unique
+            # If there's a filter, extract it to test answers
+            if 'filter' in question:
+                filter = question['filter']
+            else:
+                # Otherwise use passthrough
+                filter = lambda a: a
             next = [choice['next'] for choice in question['choices'] if
-                    type(choice) is dict and 'next' in choice and choice['name'] == answer][0]
+                    # Use filter before comparison to avoid not matching filtered value
+                    type(choice) is dict and 'next' in choice and filter(choice['name']) == answer][0]
         except IndexError:
             next = None
     return next

@@ -71,7 +71,7 @@ def get_browser_history_ui(browser: str):
     LOGGER.info(f'Saved dataset to {dataset_filepath}')
 
     # Load history content
-    if a_dataset['load_history']['name']:
+    if a_dataset['load_history']:
         dataset_content_filepath = path.join(get_data_dir(), 'datasets', 'history_data',
                                              a_dataset['load_history']['next']['dataset_content_filename'])
         history_content = load_history(

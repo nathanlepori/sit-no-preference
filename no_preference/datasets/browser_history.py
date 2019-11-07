@@ -44,7 +44,10 @@ def get_chrome_history() -> DataFrame:
         # Chrome's timestamps are non-standard: they are calculated from January 1. 1601
         # Keep time in UTC timezone to avoid confusion
         cursor.execute('SELECT url, title, visit_count, '
-                       'datetime(last_visit_time / 1000000 + strftime("%s", "1601-01-01 00:00:00"), "unixepoch") '
+                       'CASE last_visit_time '
+                       'WHEN 0 THEN NULL '
+                       'ELSE datetime(last_visit_time / 1000000 + strftime("%s", "1601-01-01 00:00:00"), "unixepoch") '
+                       'END last_visit_time '
                        'FROM urls ORDER BY last_visit_time DESC;')
         history = DataFrame(cursor.fetchall(), columns=_HISTORY_COLUMNS)
         return history

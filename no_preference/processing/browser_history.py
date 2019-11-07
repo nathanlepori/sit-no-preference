@@ -105,6 +105,8 @@ def _load_history_text(urls: List[str]) -> List[str]:
 def load_history(history: DataFrame, from_time: datetime = None, to_time: datetime = None) -> DataFrame:
     # Filter by visit time
     if from_time or to_time:
+        history['date'] = pd.to_datetime(history['date'], format='%Y-%m-%d %H:%M:%S')
+
         if not from_time:
             from_time = datetime.fromtimestamp(0)
         if not to_time:
