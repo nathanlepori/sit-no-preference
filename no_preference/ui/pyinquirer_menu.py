@@ -1,5 +1,6 @@
 import os
 import types
+from datetime import datetime
 from os import PathLike
 from typing import Dict, Any, Union, List, Optional, Callable
 
@@ -14,17 +15,19 @@ NAMED_VALIDATE_FUNCTIONS = {
     'required': lambda a: len(a) > 0
 }
 NAMED_FILTER_FUNCTIONS = {
-    'to_int': lambda a: int(a)
+    'to_int': lambda a: int(a),
+    'to_datetime': lambda a: datetime.fromisoformat(a)
 }
 
-def replace_named_functions(questions: Questions):
+
+def _replace_named_functions(questions: Questions):
     """
     Replaces named functions with respective lambda for questions provided.
     :param questions:
     :return:
     """
     if type(questions) is list:
-        questions = [replace_named_functions(question) for question in questions]
+        questions = [_replace_named_functions(question) for question in questions]
     else:
         question = questions
         # Replace validate and filter functions if values are strings and they are present in the respective replacement
@@ -41,7 +44,7 @@ def replace_named_functions(questions: Questions):
     return questions
 
 
-def get_next(questions: Questions, answers: Union[str, List[str]], name: str = None) -> Next:
+def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = None) -> Next:
     question: Optional[Dict[str, Any]]
     if type(questions) is list:
         # Is a list of questions
@@ -82,7 +85,7 @@ def get_next(questions: Questions, answers: Union[str, List[str]], name: str = N
     return next
 
 
-def call_next(next: Next):
+def _call_next(next: Next):
     if not next:
         return
     if type(next) is list:
@@ -90,12 +93,12 @@ def call_next(next: Next):
             # A list of questions is provided -> using the questions name, collect answers in a dictionary
             res = {}
             for n in next:
-                res[n['name']] = call_next(n)
+                res[n['name']] = _call_next(n)
         else:
             # A list of functions (or mixed, ⚠ not supported) is provided -> just collect in a list
             res = []
             for n in next:
-                res.append(call_next(n))
+                res.append(_call_next(n))
         return res
     else:
         if isinstance(next, (types.FunctionType, types.BuiltinFunctionType, types.LambdaType)):
@@ -117,12 +120,12 @@ def prompt(questions: Questions):
     :param questions:
     :return:
     """
-    questions = replace_named_functions(questions)
+    questions = _replace_named_functions(questions)
     answers = _prompt(questions)
     all_answers = {}
     for name, answer in answers.items():
-        next = get_next(questions, answer, name)
-        ret = call_next(next)
+        next = _get_next(questions, answer, name)
+        ret = _call_next(next)
         if ret:
             # Return both answers from the main question and nested ones
             all_answers[name] = {
@@ -153,6 +156,7 @@ def yes_no_question(name: str, message: str, yes_next=None, no_next=None):
         'type': 'list',
         'name': name,
         'message': message,
+        'filter': lambda a: a == 'yes',
         'choices': [
             {
                 'name': 'yes',
