@@ -421,7 +421,7 @@ def run():
         'type': 'input',
         'name': 'model',
         'message': "What's the name of the model you want to use for the analysis?",
-        'validate': lambda a: len(a) > 0
+        'validate': 'required'
     })
     set_model(a_model['model'])
     while True:

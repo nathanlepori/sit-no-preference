@@ -16,12 +16,6 @@ from spacy.tokens.token import Token
 from no_preference.util import get_logger
 
 
-class HistoryAnalysisResults:
-    doc: Doc
-    relevant_tokens: List[Token]
-    relevant_tokens_count: Dict[Token, int]
-
-
 SUPPORTED_PROTOCOLS = r'^https?://'
 WEB_CONTENT_EXTENSIONS_PATTERN = r'(\.(aspx?|x?html?|php(3|4)|jspx?))?'
 IRRELEVANT_URL_PATTERNS = [

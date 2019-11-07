@@ -35,7 +35,7 @@ def get_browser_history_ui(browser: str):
             'name': 'dataset_filename',
             'message': f"Where should the {browser.capitalize()} history get saved to? If the file does not exist it "
                        "will be created, otherwise it will be overwritten.",
-            'validate': lambda a: len(a) > 0,
+            'validate': 'required',
         },
         yes_no_question(
             'load_history',
@@ -45,7 +45,7 @@ def get_browser_history_ui(browser: str):
                 'name': 'dataset_content_filename',
                 'message': f"Where should the {browser.capitalize()} history content get saved to? If the "
                            "file doesn't exist it will be created, otherwise it will be overwritten.",
-                'validate': lambda a: len(a) > 0,
+                'validate': 'required'
             }
         ),
     ])
@@ -55,9 +55,9 @@ def get_browser_history_ui(browser: str):
     history.to_csv(dataset_filepath, index=False)
     LOGGER.info(f'Saved dataset to {dataset_filepath}')
 
-    if a_dataset['load_history'] != 'no':
+    if a_dataset['load_history']['name'] != 'no':
         dataset_content_filepath = path.join(get_data_dir(), 'datasets', 'history_data',
-                                             a_dataset['load_history']['dataset_content_filename'])
+                                             a_dataset['load_history']['next']['dataset_content_filename'])
         history_content = load_history(history)
         history_content.to_csv(dataset_content_filepath, index=False)
         LOGGER.info(f'Saved dataset to {dataset_content_filepath}')
@@ -75,7 +75,7 @@ def get_twitter_timeline_ui():
             'name': 'dataset_filename',
             'message': "Where should the Twitter timeline get saved to? If the file doesn't exist it "
                        "will be created, otherwise it will be overwritten.",
-            'validate': lambda a: len(a) > 0,
+            'validate': 'required'
         }
     ])
 
@@ -95,14 +95,14 @@ def get_facebook_data_ui():
             'type': 'input',
             'name': 'facebook_data_dir',
             'message': "Where is your Facebook data directory located?",
-            'validate': lambda a: len(a) > 0,
+            'validate': 'required'
         },
         {
             'type': 'input',
             'name': 'dataset_filename',
             'message': "Where should the Facebook data get saved to? If the file doesn't exist it "
                        "will be created, otherwise it will be overwritten.",
-            'validate': lambda a: len(a) > 0,
+            'validate': 'required'
         }
     ])
 
