@@ -3,6 +3,7 @@ from no_preference.processing import analysis
 from no_preference.datasets import datasets_ui
 from no_preference.ui.pyinquirer_menu import prompt
 from no_preference.util import create_data_dir
+from no_preference.gui import GUI
 
 
 def init():
@@ -29,6 +30,7 @@ def run():
             },
             {
                 'name': 'Show profiling results',
+                'next': GUI.run
             }
         ]
     })

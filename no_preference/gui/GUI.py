@@ -1,16 +1,19 @@
+from os import path
 from tkinter import *
 import json
-import csv
 import os
 import sys
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.ttk as ttk
 from tkinter import StringVar, Entry
+from no_preference.util import get_data_dir
 
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
+def get_File_dir():
+    return get_data_dir()
 
 def vp_start_gui():
     """
@@ -22,6 +25,7 @@ def vp_start_gui():
     root.title("Welcome to Social Profiling app")
     root.geometry('600x500')
     root.mainloop()
+
 
 w = None
 
@@ -44,7 +48,8 @@ class Toplevel1:
     def get_web_path(self, type):
         # get the path of the file
         global web_path
-        web_path = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
+        file_path=path.join(get_File_dir(), 'results')
+        web_path = tkinter.filedialog.askopenfilename(initialdir=file_path,
                                                       filetypes=[("json file", "*.json")])
         global web_loaded
         web_loaded = 0  # counter to signify if file has been loaded or not
@@ -54,7 +59,8 @@ class Toplevel1:
 
     def get_social_path(self, type):  # get path of file
         global social_path
-        social_path = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
+        file_path = path.join(get_File_dir(), 'results')
+        social_path = tkinter.filedialog.askopenfilename(initialdir=file_path,
                                                         filetypes=[("json file", "*.json")])
         global social_loaded
         social_loaded = 0  # counter to signify if file has been loaded or not
@@ -1005,6 +1011,7 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load files!")
 
-
-if __name__ == '__main__':
+def run():
     vp_start_gui()
+if __name__ == '__main__':
+    run()
