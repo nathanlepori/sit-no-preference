@@ -1,8 +1,7 @@
-import no_preference.datasets.browser_history as browser_history
-
 from os import path
-from typing import Callable
+from datetime import datetime
 
+import no_preference.datasets.browser_history as browser_history
 from no_preference.datasets.facebook import get_facebook_posts
 from no_preference.datasets.twitter import get_twitter_timeline
 from no_preference.processing.browser_history import load_history
@@ -40,13 +39,29 @@ def get_browser_history_ui(browser: str):
         yes_no_question(
             'load_history',
             'Do you want to also crawl the content of the visited web pages? This operation will take a while...',
-            yes_next={
-                'type': 'input',
-                'name': 'dataset_content_filename',
-                'message': f"Where should the {browser.capitalize()} history content get saved to? If the "
-                           "file doesn't exist it will be created, otherwise it will be overwritten.",
-                'validate': 'required'
-            }
+            yes_next=[
+                {
+                    'type': 'input',
+                    'name': 'dataset_content_from',
+                    'message': 'From what date and time would you like to retrieve the history content (format: ISO '
+                               '8601, blank for no lower filtering)?',
+                    'filter': 'to_datetime'
+                },
+                {
+                    'type': 'input',
+                    'name': 'dataset_content_to',
+                    'message': 'From what date and time would you like to retrieve the history content (format: ISO '
+                               '8601, blank for no upper filtering)?',
+                    'filter': 'to_datetime'
+                },
+                {
+                    'type': 'input',
+                    'name': 'dataset_content_filename',
+                    'message': f"Where should the {browser.capitalize()} history content get saved to? If the "
+                               "file doesn't exist it will be created, otherwise it will be overwritten.",
+                    'validate': 'required'
+                }
+            ]
         ),
     ])
 
@@ -55,10 +70,15 @@ def get_browser_history_ui(browser: str):
     history.to_csv(dataset_filepath, index=False)
     LOGGER.info(f'Saved dataset to {dataset_filepath}')
 
-    if a_dataset['load_history']['name'] != 'no':
+    # Load history content
+    if a_dataset['load_history']['name']:
         dataset_content_filepath = path.join(get_data_dir(), 'datasets', 'history_data',
                                              a_dataset['load_history']['next']['dataset_content_filename'])
-        history_content = load_history(history)
+        history_content = load_history(
+            history,
+            a_dataset['load_history']['next']['dataset_content_from'],
+            a_dataset['load_history']['next']['dataset_content_to']
+        )
         history_content.to_csv(dataset_content_filepath, index=False)
         LOGGER.info(f'Saved dataset to {dataset_content_filepath}')
 
@@ -120,11 +140,11 @@ def run():
         'choices': [
             {
                 'name': 'Chrome history',
-                'next': get_browser_history_ui('chrome')
+                'next': lambda _: get_browser_history_ui('chrome')
             },
             {
                 'name': 'Firefox history',
-                'next': get_browser_history_ui('firefox')
+                'next': lambda _: get_browser_history_ui('firefox')
             },
             {
                 'name': 'Twitter timeline',
