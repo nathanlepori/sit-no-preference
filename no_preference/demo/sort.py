@@ -8,21 +8,8 @@ def reindex(dfData):
     # dfData.index = dfData.index + 1 # let the index start from 1, this column of index does not have column header
     return dfData
 
-def caseFile(df,setting): # string for setting is 'upper' or 'lower'
-    """ This function is used to set all string in dataframe to upper or lower case. """
-    if setting.lower() == 'lower':              # check if the setting match lower (check in lower caps)
-        for column in df:                       # for each column in the dataframe
-            if df[column].dtype == object:          # if columns is object type
-                df[column] = df[column].str.lower() # set all the data in this column to lower case
-    elif setting.lower() == 'upper':                # check if the setting match upper (check in lower caps)
-        for column in df:                           # for each column in the dataframe
-            if df[column].dtype == object:           # if columns is object type
-                df[column] = df[column].str.upper()    # set all data in this column to UPPER case
-    else:                                       # if setting does not match ignore
-        pass
-    return df
 
-def sortBy(dfData,columnName): # reformat date so the sorting starts from year-month-date
+def sort_by(dfData, columnName): # reformat date so the sorting starts from year-month-date
     """ used by sortByDateRange
 
     This function sort values by the column columnName.
@@ -32,7 +19,7 @@ def sortBy(dfData,columnName): # reformat date so the sorting starts from year-m
     return dfData
 
 
-def sortByDateRange(dfData,columnName,dateStart,dateEnd):   # Please use functionSortByDate first before using this
+def sort_by_date_range(dfData, columnName, dateStart, dateEnd):   # Please use functionSortByDate first before using this
     """ function used in search function
     function will call sortBy
      filter to keep only dates between dateStart and dateEnd
@@ -40,6 +27,6 @@ def sortByDateRange(dfData,columnName,dateStart,dateEnd):   # Please use functio
     """
     # dfData = sort.reindex(dfData)
 
-    dfData = sortBy(dfData,columnName)
+    dfData = sort_by(dfData, columnName)
     dfData = dfData[dfData[columnName].between(dateStart, dateEnd)]  # keep only date between dateStart and dateEnd
     return dfData

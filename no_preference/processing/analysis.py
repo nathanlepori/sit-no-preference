@@ -1,23 +1,16 @@
 import json
-from math import isnan
 from os import path
 
 from PyInquirer import prompt
 import pandas as pd
 
 from no_preference.demo import venn
-from no_preference.demo.defaults import defaultFileA, defaultFileB, defaultColumn, defaultDateColumn
-from no_preference.demo.sort import sortByDateRange
-from no_preference.demo.spacyNLP import readFile, spacyToken, spacyLabelTokenFull, spacyCleanCell, \
-    spacyColumnFilterToken, spacyColumnStripToken, spacyTokenTagCounter, spacyFrequencyByDate, assocTermDetached, \
-    assocTermAttached, set_model
-from no_preference.demo.venn import vennIntersectTextTag, vennSymmetricDifTextTag
+from no_preference.demo.sort import sort_by_date_range
+from no_preference.demo.spacyNLP import read_file, spacy_token, spacy_label_token_full, spacy_clean_cell, \
+    spacy_column_filter_token, spacy_column_strip_token, spacy_token_tag_counter, spacy_frequency_by_date, assoc_term_detached, \
+    assoc_term_attached, set_model
+from no_preference.demo.venn import venn_intersect_text_tag, vennSymmetricDifTextTag
 from no_preference.util import get_data_dir
-
-# pd.set_option('display.max_rows', 500)
-# pd.set_option('display.max_columns', 500)
-# pd.set_option('display.width', 1000)
-# pd.set_option('display.max_colwidth', 1000)
 
 q_start_analysis = {
     'type': 'rawlist',
@@ -28,19 +21,6 @@ q_start_analysis = {
         'run_analysis',
     ]
 }
-
-# q_file_loc = [
-#     {
-#         'type': 'input',
-#         'name': 'set_A',
-#         'message': 'Please indicate set_A\'s name and location >',
-#     },
-#     {
-#         'type': 'input',
-#         'name': 'set_B',
-#         'message': 'Please indicate set_B\'s name and location >',
-#     },
-# ]
 
 q_file_loc_generic = [
     {
@@ -155,7 +135,7 @@ q_set_B_request = [
     }
 ]
 
-q_set_A_set_B = [
+q_set_a_set_b = [
     {
         'type': 'rawlist',
         'name': 'option',
@@ -244,51 +224,28 @@ q_assoc_term = [
 ]
 
 
-def cleanReindex(df, columnName, df2, columnNameB):
+def clean_reindex(df, column_name, df2, column_name_B):
     if df.empty is False:
-        df = spacyCleanCell(df, columnName)
+        df = spacy_clean_cell(df, column_name)
         df = df.reset_index(drop=True)
     if df2.empty is False:
-        df2 = spacyCleanCell(df2, columnNameB)
+        df2 = spacy_clean_cell(df2, column_name_B)
         df2 = df2.reset_index(drop=True)
     return df, df2
 
 
-def _readfile(name_column, date_column, a_file_loc):
-    if a_file_loc['set_A'] == '':
-        filenameA = path.join(get_data_dir(), 'datasets', defaultFileA())
-    else:
-        filenameA = path.join(get_data_dir(), 'datasets', a_file_loc['set_A'])
-    read = readFile(filenameA)
-    df = pd.DataFrame(read, columns=[name_column, date_column])  # impt to match columns
-
-    if a_file_loc['set_B'] == '':
-        filenameB = path.join(get_data_dir(), 'datasets', defaultFileB())
-    else:
-        filenameB = path.join(get_data_dir(), 'datasets', a_file_loc['set_B'])
-    read2 = readFile(filenameB)
-    df2 = pd.DataFrame(read2, columns=[name_column, date_column])  # impt to match columns
-
-    return df, df2
-
-
-def writeFileJson(content, filename):  # write to file.
+def write_file_json(content, filename):  # write to file.
     output_datasets_name = path.join(get_data_dir(), 'results', filename)
     with open(output_datasets_name, 'w+') as fp:
         json.dump(content, fp)
 
 
-def writeFileJsonDf(df, filename):  # write to file.
-    path_filename = path.join(get_data_dir(), 'datasets', filename)
-    df.to_json(path_filename)
-
-
-def writeFileCsv(df, filename):
+def write_file_csv(df, filename):
     output_datasets_name = path.join(get_data_dir(), 'results', filename)
     df.to_csv(output_datasets_name, index=False)
 
 
-def _process_selection_label(df, columnName, df2, columnNameB):
+def process_selection_label(df, column_name, df2, column_name_B):
     """ :return df, df2:
 
     function to process the user selections made in the command line user interfaces
@@ -301,21 +258,21 @@ def _process_selection_label(df, columnName, df2, columnNameB):
     if a_venn['venn'] == 'intersect' or a_venn['venn'] == 'symmetric_difference':
         a_text_tag = prompt(q_text_tag)  # used to determine which element in a list to use
         if a_text_tag['text_tag'] == 'text':  # eg. to choose either value or text/tage in the list [value,text/tag]
-            textTagOption = 0
+            text_tag_option = 0
         elif a_text_tag['text_tag'] == 'tag':
-            textTagOption = 1
+            text_tag_option = 1
 
     if a_venn['venn'] == 'intersect':
         if df.empty is False and df2.empty is False:
-            df, df2 = vennIntersectTextTag(df, columnName, df2, columnNameB, textTagOption)
-            df, df2 = cleanReindex(df, columnName, df2, columnNameB)
+            df, df2 = venn_intersect_text_tag(df, column_name, df2, column_name_B, text_tag_option)
+            df, df2 = clean_reindex(df, column_name, df2, column_name_B)
         else:
             print("set_A or set_B is empty.")
 
     if a_venn['venn'] == 'symmetric_difference':
         if df.empty is False and df2.empty is False:
-            df, df2 = vennSymmetricDifTextTag(df, columnName, df2, columnNameB, textTagOption)
-            df, df2 = cleanReindex(df, columnName, df2, columnNameB)
+            df, df2 = vennSymmetricDifTextTag(df, column_name, df2, column_name_B, text_tag_option)
+            df, df2 = clean_reindex(df, column_name, df2, column_name_B)
         else:
             print("set_A or set_B is empty.")
 
@@ -330,7 +287,7 @@ def _process_selection_label(df, columnName, df2, columnNameB):
     return df, df2
 
 
-def _process_selection_modify(df, columnName, df2, columnNameB, date_column):
+def process_selection_modify(df, column_name, df2, column_name_B, column_date):
     """ :return: df, df2
 
     function to process the user selections made in the command line user interfaces
@@ -343,27 +300,27 @@ def _process_selection_modify(df, columnName, df2, columnNameB, date_column):
         if a_filter['modify'] == 'filter' or a_filter['modify'] == 'strip':
             a_text_tag = prompt(q_text_tag)
             if a_text_tag['text_tag'] == 'text':
-                textTagOption = 0
+                text_tag_option = 0
             elif a_text_tag['text_tag'] == 'tag':
-                textTagOption = 1
+                text_tag_option = 1
             a_filter_value = prompt(q_filter_value)
             value = a_filter_value['value']
             a_file_select = prompt(q_file_select)
             if a_filter['modify'] == 'filter':
                 if a_file_select['file_selection'] == 'set_A' or a_file_select[
                         'file_selection'] == 'both' and df.empty is False:
-                    spacyColumnFilterToken(df, columnName, value, textTagOption)
+                    spacy_column_filter_token(df, column_name, value, text_tag_option)
                 if a_file_select['file_selection'] == 'set_B' or a_file_select[
                         'file_selection'] == 'both' and df2.empty is False:
-                    spacyColumnFilterToken(df2, columnNameB, value, textTagOption)
+                    spacy_column_filter_token(df2, column_name_B, value, text_tag_option)
 
             if a_filter['modify'] == 'strip':
                 if a_file_select['file_selection'] == 'set_A' or a_file_select[
                         'file_selection'] == 'both' and df.empty is False:
-                    spacyColumnStripToken(df, columnName, value, textTagOption)
+                    spacy_column_strip_token(df, column_name, value, text_tag_option)
                 if a_file_select['file_selection'] == 'set_B' or a_file_select[
                         'file_selection'] == 'both' and df2.empty is False:
-                    spacyColumnStripToken(df2, columnNameB, value, textTagOption)
+                    spacy_column_strip_token(df2, column_name_B, value, text_tag_option)
 
         if a_filter['modify'] == 'date':
             a_date = prompt(q_date)
@@ -372,38 +329,38 @@ def _process_selection_modify(df, columnName, df2, columnNameB, date_column):
             a_file_select = prompt(q_file_select)
             if a_file_select['file_selection'] == 'set_A' or a_file_select[
                     'file_selection'] == 'both' and df.empty is False:
-                df = sortByDateRange(df, date_column, start_date, end_date)
+                df = sort_by_date_range(df, column_date, start_date, end_date)
             if a_file_select['file_selection'] == 'set_B' or a_file_select[
                     'file_selection'] == 'both' and df2.empty is False:
-                df2 = sortByDateRange(df2, date_column, start_date, end_date)
+                df2 = sort_by_date_range(df2, column_date, start_date, end_date)
 
-        df, df2 = cleanReindex(df, columnName, df2, columnNameB)
+        df, df2 = clean_reindex(df, column_name, df2, column_name_B)
 
     return df, df2
 
 
-def _process_selection_math(df, columnName, df2, columnNameB):
+def process_selection_math(df, column_name, df2, column_name_B):
     """ :return: df, df2
 
     function to process the user selections made in the command line user interfaces
         this covers over the basic mathematical calculation for the dataframe.
             counting by value or counting value by its date
     """
-    countA = []
-    countB = []
+    count_a = []
+    count_b = []
     while True:
         a_math = prompt(q_math)
         if a_math['math'] == 'exit':
             break
         if a_math['math'] == 'display':
-            if len(countA) != 0:
+            if len(count_a) != 0:
                 print("set_A:", end=' ')
-                print(countA)
+                print(count_a)
             else:
                 print("empty, please run a math method for set_A")
-            if len(countB) != 0:
+            if len(count_b) != 0:
                 print("set_B:", end=' ')
-                print(countB)
+                print(count_b)
             else:
                 print("empty, please run a math method for set_B")
 
@@ -412,30 +369,30 @@ def _process_selection_math(df, columnName, df2, columnNameB):
             if a_file_select['file_selection'] == 'set_A' or a_file_select['file_selection'] == 'both':
                 a_set_A_request = prompt(q_set_A_request)
                 filename = a_set_A_request['filename']
-                writeFileJson(countA, filename)
+                write_file_json(count_a, filename)
 
             if a_file_select['file_selection'] == 'set_B' or a_file_select['file_selection'] == 'both':
                 a_set_B_request = prompt(q_set_B_request)
                 filename = a_set_B_request['filename']
-                writeFileJson(countB, filename)
+                write_file_json(count_b, filename)
 
         if a_math['math'] == 'counter' or a_math['math'] == 'frequency_By_Date':
             a_text_tag = prompt(q_text_tag)
             if a_text_tag['text_tag'] == 'text':
-                textTagOption = 0
+                text_tag_option = 0
             if a_text_tag['text_tag'] == 'tag':
-                textTagOption = 1
+                text_tag_option = 1
 
             if a_math['math'] == 'counter':
                 a_file_select = prompt(q_file_select)
                 if a_file_select['file_selection'] == 'set_A' or a_file_select['file_selection'] == 'both':
                     if df.empty is False:
-                        countA = spacyTokenTagCounter(df, columnName, textTagOption)
+                        count_a = spacy_token_tag_counter(df, column_name, text_tag_option)
                     else:
                         print("set_A is empty.")
                 if a_file_select['file_selection'] == 'set_B' or a_file_select['file_selection'] == 'both':
                     if df2.empty is False:
-                        countB = spacyTokenTagCounter(df2, columnNameB, textTagOption)
+                        count_b = spacy_token_tag_counter(df2, column_name_B, text_tag_option)
                     else:
                         print("set_B is empty.")
 
@@ -445,113 +402,106 @@ def _process_selection_math(df, columnName, df2, columnNameB):
                 value = a_math_value['value']
                 if a_file_select['file_selection'] == 'set_A' or a_file_select['file_selection'] == 'both':
                     if df.empty is False:
-                        countA = spacyFrequencyByDate(df, columnName, textTagOption, value)
+                        count_a = spacy_frequency_by_date(df, column_name, text_tag_option, value)
                     else:
                         print("set_A is empty")
                 if a_file_select['file_selection'] == 'set_B' or a_file_select['file_selection'] == 'both':
                     if df2.empty is False:
-                        countB = spacyFrequencyByDate(df2, columnNameB, textTagOption, value)
+                        count_b = spacy_frequency_by_date(df2, column_name_B, text_tag_option, value)
                     else:
                         print("set_B is empty")
 
 
-def _process_selection_assoc(df, columnName, df2, columnNameB):
+def _process_selection_assoc(df, column_name, df2, column_name_B):
     """ :return: df, df2
     function to process the user selections made in the command line user interfaces
         this covers over assocTermAttached() and assocTermDetached() function for the dataframe.
     """
-    termStruct = []
+    term_struct = []
     a_assoc = prompt(q_assoc)
     while True:
-        print("Term Association:" + str(termStruct))
+        print("Term Association:" + str(term_struct))
         a_assoc_method = prompt(q_assoc_method)
         if a_assoc_method['method'] == 'exit':
             break
         if a_assoc_method['method'] == 'insert_term':
             a_assoc_term = prompt(q_assoc_term)
-            listIdentity = a_assoc_term['text_tag']
-            termInput = a_assoc_term['value']
-            termStruct.append([str(termInput), str(listIdentity)])
+            list_identity = a_assoc_term['text_tag']
+            term_input = a_assoc_term['value']
+            term_struct.append([str(term_input), str(list_identity)])
         if a_assoc_method['method'] == 'run':
             a_file_select = prompt(q_file_select)
             if a_file_select['file_selection'] == 'set_A' or a_file_select['file_selection'] == 'both':
                 if df.empty is False:
                     if a_assoc['assoc'] == 'detached':
-                        df = assocTermDetached(df, columnName, termStruct)
+                        df = assoc_term_detached(df, column_name, term_struct)
                     if a_assoc['assoc'] == 'attached':
-                        df = assocTermAttached(df, columnName, termStruct)
+                        df = assoc_term_attached(df, column_name, term_struct)
                 else:
                     print("set_A is empty.")
             if a_file_select['file_selection'] == 'set_B' or a_file_select['file_selection'] == 'both':
                 if df2.empty is False:
                     if a_assoc['assoc'] == 'detached':
-                        df2 = assocTermDetached(df2, columnNameB, termStruct)
+                        df2 = assoc_term_detached(df2, column_name_B, term_struct)
                     if a_assoc['assoc'] == 'attached':
-                        df2 = assocTermAttached(df2, columnNameB, termStruct)
+                        df2 = assoc_term_attached(df2, column_name_B, term_struct)
                 else:
                     print("set_B is empty.")
 
-            df, df2 = cleanReindex(df, columnName, df2, columnNameB)
+            df, df2 = clean_reindex(df, column_name, df2, column_name_B)
 
     return df, df2
 
 
-def _process_load_file(df, columnName, df2, columnNameB, date_column):
+def _process_load_file(df, column_name, df2, column_name_B, column_date):
     while True:
-        a_set_A_set_B = prompt(q_set_A_set_B)
-        if a_set_A_set_B['option'] == 'exit':
+        a_set_a_set_b = prompt(q_set_a_set_b)
+        if a_set_a_set_b['option'] == 'exit':
             break
 
-        if a_set_A_set_B['option'] == 'set_A':
+        if a_set_a_set_b['option'] == 'set_A':
             a_append_overwrite = prompt(q_append_overwrite)
             a_file_loc_generic = prompt(q_file_loc_generic)
-            if a_file_loc_generic['file_loc'] == '':
-                output_datasets_name = path.join(get_data_dir(), 'datasets', defaultFileA())
-                filenameA = output_datasets_name
-            else:
-                filenameA = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
+            filename_a = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
 
-            read = readFile(filenameA)
+            read = read_file(filename_a)
             if a_append_overwrite['integrate'] == 'overwrite' or df.empty:
                 # Filter out empty titles (stored as nan aka flat values) and
                 # get only content and date column
-                df = read.dropna()[[columnName, date_column]]
-                df = spacyToken(df, columnName)
-                df = spacyLabelTokenFull(df, columnName)
+                df = read.dropna()[[column_name, column_date]]
+                df = spacy_token(df, column_name)
+                df = spacy_label_token_full(df, column_name)
             else:
-                df_temporary = read.dropna()[[columnName, date_column]]  # impt to match columns
-                df_temporary = spacyToken(df_temporary, columnName)
-                df_temporary = spacyLabelTokenFull(df_temporary, columnName)
+                df_temporary = read.dropna()[[column_name, column_date]]  # impt to match columns
+                df_temporary = spacy_token(df_temporary, column_name)
+                df_temporary = spacy_label_token_full(df_temporary, column_name)
                 df = venn.vennUnion(df, df_temporary)
 
-        if a_set_A_set_B['option'] == 'set_B':
+        if a_set_a_set_b['option'] == 'set_B':
             a_append_overwrite = prompt(q_append_overwrite)
             a_file_loc_generic = prompt(q_file_loc_generic)
-            if a_file_loc_generic['file_loc'] == '':
-                output_datasets_name = path.join(get_data_dir(), 'datasets', defaultFileB())
-                filenameB = output_datasets_name
-            else:
-                filenameB = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
+            filename_b = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
 
-            read = readFile(filenameB)
+            read = read_file(filename_b)
             if a_append_overwrite['integrate'] == 'overwrite' or df2.empty:
                 # Filter out empty titles (stored as nan aka flat values) and
                 # get only content and date column
-                df2 = read.dropna()[[columnName, date_column]]
-                df2 = spacyToken(df2, columnName)
-                df2 = spacyLabelTokenFull(df2, columnName)
+                df2 = read.dropna()[[column_name_B, column_date]]
+                df2 = spacy_token(df2, column_name_B)
+                df2 = spacy_label_token_full(df2, column_name_B)
             else:
-                df_temporary = read.dropna()[[columnName, date_column]]  # impt to match columns
-                df_temporary = spacyToken(df_temporary, columnNameB)
-                df_temporary = spacyLabelTokenFull(df_temporary, columnNameB)
+                df_temporary = read.dropna()[[column_name, column_date]]  # impt to match columns
+                df_temporary = spacy_token(df_temporary, column_name_B)
+                df_temporary = spacy_label_token_full(df_temporary, column_name_B)
                 df2 = venn.vennUnion(df2, df_temporary)
 
     return df, df2
 
 
 def run():
-    columnName = columnNameB = defaultColumn()
-    date_column = defaultDateColumn()
+    column_name = 'content'
+    column_name_B = 'content'
+    column_date = 'date'
     df = pd.DataFrame
     df2 = pd.DataFrame
 
@@ -566,7 +516,7 @@ def run():
     while True:
         a_start_analysis = prompt(q_start_analysis)
         if a_start_analysis['start'] == 'load_file':
-            df, df2 = _process_load_file(df, columnName, df2, columnNameB, date_column)
+            df, df2 = _process_load_file(df, column_name, df2, column_name_B, column_date)
 
         if a_start_analysis['start'] == 'run_analysis':
             while True:
@@ -577,25 +527,23 @@ def run():
                     print(df)
                     print(df2)
                 if a_label['analysis'] == 'venn':
-                    df, df2 = _process_selection_label(df, columnName, df2, columnNameB)
+                    df, df2 = process_selection_label(df, column_name, df2, column_name_B)
                 if a_label['analysis'] == 'modify':
-                    df, df2 = _process_selection_modify(df, columnName, df2, columnNameB, date_column)
+                    df, df2 = process_selection_modify(df, column_name, df2, column_name_B, column_date)
                 if a_label['analysis'] == 'math':
-                    _process_selection_math(df, columnName, df2, columnNameB)
+                    process_selection_math(df, column_name, df2, column_name_B)
                 if a_label['analysis'] == 'term_association':
-                    df, df2 = _process_selection_assoc(df, columnName, df2, columnNameB)
+                    df, df2 = _process_selection_assoc(df, column_name, df2, column_name_B)
                 if a_label['analysis'] == 'save':
                     a_file_select = prompt(q_file_select)
                     if a_file_select['file_selection'] == 'set_A' or a_file_select['file_selection'] == 'both':
                         a_set_A_request = prompt(q_set_A_request)
                         filename = a_set_A_request['filename']
-                        writeFileCsv(df, filename)
-                        # writeFileJsonDf(df, filename)
+                        write_file_csv(df, filename)
                     if a_file_select['file_selection'] == 'set_B' or a_file_select['file_selection'] == 'both':
                         a_set_B_request = prompt(q_set_B_request)
                         filename = a_set_B_request['filename']
-                        writeFileCsv(df2, filename)
-                        # writeFileJsonDf(df2, filename)
+                        write_file_csv(df2, filename)
 
 
 if __name__ == '__main__':
