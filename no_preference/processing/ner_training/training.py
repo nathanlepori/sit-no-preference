@@ -12,7 +12,7 @@ from spacy.util import compounding, minibatch
 
 import no_preference.processing.ner_training.annotations_loaders as annotations_loaders
 from no_preference.processing.ner_training.annotations_loaders import dataturks_loader
-from no_preference.util import get_logger, load_model
+from no_preference.lib.util import get_logger, load_model
 
 LOGGER = get_logger(__name__)
 

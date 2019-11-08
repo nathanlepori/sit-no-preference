@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime
-from typing import List, Dict, Union
+from typing import List, Union
 from urllib.parse import urlparse
 
 import pandas as pd
@@ -10,10 +10,8 @@ import requests_cache
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from pandas import DataFrame
-from spacy.tokens.doc import Doc
-from spacy.tokens.token import Token
 
-from no_preference.util import get_logger
+from no_preference.lib.util import get_logger
 
 
 SUPPORTED_PROTOCOLS = r'^https?://'

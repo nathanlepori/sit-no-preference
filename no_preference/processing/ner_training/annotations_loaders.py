@@ -1,6 +1,6 @@
 import json
 
-from no_preference.util import get_logger
+from no_preference.lib.util import get_logger
 
 LOGGER = get_logger(__name__)
 

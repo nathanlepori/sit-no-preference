@@ -1,7 +1,7 @@
 import nltk
 from nltk.corpus import stopwords
 import pandas as pd
-import no_preference.demo.sort
+import no_preference.processing.analysis.sort
 
 def readFile(filename):
     read = pd.read_csv(filename)
@@ -28,7 +28,7 @@ columnName = 'word'
 
 read = readFile(filename)
 df = pd.DataFrame(read, columns= ['word','date']) #impt to match columns
-df = no_preference.demo.sort.functionSortByDateRange(df, 'date', startDate, endDate)
+df = no_preference.processing.analysis.sort.functionSortByDateRange(df, 'date', startDate, endDate)
 df = tokenizeColumn(df,columnName)
 df = filterStopWordColumn(df,columnName)
 print(df)

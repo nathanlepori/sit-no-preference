@@ -3,8 +3,8 @@ from os import path
 
 from no_preference.datasets.twitter import get_following, get_tweets_for_training
 from no_preference.processing.ner_training.training import test_model, train_ner, get_annotations_loaders
-from no_preference.ui.pyinquirer_menu import prompt, data_files_question
-from no_preference.util import get_data_dir, get_logger
+from no_preference.lib.pyinquirer_menu import prompt, data_files_question, data_files_prompt
+from no_preference.lib.util import get_data_dir, get_logger
 
 LOGGER = get_logger(__name__)
 
@@ -54,12 +54,13 @@ def save_training_data(training_data):
 
 
 def train_model_ui():
-    base_model_name = prompt({
-        'type': 'input',
-        'name': 'base_model_name',
-        'message': "What is the name of the model you want to train? If it doesn't exists it will be created.",
-        'validate': 'required'
-    })
+    base_model_name = data_files_prompt(
+        'base_model_name',
+        'Select a model to test.',
+        'models',
+        allow_custom_file=True,
+        custom_file_message="What is the name of the model you want to train? If it doesn't exists it will be created."
+    )
 
     annotations_loaders = get_annotations_loaders()
     a_training = prompt([

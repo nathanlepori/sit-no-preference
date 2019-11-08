@@ -1,12 +1,11 @@
 from os import path
-from datetime import datetime
 
 import no_preference.datasets.browser_history as browser_history
 from no_preference.datasets.facebook import get_facebook_posts
 from no_preference.datasets.twitter import get_twitter_timeline
 from no_preference.processing.browser_history import load_history
-from no_preference.ui.pyinquirer_menu import prompt, yes_no_question, yes_no_prompt
-from no_preference.util import get_data_dir, get_logger
+from no_preference.lib.pyinquirer_menu import prompt, yes_no_question, yes_no_prompt
+from no_preference.lib.util import get_data_dir, get_logger
 
 LOGGER = get_logger(__name__)
 

@@ -1,19 +1,20 @@
 from os import path
-from tkinter import *
 import json
 import os
 import sys
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.ttk as ttk
-from tkinter import StringVar, Entry
-from no_preference.util import get_data_dir
+from tkinter import Entry
+from no_preference.lib.util import get_data_dir
 
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
+
 def get_File_dir():
     return get_data_dir()
+
 
 def vp_start_gui():
     """
@@ -29,6 +30,7 @@ def vp_start_gui():
 
 w = None
 
+
 def create_Toplevel1(root, *args, **kwargs):
     """
     Starting point when module is imported by another program.
@@ -39,16 +41,18 @@ def create_Toplevel1(root, *args, **kwargs):
     top = Toplevel1(w)
     return (w, top)
 
+
 def destroy_Toplevel1():
     global w
     w.destroy()
     w = None
 
+
 class Toplevel1:
     def get_web_path(self, type):
         # get the path of the file
         global web_path
-        file_path=path.join(get_File_dir(), 'results')
+        file_path = path.join(get_File_dir(), 'results')
         web_path = tkinter.filedialog.askopenfilename(initialdir=file_path,
                                                       filetypes=[("json file", "*.json")])
         global web_loaded
@@ -61,7 +65,7 @@ class Toplevel1:
         global social_path
         file_path = path.join(get_File_dir(), 'results')
         social_path = tkinter.filedialog.askopenfilename(initialdir=file_path,
-                                                        filetypes=[("json file", "*.json")])
+                                                         filetypes=[("json file", "*.json")])
         global social_loaded
         social_loaded = 0  # counter to signify if file has been loaded or not
         social_loaded += 1
@@ -169,10 +173,10 @@ class Toplevel1:
         self.Button2.configure(highlightbackground="#d9d9d9")
         self.Button2.configure(highlightcolor="black")
         self.Button2.configure(pady="0")
-        self.Button2.configure(text='''WebBrowser History''')
-        self.Button2.configure(command=lambda: load_from_web())  # opening the file directory to choose file
+        self.Button2.configure(text='Result set B')
+        self.Button2.configure(command=lambda: load_set_b())  # opening the file directory to choose file
 
-        def load_from_web():
+        def load_set_b():
             self.get_web_path("Entry1")
 
         # Button that triggers the function
@@ -187,10 +191,10 @@ class Toplevel1:
         self.Button3.configure(highlightbackground="#d9d9d9")
         self.Button3.configure(highlightcolor="black")
         self.Button3.configure(pady="0")
-        self.Button3.configure(text='''Social Media''')
-        self.Button3.configure(command=lambda: load_from_social())  # opening the file directory to choose file
+        self.Button3.configure(text='Result set A')
+        self.Button3.configure(command=lambda: load_set_a())  # opening the file directory to choose file
 
-        def load_from_social():
+        def load_set_a():
             self.get_social_path("Entry2")
 
         # Button that triggers the function
@@ -241,7 +245,7 @@ class Toplevel1:
         self.Button1.configure(width=62)
         self.Button1.configure(command=lambda: web_word_count_ranked())
 
-        #button for web timeline
+        # button for web timeline
         self.Button1 = tk.Button(top)
         self.Button1.place(relx=0.63, rely=0.07, height=35, width=170)
         self.Button1.configure(activebackground="#ececec")
@@ -257,7 +261,7 @@ class Toplevel1:
         self.Button1.configure(width=62)
         self.Button1.configure(command=lambda: web_timeline())
 
-        #button for social timeline
+        # button for social timeline
         self.Button1 = tk.Button(top)
         self.Button1.place(relx=0.63, rely=0.31, height=35, width=170)
         self.Button1.configure(activebackground="#ececec")
@@ -416,7 +420,7 @@ class Toplevel1:
         self.Entry2.configure(foreground="#000000")
         self.Entry2.configure(insertbackground="black")
 
-        def open_web_path(x,y):
+        def open_web_path(x, y):
             with open(web_path, 'r') as f:
                 plots = json.loads(f.read())
                 for key, val in plots.items():
@@ -425,7 +429,7 @@ class Toplevel1:
                 Sorty, Sortx = zip(*sorted(zip(y, x)))
                 return Sorty, Sortx
 
-        def open_social_path(x,y):
+        def open_social_path(x, y):
             with open(social_path, 'r') as f:
                 plots = json.loads(f.read())
                 for key, val in plots.items():
@@ -451,7 +455,7 @@ class Toplevel1:
                 x = []
                 y = []
                 ydisplay = []
-                Sorty,Sortx = open_social_path(x,y)
+                Sorty, Sortx = open_social_path(x, y)
                 xmost = Sortx[-1]
                 ymost = Sorty[-1]
                 ydisplay.append(ymost)
@@ -480,7 +484,6 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please only load 1 file for Social!")
 
-
         def web_word_count():
             """
             Function that gets the Top Count of the Web CSV file, same function only using different CSV file
@@ -498,7 +501,7 @@ class Toplevel1:
                 x = []
                 y = []
                 ydisplay = []
-                Sorty,Sortx = open_web_path(x,y)
+                Sorty, Sortx = open_web_path(x, y)
                 xmost = Sortx[-1]
                 ymost = Sorty[-1]
                 ydisplay.append(ymost)
@@ -542,9 +545,9 @@ class Toplevel1:
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1:
                 # if social file loaded
-                x=[]
-                y=[]
-                Sorty, Sortx = open_social_path(x,y)
+                x = []
+                y = []
+                Sorty, Sortx = open_social_path(x, y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
@@ -583,7 +586,7 @@ class Toplevel1:
             elif web_loaded >= 1:
                 y = []
                 x = []
-                Sorty, Sortx = open_web_path(x,y)
+                Sorty, Sortx = open_web_path(x, y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
@@ -620,7 +623,7 @@ class Toplevel1:
                 # if file loaded and user has keyed in the word to find
                 y = []
                 x = []
-                Sorty, Sortx = open_web_path(x,y)
+                Sorty, Sortx = open_web_path(x, y)
                 if entry_string in Sortx:
                     position_of_word = Sortx.index(entry_string)
                     x_web = entry_string
@@ -668,7 +671,7 @@ class Toplevel1:
             elif social_loaded >= 1 and entry_string != "":
                 y = []
                 x = []
-                Sorty, Sortx = open_social_path(x,y)
+                Sorty, Sortx = open_social_path(x, y)
                 if entry_string in Sortx:
                     position_of_word = Sortx.index(entry_string)
                     x_social = entry_string
@@ -722,12 +725,12 @@ class Toplevel1:
                 y_web = []
                 x_most = []
                 y_most = []
-                Sorty,Sortx = open_web_path(x_web,y_web)
+                Sorty, Sortx = open_web_path(x_web, y_web)
                 x_most.append("Social Browser Data:" + (Sortx[-1]))
                 y_most.append(Sorty[-1])
                 x_social = []
                 y_social = []
-                Sorty,Sortx = open_social_path(x_social,y_social)
+                Sorty, Sortx = open_social_path(x_social, y_social)
                 x_most.append(("Social Browser Data :") + Sortx[-1])
                 y_most.append(Sorty[-1])
                 if len(x_most) == 0:
@@ -770,29 +773,29 @@ class Toplevel1:
                 x_web = []
                 x_find = []
                 y_find = []
-                Sorty_social, Sortx_social = open_social_path(x_social,y_social)
+                Sorty_social, Sortx_social = open_social_path(x_social, y_social)
                 if entry_string in Sortx_social:
                     position_of_word = Sortx_social.index(entry_string)
-                    x_find.append("Social Media Data: " + entry_string)# appending the data to x and y axis
+                    x_find.append("Social Media Data: " + entry_string)  # appending the data to x and y axis
                     y_find.append(Sorty_social[position_of_word])
 
                 elif entry_string not in Sortx_social:
-                        plt.title('No Data to be Found\n')
-                        plt.xlabel('Word')
-                        plt.ylabel('Counts')
-                        plt.show()
+                    plt.title('No Data to be Found\n')
+                    plt.xlabel('Word')
+                    plt.ylabel('Counts')
+                    plt.show()
 
-                Sorty_web, Sortx_web = open_web_path(x_web,y_web)
+                Sorty_web, Sortx_web = open_web_path(x_web, y_web)
                 if entry_string in Sortx_web:
                     position_of_word = Sortx_web.index(entry_string)
-                    x_find.append("Web Media Data: " + entry_string)# appending the data to x and y axis
+                    x_find.append("Web Media Data: " + entry_string)  # appending the data to x and y axis
                     y_find.append(Sorty_web[position_of_word])
 
                 elif entry_string not in Sortx_web:
-                        plt.title('No Data to be Found\n')
-                        plt.xlabel('Word')
-                        plt.ylabel('Counts')
-                        plt.show()
+                    plt.title('No Data to be Found\n')
+                    plt.xlabel('Word')
+                    plt.ylabel('Counts')
+                    plt.show()
 
                 if len(x_find) == 0:
                     plt.title('No Data to be Found\n')
@@ -835,7 +838,7 @@ class Toplevel1:
             elif web_loaded >= 1:
                 x = []
                 y = []
-                Sorty,Sortx = open_web_path(x,y)
+                Sorty, Sortx = open_web_path(x, y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
@@ -909,11 +912,11 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1:
-                x =[]
+                x = []
                 y = []
-                Sorty,Sortx = open_social_path(x,y)
+                Sorty, Sortx = open_social_path(x, y)
                 xcloud = str(Sortx)
-                xcloud2 = xcloud.replace("\'","") #replaces all the '
+                xcloud2 = xcloud.replace("\'", "")  # replaces all the '
 
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
@@ -921,7 +924,7 @@ class Toplevel1:
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    wordcloud = WordCloud(max_font_size=40).generate(xcloud2) #generates wordcloud
+                    wordcloud = WordCloud(max_font_size=40).generate(xcloud2)  # generates wordcloud
                     plt.figure()
                     plt.imshow(wordcloud, interpolation="bilinear")
                     plt.axis("off")
@@ -947,11 +950,11 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif web_loaded >= 1:
-                x =[]
+                x = []
                 y = []
-                Sorty,Sortx = open_web_path(x,y)
+                Sorty, Sortx = open_web_path(x, y)
                 xcloud = str(Sortx)
-                xcloud2 = xcloud.replace("\'","") #replaces all the '
+                xcloud2 = xcloud.replace("\'", "")  # replaces all the '
 
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
@@ -959,7 +962,7 @@ class Toplevel1:
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    wordcloud = WordCloud(max_font_size=40).generate(xcloud2) #generate wordcloud
+                    wordcloud = WordCloud(max_font_size=40).generate(xcloud2)  # generate wordcloud
                     plt.figure()
                     plt.imshow(wordcloud, interpolation="bilinear")
                     plt.axis("off")
@@ -981,24 +984,24 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load a file!")
             elif social_loaded >= 1 and web_loaded >= 1:
-                x_web =[]
+                x_web = []
                 y_web = []
-                x_social =[]
+                x_social = []
                 y_social = []
                 xcloud = []
-                Sorty_web,Sortx_web = open_web_path(x_web,y_web)
+                Sorty_web, Sortx_web = open_web_path(x_web, y_web)
                 xcloud.append(Sortx_web)
-                Sorty_social,Sortx_social = open_social_path(x_social,y_social)
+                Sorty_social, Sortx_social = open_social_path(x_social, y_social)
                 xcloud.append(Sortx_social)
                 xcloud2 = str(xcloud)
-                finalxcloud = xcloud2.replace("\'","")
+                finalxcloud = xcloud2.replace("\'", "")
                 if len(x_web) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
                 else:
-                    word_cloud = WordCloud(max_font_size=40).generate(finalxcloud) #generates wordcloud
+                    word_cloud = WordCloud(max_font_size=40).generate(finalxcloud)  # generates wordcloud
                     plt.figure()
                     plt.imshow(word_cloud, interpolation="bilinear")
                     plt.axis("off")
@@ -1011,7 +1014,10 @@ class Toplevel1:
                 label3.place(relx=0.100, rely=0.151, relheight=0.7, relwidth=0.8)
                 label3.config(text="Please load files!")
 
+
 def run():
     vp_start_gui()
+
+
 if __name__ == '__main__':
     run()

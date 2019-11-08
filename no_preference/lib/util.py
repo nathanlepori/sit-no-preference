@@ -33,7 +33,8 @@ def create_data_dir():
         'annotated_training_data',
         'models',
         'datasets/history_data',
-        'datasets/social_data'
+        'datasets/social_data',
+        'results'
     ]
     for d in dirs:
         os.makedirs(os.path.join(get_project_root(), 'data', d), exist_ok=True)

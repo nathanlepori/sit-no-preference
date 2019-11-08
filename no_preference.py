@@ -1,9 +1,9 @@
 import no_preference.processing.ner_training.training_ui as training_ui
-from no_preference.processing import analysis
+from no_preference.processing.analysis import analysis_ui
 from no_preference.datasets import datasets_ui
-from no_preference.ui.pyinquirer_menu import prompt
-from no_preference.util import create_data_dir
-from no_preference.gui import GUI
+from no_preference.lib.pyinquirer_menu import prompt
+from no_preference.lib.util import create_data_dir
+from no_preference.results_gui import gui
 
 
 def init():
@@ -26,14 +26,15 @@ def run():
             },
             {
                 'name': 'Analyse data',
-                'next': analysis.run
+                'next': analysis_ui.run
             },
             {
                 'name': 'Show profiling results',
-                'next': GUI.run
+                'next': gui.run
             }
         ]
     })
+
 
 if __name__ == '__main__':
     init()

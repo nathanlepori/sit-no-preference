@@ -1,12 +1,11 @@
 import os
 import types
 from datetime import datetime
-from os import PathLike
 from typing import Dict, Any, Union, List, Optional, Callable
 
 from PyInquirer import prompt as _prompt
 
-from no_preference.util import get_data_dir
+from no_preference.lib.util import get_data_dir
 
 Questions = Union[List[Dict[str, Any]], Dict[str, Any]]
 Next = Optional[Union[Questions, Callable, List[Callable]]]
@@ -63,22 +62,22 @@ def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = 
 
     if type(answers) is list:
         # Checkbox and other list returning questions
-        next = []
+        next_ = []
         for answer in answers:
             try:
                 # Choice name should also be unique
                 # If there's a filter, extract it to test answers
                 if 'filter' in question:
-                    filter = question['filter']
+                    filter_ = question['filter']
                 else:
                     # Otherwise use passthrough
-                    filter = lambda a: a
-                next.append([choice['next'] for choice in question['choices'] if
-                             type(choice) is dict and 'next' in choice and filter(choice['name']) == answer][0])
+                    filter_ = lambda a: a
+                next_.append([choice['next'] for choice in question['choices'] if
+                              type(choice) is dict and 'next' in choice and filter_(choice['name']) == answer][0])
             except IndexError:
                 pass
-        if len(next) == 0:
-            next = None
+        if len(next_) == 0:
+            next_ = None
     else:
         # Single answers
         answer = answers
@@ -86,44 +85,44 @@ def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = 
             # Choice name should also be unique
             # If there's a filter, extract it to test answers
             if 'filter' in question:
-                filter = question['filter']
+                filter_ = question['filter']
             else:
                 # Otherwise use passthrough
-                filter = lambda a: a
-            next = [choice['next'] for choice in question['choices'] if
-                    # Use filter before comparison to avoid not matching filtered value
-                    type(choice) is dict and 'next' in choice and filter(choice['name']) == answer][0]
+                filter_ = lambda a: a
+            next_ = [choice['next'] for choice in question['choices'] if
+                     # Use filter before comparison to avoid not matching filtered value
+                     type(choice) is dict and 'next' in choice and filter_(choice['name']) == answer][0]
         except IndexError:
-            next = None
-    return next
+            next_ = None
+    return next_
 
 
-def _call_next(next: Next):
-    if not next:
+def _call_next(next_: Next):
+    if not next_:
         return
-    if type(next) is list:
-        if all(type(n) is dict for n in next):
+    if type(next_) is list:
+        if all(type(n) is dict for n in next_):
             # A list of questions is provided -> using the questions name, collect answers in a dictionary
             res = {}
-            for n in next:
+            for n in next_:
                 res[n['name']] = _call_next(n)
         else:
             # A list of functions (or mixed, ⚠ not supported) is provided -> just collect in a list
             res = []
-            for n in next:
+            for n in next_:
                 res.append(_call_next(n))
         return res
     else:
-        if isinstance(next, (types.FunctionType, types.BuiltinFunctionType, types.LambdaType)):
-            if next.__name__ == '<lambda>':
+        if isinstance(next_, (types.FunctionType, types.BuiltinFunctionType, types.LambdaType)):
+            if next_.__name__ == '<lambda>':
                 # If next is a lambda, call it with the unused argument
-                return next(None)
+                return next_(None)
             else:
                 # If it's a function, just call it
-                return next()
+                return next_()
         else:
             # Else call recursively with a new set of questions
-            return prompt(next)
+            return prompt(next_)
 
 
 def prompt(questions: Questions):
@@ -200,7 +199,8 @@ def data_files_question(
         message: str,
         dir: str,
         allow_custom_file: bool = True,
-        custom_file_message: str = 'What is the name of the file?'):
+        custom_file_message: str = 'What is the name of the file?'
+):
     """
     Returns a question dictionary containing a list of files in a directory relative to the data folder.
     :param custom_file_message:
@@ -230,8 +230,14 @@ def data_files_question(
     }
 
 
-def data_files_prompt(name: str, message: str, dir: str, allow_custom_file: bool = True):
-    return prompt(data_files_question(name, message, dir, allow_custom_file))
+def data_files_prompt(
+        name: str,
+        message: str,
+        dir_: str,
+        allow_custom_file: bool = True,
+        custom_file_message: str = 'What is the name of the file?'
+):
+    return prompt(data_files_question(name, message, dir_, allow_custom_file, custom_file_message))
 
 
 if __name__ == '__main__':
