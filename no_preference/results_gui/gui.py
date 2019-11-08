@@ -1,3 +1,4 @@
+from tkinter import * #needed for the file
 from os import path
 import json
 import os
@@ -7,10 +8,8 @@ import tkinter.filedialog
 import tkinter.ttk as ttk
 from tkinter import Entry
 from no_preference.lib.util import get_data_dir
-
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-
 
 def get_File_dir():
     return get_data_dir()
