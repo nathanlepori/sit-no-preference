@@ -508,7 +508,7 @@ def run():
     df_b = pd.DataFrame
 
     # Let the user pick a model to use
-    a_model = data_files_prompt(
+    model = data_files_prompt(
         name='model',
         message="What's the model you want to use for the analysis?",
         dir_='models',
@@ -516,7 +516,7 @@ def run():
         custom_file_message="What is the name of the model you want to use for the analysis?"
     )
 
-    set_model(a_model['model'])
+    set_model(model)
     while True:
         a_start_analysis = prompt(q_start_analysis)
         if a_start_analysis['start'] == 'load_file':

@@ -1,6 +1,7 @@
 import os
 import types
 from datetime import datetime
+from inspect import signature
 from typing import Dict, Any, Union, List, Optional, Callable
 
 from PyInquirer import prompt as _prompt
@@ -97,7 +98,7 @@ def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = 
     return next_
 
 
-def _call_next(next_: Next):
+def _call_next(next_: Next, previous_answers: Dict[str, Any]):
     if not next_:
         return
     if type(next_) is list:
@@ -105,20 +106,19 @@ def _call_next(next_: Next):
             # A list of questions is provided -> using the questions name, collect answers in a dictionary
             res = {}
             for n in next_:
-                res[n['name']] = _call_next(n)
+                res[n['name']] = _call_next(n, previous_answers)
         else:
             # A list of functions (or mixed, ⚠ not supported) is provided -> just collect in a list
             res = []
             for n in next_:
-                res.append(_call_next(n))
+                res.append(_call_next(n, previous_answers))
         return res
     else:
         if isinstance(next_, (types.FunctionType, types.BuiltinFunctionType, types.LambdaType)):
-            if next_.__name__ == '<lambda>':
-                # If next is a lambda, call it with the unused argument
-                return next_(None)
-            else:
-                # If it's a function, just call it
+            num_params = len(signature(next_).parameters)
+            if num_params == 1:
+                return next_(previous_answers)
+            elif num_params == 0:
                 return next_()
         else:
             # Else call recursively with a new set of questions
@@ -137,7 +137,7 @@ def prompt(questions: Questions):
     all_answers = {}
     for name, answer in answers.items():
         next_ = _get_next(questions, answer, name)
-        ret = _call_next(next_)
+        ret = _call_next(next_, all_answers)
         if ret:
             # Return both answers from the main question and nested ones
             all_answers[name] = {
@@ -197,7 +197,7 @@ def yes_no_prompt(name: str, message: str, yes_next=None, no_next=None):
 def data_files_question(
         name: str,
         message: str,
-        dir: str,
+        dir_: str,
         allow_custom_file: bool = True,
         custom_file_message: str = 'What is the name of the file?'
 ):
@@ -207,10 +207,10 @@ def data_files_question(
     :param allow_custom_file:
     :param name:
     :param message:
-    :param dir:
+    :param dir_:
     :return:
     """
-    choices: List[Union[str, Dict[str, Any]]] = os.listdir(os.path.join(get_data_dir(), dir))
+    choices: List[Union[str, Dict[str, Any]]] = os.listdir(os.path.join(get_data_dir(), dir_))
 
     if allow_custom_file:
         choices.append({
