@@ -6,6 +6,7 @@ from no_preference.lib.util import create_data_dir
 from no_preference.results_gui import gui
 
 
+
 def init():
     create_data_dir()
 
