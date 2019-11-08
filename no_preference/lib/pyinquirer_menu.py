@@ -1,4 +1,3 @@
-import os
 import types
 from datetime import datetime
 from glob import glob
@@ -248,7 +247,7 @@ def data_files_prompt(
         custom_file_message: str = 'What is the name of the file?',
         recursive=False
 ):
-    return prompt(data_files_question(name, message, dir_, allow_custom_file, custom_file_message))
+    return prompt(data_files_question(name, message, dir_, allow_custom_file, custom_file_message, recursive))
 
 
 if __name__ == '__main__':
