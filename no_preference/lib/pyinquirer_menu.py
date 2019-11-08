@@ -1,7 +1,9 @@
 import os
 import types
 from datetime import datetime
+from glob import glob
 from inspect import signature
+from os import path
 from typing import Dict, Any, Union, List, Optional, Callable
 
 from PyInquirer import prompt as _prompt
@@ -136,6 +138,8 @@ def prompt(questions: Questions):
     answers = _prompt(questions)
     all_answers = {}
     for name, answer in answers.items():
+        # Record the question's answer to be passed to the next callback
+        all_answers[name] = answer
         next_ = _get_next(questions, answer, name)
         ret = _call_next(next_, all_answers)
         if ret:
@@ -144,8 +148,6 @@ def prompt(questions: Questions):
                 'name': answer,
                 'next': ret
             }
-        else:
-            all_answers[name] = answer
 
     # Single question case -> just return answer, not dictionary
     top_answers_names = list(all_answers.keys())
@@ -199,10 +201,12 @@ def data_files_question(
         message: str,
         dir_: str,
         allow_custom_file: bool = True,
-        custom_file_message: str = 'What is the name of the file?'
+        custom_file_message: str = 'Filename:',
+        recursive=False
 ):
     """
     Returns a question dictionary containing a list of files in a directory relative to the data folder.
+    :param recursive:
     :param custom_file_message:
     :param allow_custom_file:
     :param name:
@@ -210,7 +214,13 @@ def data_files_question(
     :param dir_:
     :return:
     """
-    choices: List[Union[str, Dict[str, Any]]] = os.listdir(os.path.join(get_data_dir(), dir_))
+    dir_path = path.join(get_data_dir(), dir_)
+    # Get all files inside directory, except the directory itself, if using recursive, then make it relative to that
+    # folder (remove first part)
+    choices: List[Union[str, Dict[str, Any]]] = list(map(
+        lambda p: path.relpath(p, dir_path),
+        glob(path.join(dir_path, '**'), recursive=recursive)[1 if recursive else 0:]
+    ))
 
     if allow_custom_file:
         choices.append({
@@ -235,7 +245,8 @@ def data_files_prompt(
         message: str,
         dir_: str,
         allow_custom_file: bool = True,
-        custom_file_message: str = 'What is the name of the file?'
+        custom_file_message: str = 'What is the name of the file?',
+        recursive=False
 ):
     return prompt(data_files_question(name, message, dir_, allow_custom_file, custom_file_message))
 
