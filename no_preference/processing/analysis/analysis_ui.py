@@ -265,28 +265,27 @@ def process_selection_label(df_a, column_name_a, df_b, column_name_b):
         elif a_text_tag['text_tag'] == 'tag':
             text_tag_option = 1
 
-    with Halo(text=f"Loading Venn function...", spinner='dots'):
-        if a_venn['venn'] == 'intersect':
-            if df_a.empty is False and df_b.empty is False:
-                df_a, df_b = venn_intersect_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
-                df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
-            else:
-                print("set_A or set_B is empty.")
+    if a_venn['venn'] == 'intersect':
+        if df_a.empty is False and df_b.empty is False:
+            df_a, df_b = venn_intersect_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
+            df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
+        else:
+            print("set_A or set_B is empty.")
 
-        if a_venn['venn'] == 'symmetric_difference':
-            if df_a.empty is False and df_b.empty is False:
-                df_a, df_b = venn_symmetric_dif_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
-                df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
-            else:
-                print("set_A or set_B is empty.")
+    if a_venn['venn'] == 'symmetric_difference':
+        if df_a.empty is False and df_b.empty is False:
+            df_a, df_b = venn_symmetric_dif_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
+            df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
+        else:
+            print("set_A or set_B is empty.")
 
-        if a_venn['venn'] == 'union':
-            if df_a.empty is False and df_b.empty is False:
-                df_a = venn.venn_union(df_a, df_b)
-                del df_b
-                df_b = pd.DataFrame
-            else:
-                print("set_A or set_B is empty.")
+    if a_venn['venn'] == 'union':
+        if df_a.empty is False and df_b.empty is False:
+            df_a = venn.venn_union(df_a, df_b)
+            del df_b
+            df_b = pd.DataFrame
+        else:
+            print("set_A or set_B is empty.")
 
     return df_a, df_b
 
@@ -520,15 +519,15 @@ def run():
     df_b = pd.DataFrame
 
     # Let the user pick a model to use
-    a_model = data_files_prompt(
+    model = data_files_prompt(
         name='model',
         message="What's the model you want to use for the analysis?",
         dir_='models',
         allow_custom_file=True,
-        custom_file_message="What is the name of the model you want to use for the analysis?",
+        custom_file_message="What is the name of the model you want to use for the analysis?"
     )
-    set_model(a_model)
 
+    set_model(model)
     while True:
         a_start_analysis = prompt(q_start_analysis)
         if a_start_analysis['start'] == 'exit':

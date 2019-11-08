@@ -64,12 +64,12 @@ def train_model_ui():
 
     annotations_loaders = get_annotations_loaders()
     a_training = prompt([
-        {
-            'type': 'input',
-            'name': 'training_data_filename',
-            'message': "What is the name of the annotated training data file you want to train this model against?",
-            'validate': 'required',
-        },
+        data_files_question(
+            name='training_data_filename',
+            message="Select the annotated training data file you want to train this model against.",
+            dir_='annotated_training_data',
+            allow_custom_file=False
+        ),
         {
             'type': 'list',
             'name': 'annotations_loader',
@@ -156,21 +156,24 @@ def run():
         ]
     }
 
-    action = prompt(q_training)['action']
+    a_training = prompt(q_training)
+    # Get data and test model need additional steps not possible using 'next', otherwise a simple string is returned,
+    # thus skip these steps
+    if 'action' in a_training:
+        action = a_training['action']
+        if action['name'] == 'Get data for annotation':
+            # Get data for annotation case
+            # Chain texts from all sources
+            training_data = itertools.chain.from_iterable(action['next']['training_data_sources']['next'])
+            save_training_data(training_data)
+        elif action['name'] == 'Test a model':
+            # Test model case
+            test_model_name = action['next']['test_model_name']
+            test_model_text = action['next']['test_model_text']
 
-    if action['name'] == 'Get data for annotation':
-        # Get data for annotation case
-        # Chain texts from all sources
-        training_data = itertools.chain.from_iterable(action['next']['training_data_sources']['next'])
-        save_training_data(training_data)
-    elif action['name'] == 'Test a model':
-        # Test model case
-        test_model_name = action['next']['test_model_name']
-        test_model_text = action['next']['test_model_text']
-
-        ents = test_model(test_model_name, test_model_text)
-        for ent in ents:
-            print(*ent)
+            ents = test_model(test_model_name, test_model_text)
+            for ent in ents:
+                print(*ent)
 
 
 if __name__ == '__main__':
