@@ -55,9 +55,9 @@ def save_training_data(training_data):
 
 def train_model_ui():
     base_model_name = data_files_prompt(
-        'base_model_name',
-        'Select a model to test.',
-        'models',
+        name='base_model_name',
+        message='Select a model to test.',
+        dir_='models',
         allow_custom_file=True,
         custom_file_message="What is the name of the model you want to train? If it doesn't exists it will be created."
     )
@@ -132,7 +132,7 @@ def run():
                 'disabled': 'Not supported yet'
             },
             {
-                'name': 'Train a model',
+                'name': 'Start a training session',
                 'next': train_model_ui
             },
             {

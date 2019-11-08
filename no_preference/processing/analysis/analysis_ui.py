@@ -4,6 +4,7 @@ from os import path
 from PyInquirer import prompt
 import pandas as pd
 
+from no_preference.lib.pyinquirer_menu import data_files_prompt
 from no_preference.processing.analysis import venn
 from no_preference.processing.analysis.sort import sort_by_date_range
 from no_preference.processing.analysis.spacy_nlp import read_file, spacy_token, spacy_label_token_full, spacy_clean_cell, \
@@ -507,12 +508,14 @@ def run():
     df_b = pd.DataFrame
 
     # Let the user pick a model to use
-    a_model = prompt({
-        'type': 'input',
-        'name': 'model',
-        'message': "What's the name of the model you want to use for the analysis?",
-        'validate': 'required'
-    })
+    a_model = data_files_prompt(
+        name='model',
+        message="What's the model you want to use for the analysis?",
+        dir_='models',
+        allow_custom_file=True,
+        custom_file_message="What is the name of the model you want to use for the analysis?"
+    )
+
     set_model(a_model['model'])
     while True:
         a_start_analysis = prompt(q_start_analysis)

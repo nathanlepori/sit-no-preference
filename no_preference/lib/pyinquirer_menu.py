@@ -136,8 +136,8 @@ def prompt(questions: Questions):
     answers = _prompt(questions)
     all_answers = {}
     for name, answer in answers.items():
-        next = _get_next(questions, answer, name)
-        ret = _call_next(next)
+        next_ = _get_next(questions, answer, name)
+        ret = _call_next(next_)
         if ret:
             # Return both answers from the main question and nested ones
             all_answers[name] = {
