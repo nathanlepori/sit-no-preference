@@ -140,7 +140,7 @@ class Toplevel1:
         self.Label3.configure(disabledforeground="#a3a3a3")
         self.Label3.configure(font=font18)
         self.Label3.configure(foreground="#000000")
-        self.Label3.configure(text='''Social Media Data''')
+        self.Label3.configure(text='''Result Set B''')
 
         # Label of Comparison between both Datasets
         self.Label3 = tk.Label(top)
@@ -158,7 +158,7 @@ class Toplevel1:
         self.Label3.configure(disabledforeground="#a3a3a3")
         self.Label3.configure(font=font18)
         self.Label3.configure(foreground="#000000")
-        self.Label3.configure(text='''Web Browser Data''')
+        self.Label3.configure(text='''Result Set A''')
 
         # Button that triggers the function
         self.Button2 = tk.Button(top)
@@ -175,7 +175,7 @@ class Toplevel1:
         self.Button2.configure(text='Result set B')
         self.Button2.configure(command=lambda: load_set_b())  # opening the file directory to choose file
 
-        def load_set_b():
+        def load_set_a():
             self.get_web_path("Entry1")
 
         # Button that triggers the function
@@ -193,7 +193,7 @@ class Toplevel1:
         self.Button3.configure(text='Result set A')
         self.Button3.configure(command=lambda: load_set_a())  # opening the file directory to choose file
 
-        def load_set_a():
+        def load_set_b():
             self.get_social_path("Entry2")
 
         # Button that triggers the function
@@ -403,7 +403,7 @@ class Toplevel1:
 
         # Get file directory
         self.Entry1 = Entry(top)
-        self.Entry1.place(relx=0.31, rely=0.78, height=26, relwidth=0.431)
+        self.Entry1.place(relx=0.31, rely=0.70, height=26, relwidth=0.431)
         self.Entry1.configure(background="white")
         self.Entry1.configure(disabledforeground="#a3a3a3")
         self.Entry1.configure(font=font10)
@@ -412,7 +412,7 @@ class Toplevel1:
 
         # Get file directory
         self.Entry2 = Entry(top)
-        self.Entry2.place(relx=0.31, rely=0.70, height=26, relwidth=0.431)
+        self.Entry2.place(relx=0.31, rely=0.78, height=26, relwidth=0.431)
         self.Entry2.configure(background="white")
         self.Entry2.configure(disabledforeground="#a3a3a3")
         self.Entry2.configure(font=font10)
@@ -725,12 +725,12 @@ class Toplevel1:
                 x_most = []
                 y_most = []
                 Sorty, Sortx = open_web_path(x_web, y_web)
-                x_most.append("Social Browser Data:" + (Sortx[-1]))
+                x_most.append("Result A Data :" + (Sortx[-1]))
                 y_most.append(Sorty[-1])
                 x_social = []
                 y_social = []
                 Sorty, Sortx = open_social_path(x_social, y_social)
-                x_most.append(("Social Browser Data :") + Sortx[-1])
+                x_most.append(("Result B Data :") + Sortx[-1])
                 y_most.append(Sorty[-1])
                 if len(x_most) == 0:
                     plt.title('No Data to be Found\n')
@@ -772,25 +772,25 @@ class Toplevel1:
                 x_web = []
                 x_find = []
                 y_find = []
-                Sorty_social, Sortx_social = open_social_path(x_social, y_social)
-                if entry_string in Sortx_social:
-                    position_of_word = Sortx_social.index(entry_string)
-                    x_find.append("Social Media Data: " + entry_string)  # appending the data to x and y axis
-                    y_find.append(Sorty_social[position_of_word])
+                Sorty_web, Sortx_web = open_web_path(x_web, y_web)
+                if entry_string in Sortx_web:
+                    position_of_word = Sortx_web.index(entry_string)
+                    x_find.append("Result A Data: " + entry_string)  # appending the data to x and y axis
+                    y_find.append(Sorty_web[position_of_word])
 
-                elif entry_string not in Sortx_social:
+                elif entry_string not in Sortx_web:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
                     plt.show()
 
-                Sorty_web, Sortx_web = open_web_path(x_web, y_web)
-                if entry_string in Sortx_web:
-                    position_of_word = Sortx_web.index(entry_string)
-                    x_find.append("Web Media Data: " + entry_string)  # appending the data to x and y axis
-                    y_find.append(Sorty_web[position_of_word])
+                Sorty_social, Sortx_social = open_social_path(x_social, y_social)
+                if entry_string in Sortx_social:
+                    position_of_word = Sortx_social.index(entry_string)
+                    x_find.append("Result B Data: " + entry_string)  # appending the data to x and y axis
+                    y_find.append(Sorty_social[position_of_word])
 
-                elif entry_string not in Sortx_web:
+                elif entry_string not in Sortx_social:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
                     plt.ylabel('Counts')
@@ -876,7 +876,7 @@ class Toplevel1:
             elif social_loaded >= 1:
                 x = []
                 y = []
-                Sorty, Sortx = open_web_path(x, y)
+                Sorty, Sortx = open_social_path(x, y)
                 if len(x) == 0:
                     plt.title('No Data to be Found\n')
                     plt.xlabel('Word')
