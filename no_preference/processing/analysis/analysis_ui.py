@@ -8,8 +8,8 @@ from halo import Halo
 from no_preference.lib.pyinquirer_menu import data_files_prompt
 from no_preference.processing.analysis import venn
 from no_preference.processing.analysis.sort import sort_by_date_range
-from no_preference.processing.analysis.spacy_nlp import read_file, spacy_token, spacy_label_token_full,\
-    spacy_clean_cell, spacy_column_filter_token, spacy_column_strip_token, spacy_token_tag_counter,\
+from no_preference.processing.analysis.spacy_nlp import read_file, spacy_token, spacy_label_token_full, \
+    spacy_clean_cell, spacy_column_filter_token, spacy_column_strip_token, spacy_token_tag_counter, \
     spacy_frequency_by_date, assoc_term_detached, assoc_term_attached, set_model
 from no_preference.processing.analysis.venn import venn_intersect_text_tag, venn_symmetric_dif_text_tag
 from no_preference.lib.util import get_data_dir
@@ -265,27 +265,29 @@ def process_selection_label(df_a, column_name_a, df_b, column_name_b):
         elif a_text_tag['text_tag'] == 'tag':
             text_tag_option = 1
 
-    if a_venn['venn'] == 'intersect':
-        if df_a.empty is False and df_b.empty is False:
-            df_a, df_b = venn_intersect_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
-            df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
-        else:
-            print("set_A or set_B is empty.")
+    with Halo(text=f"Loading intersect function...", spinner='dots'):
 
-    if a_venn['venn'] == 'symmetric_difference':
-        if df_a.empty is False and df_b.empty is False:
-            df_a, df_b = venn_symmetric_dif_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
-            df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
-        else:
-            print("set_A or set_B is empty.")
+        if a_venn['venn'] == 'intersect':
+            if df_a.empty is False and df_b.empty is False:
+                df_a, df_b = venn_intersect_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
+                df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
+            else:
+                print("set_A or set_B is empty.")
 
-    if a_venn['venn'] == 'union':
-        if df_a.empty is False and df_b.empty is False:
-            df_a = venn.venn_union(df_a, df_b)
-            del df_b
-            df_b = pd.DataFrame
-        else:
-            print("set_A or set_B is empty.")
+        if a_venn['venn'] == 'symmetric_difference':
+            if df_a.empty is False and df_b.empty is False:
+                df_a, df_b = venn_symmetric_dif_text_tag(df_a, column_name_a, df_b, column_name_b, text_tag_option)
+                df_a, df_b = clean_reindex(df_a, column_name_a, df_b, column_name_b)
+            else:
+                print("set_A or set_B is empty.")
+
+        if a_venn['venn'] == 'union':
+            if df_a.empty is False and df_b.empty is False:
+                df_a = venn.venn_union(df_a, df_b)
+                del df_b
+                df_b = pd.DataFrame
+            else:
+                print("set_A or set_B is empty.")
 
     return df_a, df_b
 
@@ -312,18 +314,18 @@ def process_selection_modify(df_a, column_name_a, df_b, column_name_b, column_da
             with Halo(text=f"Loading modify function...", spinner='dots'):
                 if a_filter['modify'] == 'filter':
                     if a_file_select['file_selection'] == 'set_A' or a_file_select[
-                            'file_selection'] == 'both' and df_a.empty is False:
+                        'file_selection'] == 'both' and df_a.empty is False:
                         spacy_column_filter_token(df_a, column_name_a, value, text_tag_option)
                     if a_file_select['file_selection'] == 'set_B' or a_file_select[
-                            'file_selection'] == 'both' and df_b.empty is False:
+                        'file_selection'] == 'both' and df_b.empty is False:
                         spacy_column_filter_token(df_b, column_name_b, value, text_tag_option)
 
                 if a_filter['modify'] == 'strip':
                     if a_file_select['file_selection'] == 'set_A' or a_file_select[
-                            'file_selection'] == 'both' and df_a.empty is False:
+                        'file_selection'] == 'both' and df_a.empty is False:
                         spacy_column_strip_token(df_a, column_name_a, value, text_tag_option)
                     if a_file_select['file_selection'] == 'set_B' or a_file_select[
-                            'file_selection'] == 'both' and df_b.empty is False:
+                        'file_selection'] == 'both' and df_b.empty is False:
                         spacy_column_strip_token(df_b, column_name_b, value, text_tag_option)
 
         if a_filter['modify'] == 'date':
@@ -333,10 +335,10 @@ def process_selection_modify(df_a, column_name_a, df_b, column_name_b, column_da
             a_file_select = prompt(q_file_select)
             with Halo(text=f"Loading modify function...", spinner='dots'):
                 if a_file_select['file_selection'] == 'set_A' or a_file_select[
-                        'file_selection'] == 'both' and df_a.empty is False:
+                    'file_selection'] == 'both' and df_a.empty is False:
                     df_a = sort_by_date_range(df_a, column_date, start_date, end_date)
                 if a_file_select['file_selection'] == 'set_B' or a_file_select[
-                        'file_selection'] == 'both' and df_b.empty is False:
+                    'file_selection'] == 'both' and df_b.empty is False:
                     df_b = sort_by_date_range(df_b, column_date, start_date, end_date)
 
         with Halo(text=f"Cleaning up after modify...", spinner='dots'):
@@ -464,6 +466,18 @@ def _process_selection_assoc(df_a, column_name_a, df_b, column_name_b):
     return df_a, df_b
 
 
+def file_loc_generic():
+    a_file_loc_generic = data_files_prompt(
+        name='file_loc_generic',
+        message="What file do you want to use?",
+        dir_='datasets',
+        allow_custom_file=True,
+        custom_file_message="Please indicate the file you want to use?",
+        recursive=True
+    )
+    return a_file_loc_generic
+
+
 def _process_load_file(df_a, column_name_a, df_b, column_name_b, column_date):
     while True:
         a_set_a_set_b = prompt(q_set_a_set_b)
@@ -472,8 +486,9 @@ def _process_load_file(df_a, column_name_a, df_b, column_name_b, column_date):
 
         if a_set_a_set_b['option'] == 'set_A':
             a_append_overwrite = prompt(q_append_overwrite)
-            a_file_loc_generic = prompt(q_file_loc_generic)
-            filename_a = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
+            # a_file_loc_generic = prompt(q_file_loc_generic)
+            a_file_loc_generic = file_loc_generic()
+            filename_a = path.join(get_data_dir(), 'datasets', a_file_loc_generic)
 
             with Halo(text=f"Loading load file function...", spinner='dots'):
                 read = read_file(filename_a)
@@ -491,8 +506,9 @@ def _process_load_file(df_a, column_name_a, df_b, column_name_b, column_date):
 
         if a_set_a_set_b['option'] == 'set_B':
             a_append_overwrite = prompt(q_append_overwrite)
-            a_file_loc_generic = prompt(q_file_loc_generic)
-            filename_b = path.join(get_data_dir(), 'datasets', a_file_loc_generic['file_loc'])
+            # a_file_loc_generic = prompt(q_file_loc_generic)
+            a_file_loc_generic = file_loc_generic()
+            filename_b = path.join(get_data_dir(), 'datasets', a_file_loc_generic)
 
             with Halo(text=f"Loading load file function...", spinner='dots'):
                 read = read_file(filename_b)
@@ -524,7 +540,8 @@ def run():
         message="What's the model you want to use for the analysis?",
         dir_='models',
         allow_custom_file=True,
-        custom_file_message="What is the name of the model you want to use for the analysis?"
+        custom_file_message="What is the name of the model you want to use for the analysis?",
+        recursive=False
     )
 
     set_model(model)
