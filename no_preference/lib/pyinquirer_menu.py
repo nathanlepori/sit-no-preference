@@ -127,8 +127,12 @@ def _call_next(next_: Next, previous_answers: Dict[str, Any]):
         return
     if type(next_) is list:
         if all(type(n) is dict for n in next_):
-            # Call recursively with a new set of questions
-            res = prompt(next_)
+            # A list of questions is provided -> call one after the other and using the questions name, collect answers
+            # in a dictionary. This is necessary instead of just passing on the whole list to execute all next
+            # callbacks in the right order
+            res = {}
+            for n in next_:
+                res[n['name']] = _call_next(n, previous_answers)
         else:
             # A list of functions (or mixed, ⚠ not supported) is provided -> just collect in a list
             res = []

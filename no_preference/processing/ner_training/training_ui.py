@@ -171,6 +171,11 @@ def run():
         elif action['name'] == 'Test a model':
             # Test model case
             test_model_name = action['next']['test_model_name']
+            if type(test_model_name) is dict:
+                # Unfortunately if the user selects the 'Other...' option while using data_files_question(), there's no
+                # way to map back to a simple question with string answer -> necessary to get the complete path
+                test_model_name = test_model_name['test_model_name']['next']
+
             test_model_text = action['next']['test_model_text']
 
             ents = test_model(test_model_name, test_model_text)
