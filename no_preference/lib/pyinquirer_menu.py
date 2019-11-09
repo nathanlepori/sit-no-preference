@@ -291,7 +291,7 @@ def data_files_prompt(
         recursive=recursive
     ))
     # User chose the 'Other...' option -> simplify answer to string as if it was a simple question
-    if 'next' in answer[name]:
+    if 'name' in answer and 'next' in answer[name]:
         return answer[name]['next']
     return answer
 
