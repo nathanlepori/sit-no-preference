@@ -42,8 +42,8 @@ q_label = [
             'display',
             'venn',
             'modify',
-            'math',
             'term_association',
+            'math',
             'save',
             'exit'
         ]
