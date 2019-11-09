@@ -464,7 +464,7 @@ def file_loc_generic():
         message="What file do you want to use?",
         dir_='datasets',
         allow_custom_file=True,
-        custom_file_message="Please indicate the file you want to use?",
+        custom_file_message="Please indicate the file you want to use.",
         recursive=True
     )
     return a_file_loc_generic
@@ -532,6 +532,7 @@ def run():
         message="What's the model you want to use for the analysis?",
         dir_='models',
         allow_custom_file=True,
+        custom_file_choice_name='SpaCy built-in or other...',
         custom_file_message="What is the name of the model you want to use for the analysis?",
         recursive=False
     )

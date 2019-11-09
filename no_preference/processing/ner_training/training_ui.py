@@ -144,6 +144,7 @@ def run():
                         message='Select a model to test.',
                         dir_='models',
                         allow_custom_file=True,
+                        custom_file_choice_name='SpaCy built-in or other...',
                         custom_file_message='What is the name of the model you want to test?'
                     ),
                     {
