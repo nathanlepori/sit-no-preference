@@ -25,14 +25,6 @@ q_start_analysis = {
     ]
 }
 
-q_file_loc_generic = [
-    {
-        'type': 'input',
-        'name': 'file_loc',
-        'message': 'Please indicate the file\'s name and location >',
-    },
-]
-
 q_label = [
     {
         'type': 'rawlist',
@@ -42,8 +34,8 @@ q_label = [
             'display',
             'venn',
             'modify',
-            'math',
             'term_association',
+            'math',
             'save',
             'exit'
         ]
