@@ -774,35 +774,16 @@ class Toplevel1:
                 x_find = []
                 y_find = []
                 Sorty_web, Sortx_web = open_web_path(x_web, y_web)
-                if entry_string in Sortx_web:
+                Sorty_social, Sortx_social = open_social_path(x_social, y_social)
+                if entry_string in Sortx_web and entry_string in Sortx_social:
                     position_of_word = Sortx_web.index(entry_string)
                     x_find.append("Result A Data: " + entry_string)  # appending the data to x and y axis
                     y_find.append(Sorty_web[position_of_word])
 
-                elif entry_string not in Sortx_web:
-                    plt.title('No Data to be Found\n')
-                    plt.xlabel('Word')
-                    plt.ylabel('Counts')
-                    plt.show()
-
-                Sorty_social, Sortx_social = open_social_path(x_social, y_social)
-                if entry_string in Sortx_social:
-                    position_of_word = Sortx_social.index(entry_string)
+                    position_of_word2 = Sortx_social.index(entry_string)
                     x_find.append("Result B Data: " + entry_string)  # appending the data to x and y axis
-                    y_find.append(Sorty_social[position_of_word])
+                    y_find.append(Sorty_social[position_of_word2])
 
-                elif entry_string not in Sortx_social:
-                    plt.title('No Data to be Found\n')
-                    plt.xlabel('Word')
-                    plt.ylabel('Counts')
-                    plt.show()
-
-                if len(x_find) == 0:
-                    plt.title('No Data to be Found\n')
-                    plt.xlabel('Word')
-                    plt.ylabel('Counts')
-                    plt.show()
-                else:
                     xlocs, xlabs = plt.xticks()
                     for i, v in enumerate(y_find):
                         plt.text(xlocs[i] - -0.36, v + 0.01, str(v))
@@ -810,6 +791,12 @@ class Toplevel1:
                     plt.title("Searched Word with Count")
                     plt.xlabel('Word')
                     plt.ylabel('Count')
+                    plt.show()
+
+                else:
+                    plt.title('No Data to be Found\n')
+                    plt.xlabel('Word')
+                    plt.ylabel('Counts')
                     plt.show()
 
             else:
