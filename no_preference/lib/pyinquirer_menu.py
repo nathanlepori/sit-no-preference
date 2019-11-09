@@ -12,12 +12,35 @@ from no_preference.lib.util import get_data_dir
 Questions = Union[List[Dict[str, Any]], Dict[str, Any]]
 Next = Optional[Union[Questions, Callable, List[Callable]]]
 
+
+def is_datetime(a: str, required: bool = True):
+    if not required and not a:
+        return True
+    else:
+        try:
+            datetime.fromisoformat(a)
+            return True
+        except ValueError as e:
+            # Return error message
+            return str(e)
+
+
+def to_datetime(a: str, required: bool = True):
+    if not required and not a:
+        return None
+    else:
+        datetime.fromisoformat(a)
+
+
 NAMED_VALIDATE_FUNCTIONS = {
-    'required': lambda a: len(a) > 0
+    'required': lambda a: True if a else 'Input is required',
+    'is_datetime': is_datetime,
+    'is_datetime_or_none': lambda a: is_datetime(a, False)
 }
 NAMED_FILTER_FUNCTIONS = {
     'to_int': lambda a: int(a),
-    'to_datetime': lambda a: datetime.fromisoformat(a)
+    'to_datetime': to_datetime,
+    'to_datetime_or_none': lambda a: to_datetime(a, False)
 }
 
 
@@ -104,10 +127,8 @@ def _call_next(next_: Next, previous_answers: Dict[str, Any]):
         return
     if type(next_) is list:
         if all(type(n) is dict for n in next_):
-            # A list of questions is provided -> using the questions name, collect answers in a dictionary
-            res = {}
-            for n in next_:
-                res[n['name']] = _call_next(n, previous_answers)
+            # Call recursively with a new set of questions
+            res = prompt(next_)
         else:
             # A list of functions (or mixed, ⚠ not supported) is provided -> just collect in a list
             res = []
@@ -118,6 +139,7 @@ def _call_next(next_: Next, previous_answers: Dict[str, Any]):
         if isinstance(next_, (types.FunctionType, types.BuiltinFunctionType, types.LambdaType)):
             num_params = len(signature(next_).parameters)
             if num_params == 1:
+                # Call next passing the previous answers to the callback
                 return next_(previous_answers)
             elif num_params == 0:
                 return next_()
@@ -248,6 +270,20 @@ def data_files_prompt(
         recursive=False
 ):
     return prompt(data_files_question(name, message, dir_, allow_custom_file, custom_file_message, recursive))
+
+
+def datetime_question(name: str, message: str, required: bool = False):
+    return {
+        'type': 'input',
+        'name': name,
+        'message': message,
+        'validate': 'is_datetime_or_none',
+        'filter': 'to_datetime_or_none'
+    }
+
+
+def datetime_prompt(name: str, message: str):
+    return prompt(datetime_question(name, message))
 
 
 if __name__ == '__main__':
