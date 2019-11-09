@@ -59,6 +59,7 @@ def train_model_ui():
         message='Select a model to test.',
         dir_='models',
         allow_custom_file=True,
+        custom_file_choice_name='SpaCy built-in or new...',
         custom_file_message="What is the name of the model you want to train? If it doesn't exists it will be created."
     )
 
@@ -139,9 +140,9 @@ def run():
                 'name': 'Test a model',
                 'next': [
                     data_files_question(
-                        'test_model_name',
-                        'Select a model to test.',
-                        'models',
+                        name='test_model_name',
+                        message='Select a model to test.',
+                        dir_='models',
                         allow_custom_file=True,
                         custom_file_message='What is the name of the model you want to test?'
                     ),

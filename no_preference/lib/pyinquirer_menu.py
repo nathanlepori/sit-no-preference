@@ -3,7 +3,7 @@ from datetime import datetime
 from glob import glob
 from inspect import signature
 from os import path
-from typing import Dict, Any, Union, List, Optional, Callable
+from typing import Dict, Any, Union, List, Optional, Callable, Iterator
 
 from PyInquirer import prompt as _prompt
 
@@ -148,7 +148,7 @@ def _call_next(next_: Next, previous_answers: Dict[str, Any]):
             return prompt(next_)
 
 
-def prompt(questions: Questions):
+def prompt(questions: Questions) -> Dict[str, Any]:
     """
     Improved PyInquirer prompt function accepting 'next' key for nested menus, as well as other quality-of-life
     improvements.
@@ -218,15 +218,18 @@ def yes_no_prompt(name: str, message: str, yes_next=None, no_next=None):
 
 
 def data_files_question(
+        *,
         name: str,
         message: str,
         dir_: str,
         allow_custom_file: bool = True,
+        custom_file_choice_name: str = 'Other...',
         custom_file_message: str = 'Filename:',
         recursive=False
 ):
     """
     Returns a question dictionary containing a list of files in a directory relative to the data folder.
+    :param custom_file_choice_name:
     :param recursive:
     :param custom_file_message:
     :param allow_custom_file:
@@ -238,14 +241,21 @@ def data_files_question(
     dir_path = path.join(get_data_dir(), dir_)
     # Get all files inside directory, except the directory itself, if using recursive, then make it relative to that
     # folder (remove first part)
-    choices: List[Union[str, Dict[str, Any]]] = list(map(
+    files: Iterator[str] = map(
         lambda p: path.relpath(p, dir_path),
         glob(path.join(dir_path, '**'), recursive=recursive)[1 if recursive else 0:]
+    )
+
+    choices: List[Dict[str, Any]] = list(map(
+        lambda f: {
+            'name': f
+        },
+        files
     ))
 
     if allow_custom_file:
         choices.append({
-            'name': 'Other...',
+            'name': custom_file_choice_name,
             'next': {
                 'type': 'input',
                 'name': 'filename',
@@ -262,14 +272,28 @@ def data_files_question(
 
 
 def data_files_prompt(
+        *,
         name: str,
         message: str,
         dir_: str,
         allow_custom_file: bool = True,
+        custom_file_choice_name: str = 'Other...',
         custom_file_message: str = 'What is the name of the file?',
         recursive=False
 ):
-    return prompt(data_files_question(name, message, dir_, allow_custom_file, custom_file_message, recursive))
+    answer = prompt(data_files_question(
+        name=name,
+        message=message,
+        dir_=dir_,
+        allow_custom_file=allow_custom_file,
+        custom_file_choice_name=custom_file_choice_name,
+        custom_file_message=custom_file_message,
+        recursive=recursive
+    ))
+    # User chose the 'Other...' option -> simplify answer to string as if it was a simple question
+    if 'next' in answer[name]:
+        return answer[name]['next']
+    return answer
 
 
 def datetime_question(name: str, message: str, required: bool = False):
@@ -287,7 +311,11 @@ def datetime_prompt(name: str, message: str):
 
 
 if __name__ == '__main__':
-    data_files_prompt('a', 'b', 'models')
+    data_files_prompt(
+        name='a',
+        message='b',
+        dir_='models'
+    )
 
     questions = {
         'type': 'list',

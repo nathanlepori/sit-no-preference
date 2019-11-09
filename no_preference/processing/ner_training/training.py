@@ -35,14 +35,15 @@ def train_ner(model: Union[str, PathLike], training_data: Dict, output_model: st
     # If not specified otherwise, output onto the starting model
     if output_model is None:
         output_model = model
-    nlp = load_model(model)
-    if nlp is not None:
-        blank_model = False
-        LOGGER.info(f'Loaded existing model {model}')
-    else:
+    try:
+        nlp = load_model(model)
+    except OSError:
         nlp = spacy.blank(lang)
         blank_model = True
         LOGGER.info(f'Created blank model {model}')
+    else:
+        blank_model = False
+        LOGGER.info(f'Loaded existing model {model}')
 
     # create the built-in pipeline components and add them to the pipeline
     # nlp.create_pipe works for built-ins that are registered with spaCy
