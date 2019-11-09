@@ -12,7 +12,7 @@ _POSTS_COLUMNS = ['content', 'date']
 
 
 def get_facebook_posts(facebook_data_dir: str):
-    posts_files = glob(path.join(facebook_data_dir, 'your_posts_*.json'))
+    posts_files = glob(path.join(facebook_data_dir, 'posts', 'your_posts_*.json'))
 
     posts_data = []
     for posts_file in posts_files:
