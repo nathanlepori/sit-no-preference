@@ -4,7 +4,7 @@ import no_preference.datasets.browser_history as browser_history
 from no_preference.datasets.facebook import get_facebook_posts
 from no_preference.datasets.twitter import get_twitter_timeline
 from no_preference.processing.browser_history import load_history
-from no_preference.lib.pyinquirer_menu import prompt, yes_no_question, yes_no_prompt
+from no_preference.lib.pyinquirer_menu import prompt, yes_no_question, yes_no_prompt, datetime_question
 from no_preference.lib.util import get_data_dir, get_logger
 
 LOGGER = get_logger(__name__)
@@ -41,25 +41,21 @@ def get_browser_history_ui(browser: str):
             yes_next=[
                 {
                     'type': 'input',
-                    'name': 'dataset_content_from',
-                    'message': 'From what date and time would you like to retrieve the history content (format: ISO '
-                               '8601, blank for no lower filtering)?',
-                    'filter': 'to_datetime'
-                },
-                {
-                    'type': 'input',
-                    'name': 'dataset_content_to',
-                    'message': 'From what date and time would you like to retrieve the history content (format: ISO '
-                               '8601, blank for no upper filtering)?',
-                    'filter': 'to_datetime'
-                },
-                {
-                    'type': 'input',
                     'name': 'dataset_content_filename',
                     'message': f"Where should the {browser.capitalize()} history content get saved to? If the "
                                "file doesn't exist it will be created, otherwise it will be overwritten.",
                     'validate': 'required'
-                }
+                },
+                datetime_question(
+                    'dataset_content_from',
+                    'From what date and time would you like to retrieve the history content (format: ISO 8601, blank '
+                    'for no lower filtering)?'
+                ),
+                datetime_question(
+                    name='dataset_content_to',
+                    message='To what date and time would you like to retrieve the history content (format: ISO  8601, '
+                            'blank for no upper filtering)?'
+                )
             ]
         ),
     ])
