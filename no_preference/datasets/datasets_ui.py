@@ -127,7 +127,7 @@ def get_facebook_data_ui():
     LOGGER.info(f'Saved dataset to {dataset_filepath}')
 
 
-def run():
+def run(back):
     q_data_sources = {
         'type': 'checkbox',
         'name': 'data_source',

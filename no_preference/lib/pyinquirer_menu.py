@@ -52,6 +52,7 @@ def _replace_named_functions(questions: Questions):
     :return:
     """
     if type(questions) is list:
+        # List of questions, apply function to all
         questions = [_replace_named_functions(question) for question in questions]
     else:
         question = questions
@@ -77,9 +78,8 @@ def _add_back_button(questions: Questions, previous_questions: Questions = None)
     :return:
     """
     if type(questions) is list:
-        # List of questions
-        for q in questions:
-            return _add_back_button(q, previous_questions)
+        # List of questions, apply function to all
+        questions = [_add_back_button(question, previous_questions) for question in questions]
     else:
         # One single question
         question: Dict[str, any] = questions
@@ -115,8 +115,7 @@ def _add_back_button(questions: Questions, previous_questions: Questions = None)
 
             # Append the button to the list of choices
             question['choices'].append(back_choice)
-
-        return question
+    return questions
 
 
 def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = None) -> Next:
@@ -211,6 +210,9 @@ def _call_next(next_: Next, previous_answers: Dict[str, Any], previous_questions
                         return next_(previous_answers)
                     elif 'back' in params:
                         return next_(back)
+                    else:
+                        # Lambda with _ (unused) parameter
+                        return next_(None)
                 elif num_params == 2:
                     return next_(previous_answers, back)
         else:
@@ -229,7 +231,11 @@ def prompt(questions: Questions) -> Dict[str, Any]:
     """
     questions = _replace_named_functions(questions)
     questions = _add_back_button(questions)
+    # Execute standard prompt
     answers = _prompt(questions)
+    # TODO: Check for empty dictionary to see if the user canceled the prompt. Handling KeyboardInterrupt doesn't work
+    # TODO: Afaik it's impossible to know where the user cancelled the prompt when using a list of questions -> use
+    #  first question's 'back' parameter?
     all_answers = {}
     for name, answer in answers.items():
         # Record the question's answer to be passed to the next callback

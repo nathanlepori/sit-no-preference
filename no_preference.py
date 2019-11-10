@@ -32,6 +32,10 @@ def run():
             {
                 'name': 'Show profiling results',
                 'next': gui.run
+            },
+            {
+                'name': 'Exit',
+                'next': lambda _: exit()
             }
         ]
     })

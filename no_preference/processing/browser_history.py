@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Union
 from urllib.parse import urlparse
 
@@ -11,8 +11,7 @@ from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from pandas import DataFrame
 
-from no_preference.lib.util import get_logger
-
+from no_preference.lib.util import get_logger, get_data_dir
 
 SUPPORTED_PROTOCOLS = r'^https?://'
 WEB_CONTENT_EXTENSIONS_PATTERN = r'(\.(aspx?|x?html?|php(3|4)|jspx?))?'
@@ -29,7 +28,8 @@ IRRELEVANT_URL_PATTERNS = [
 
 LOGGER = get_logger(__name__)
 
-requests_cache.install_cache()
+CACHE_EXPIRE_AFTER = timedelta(weeks=1)
+requests_cache.install_cache(cache_name=os.path.join(get_data_dir(), 'cache'), expire_after=CACHE_EXPIRE_AFTER)
 
 
 def _get_url_extension(url: str) -> str:
