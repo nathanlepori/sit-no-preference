@@ -56,7 +56,7 @@ def save_training_data(training_data):
 def train_model_ui():
     base_model_name = data_files_prompt(
         name='base_model_name',
-        message='Select a model to test.',
+        message='Select a model to train.',
         dir_='models',
         allow_custom_file=True,
         custom_file_choice_name='SpaCy built-in or new...',
