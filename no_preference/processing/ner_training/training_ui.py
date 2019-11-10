@@ -104,11 +104,12 @@ def train_model_ui():
               num_iter=a_training['num_iter'])
 
 
-def run():
+def run(back):
     q_training = {
         'type': 'list',
         'name': 'action',
         'message': 'What do you want to do?',
+        'back': back,
         'choices': [
             {
                 'name': 'Get data for annotation',

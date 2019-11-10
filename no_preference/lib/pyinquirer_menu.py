@@ -1,5 +1,6 @@
 import types
 from datetime import datetime
+from functools import partial
 from glob import glob
 from inspect import signature
 from os import path
@@ -68,6 +69,56 @@ def _replace_named_functions(questions: Questions):
     return questions
 
 
+def _add_back_button(questions: Questions, previous_questions: Questions = None):
+    """
+    Adds a back button, if necessary, pointing back to the outer set of questions.
+    :param questions:
+    :param previous_questions:
+    :return:
+    """
+    if type(questions) is list:
+        # List of questions
+        for q in questions:
+            return _add_back_button(q, previous_questions)
+    else:
+        # One single question
+        question: Dict[str, any] = questions
+
+        if question['type'] != 'list' and question['type'] != 'rawlist':
+            # Not supported for non-list questions yet
+            return question
+
+        if 'back' in question:
+            back_name = 'Back...'
+            back = question['back']
+
+            # Grab the name of the back button, if provided
+            if type(back) is str:
+                back_name = back
+            elif type(back) is dict and 'name' in back:
+                # Different caption provided
+                back_name = back['name']
+
+            back_choice = {
+                'name': back_name
+            }
+
+            if previous_questions is None:
+                if callable(back):
+                    # Back provided as function
+                    back_choice['next'] = back
+                elif type(back) is dict:
+                    # Back value provided as dict containing a different caption and 'next'
+                    back_choice['next'] = back['next']
+            else:
+                back_choice['next'] = previous_questions
+
+            # Append the button to the list of choices
+            question['choices'].append(back_choice)
+
+        return question
+
+
 def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = None) -> Next:
     question: Optional[Dict[str, Any]]
     if type(questions) is list:
@@ -122,7 +173,7 @@ def _get_next(questions: Questions, answers: Union[str, List[str]], name: str = 
     return next_
 
 
-def _call_next(next_: Next, previous_answers: Dict[str, Any]):
+def _call_next(next_: Next, previous_answers: Dict[str, Any], previous_questions: Questions):
     if not next_:
         return
     if type(next_) is list:
@@ -132,21 +183,36 @@ def _call_next(next_: Next, previous_answers: Dict[str, Any]):
             # callbacks in the right order
             res = {}
             for n in next_:
-                res[n['name']] = _call_next(n, previous_answers)
+                res[n['name']] = _call_next(n, previous_answers, previous_questions)
         else:
             # A list of functions (or mixed, ⚠ not supported) is provided -> just collect in a list
             res = []
             for n in next_:
-                res.append(_call_next(n, previous_answers))
+                res.append(_call_next(n, previous_answers, previous_questions))
         return res
     else:
-        if isinstance(next_, (types.FunctionType, types.BuiltinFunctionType, types.LambdaType)):
-            num_params = len(signature(next_).parameters)
-            if num_params == 1:
-                # Call next passing the previous answers to the callback
-                return next_(previous_answers)
-            elif num_params == 0:
+        if callable(next_):
+            if isinstance(next_, partial):
+                # Partials behave slightly differently, the remaining arguments are stored in a tuple. signature()
+                # would return the initial function's arguments which is not what we want
+                params = next_.args
+                num_params = len(params)
+            else:
+                params = signature(next_).parameters
+                num_params = len(params)
+            if num_params == 0:
                 return next_()
+            else:
+                # Create back callback with prompt pointing to previous questions
+                back = partial(prompt, questions=previous_questions)
+                if num_params == 1:
+                    if 'previous_answers' in params:
+                        # Call next passing the previous answers to the callback
+                        return next_(previous_answers)
+                    elif 'back' in params:
+                        return next_(back)
+                elif num_params == 2:
+                    return next_(previous_answers, back)
         else:
             # Else call recursively with a new set of questions
             return prompt(next_)
@@ -156,17 +222,20 @@ def prompt(questions: Questions) -> Dict[str, Any]:
     """
     Improved PyInquirer prompt function accepting 'next' key for nested menus, as well as other quality-of-life
     improvements.
+    ⚠ When returning single question answers, the returned dictionary will be simplified to a string. Also works for
+    nested questions.
     :param questions:
     :return:
     """
     questions = _replace_named_functions(questions)
+    questions = _add_back_button(questions)
     answers = _prompt(questions)
     all_answers = {}
     for name, answer in answers.items():
         # Record the question's answer to be passed to the next callback
         all_answers[name] = answer
         next_ = _get_next(questions, answer, name)
-        ret = _call_next(next_, all_answers)
+        ret = _call_next(next_, all_answers, questions)
         if ret:
             # Return both answers from the main question and nested ones
             all_answers[name] = {
